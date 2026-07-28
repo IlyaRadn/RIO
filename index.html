@@ -154,6 +154,33 @@
   .note p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.55}
   .note b{color:var(--ink)}
 
+  /* a11y */
+  :root{color-scheme:light dark}
+  .skip-link{position:absolute;left:12px;top:-52px;z-index:50;background:var(--accent);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:top .15s ease}
+  .skip-link:focus{top:12px}
+  :where(a,button,summary,[tabindex],th,td):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+  /* Backlog */
+  #backlog .board{padding:0}
+  table.bl{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+  table.bl caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  table.bl thead th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:12px 16px;border-bottom:1px solid var(--line-2);z-index:2}
+  table.bl td,table.bl tbody th{padding:10px 16px;vertical-align:top;border-bottom:1px solid var(--line);text-align:left}
+  table.bl tr.epic td{background:var(--surface-2);border-bottom:1px solid var(--line-2)}
+  table.bl .ename{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  table.bl .eid{font-weight:800;color:var(--accent);font-size:12px;background:var(--accent-soft);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+  table.bl .etitle{font-weight:700;font-size:13.5px;color:var(--ink)}
+  table.bl .ejira{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  table.bl .qchip{font-size:10px;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:2px 8px}
+  table.bl .qchip.q3{color:var(--s-c);border:1px solid var(--s-c)}
+  table.bl .qchip.q4{color:var(--q4);border:1px solid var(--q4)}
+  table.bl tbody tr.task:hover{background:var(--surface-2)}
+  table.bl th.tid{font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap;width:1%;font-size:12px}
+  table.bl td.tname{font-weight:600;color:var(--ink);min-width:210px}
+  table.bl td.tdesc{color:var(--ink-2);line-height:1.5;max-width:620px}
+  table.bl td.tdesc:empty::after{content:"—";color:var(--ink-3)}
+
   footer{max-width:1200px;margin:26px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
   @media(max-width:720px){.tiles{grid-template-columns:repeat(2,1fr)}:root{--labelw:186px}}
 </style>
@@ -161,6 +188,7 @@
 </head>
 <body>
 <div class="wrap">
+  <a href="#main" class="skip-link">Перейти к содержанию</a>
   <header class="head">
     <div class="eyebrow"><span class="dot"></span>CIBPREM · Международные переводы · RFC-4113</div>
     <h1>Роадмап на 3 квартал — Агентские расчеты</h1>
@@ -174,6 +202,7 @@
     </div>
   </header>
 
+  <main id="main">
   <div class="tiles">
     <div class="tile"><span class="rail r-demand"></span><div class="k">Спрос (весь проект)</div><div class="v tnum">678</div><div class="u">ЧД · 12 задач + инфра</div></div>
     <div class="tile accent"><span class="rail r-cap"></span><div class="k">Ёмкость на Q3</div><div class="v tnum">207.5</div><div class="u">ЧД, ложится на Спр 2–7</div></div>
@@ -182,10 +211,19 @@
     <div class="tile"><span class="rail r-q4"></span><div class="k">Перенос в Q4</div><div class="v tnum">~522</div><div class="u">+ QA уведомл. и карточек</div></div>
   </div>
 
-  <div class="callout">
-    <span class="ic">⚠️</span>
-    <p><b>Два риска.</b> <span class="rk">1.</span> QA только с Спр 6 и с ограниченным охватом: в Q3 успеваем протестировать <b>только Авторизацию и Раздел «Задачи и заявки»</b>. Тестирование <b>Уведомлений и Карточек заявок переносится в Q4</b> — разработка в Q3, приёмка позже (риск: дефекты всплывут уже в Q4). <span class="rk">2.</span> Ролевая модель (AP_2) идёт <b>последней</b>: фичи Q3 строятся до неё, ролевой доступ временно заглушается → возможны переделки. Разработка Спр 4–5 у предела; QA-фаза Спр 6–7 разгружена.</p>
-  </div>
+  <section id="backlog">
+    <div class="s-head">
+      <h2>Бэклог задач</h2>
+      <div class="s-note">9 эпиков · 24 задачи · Jira CIBPREM · <b style="color:var(--s-c)">Q3</b> — этот квартал, <b style="color:var(--q4)">Q4</b> — следующий</div>
+    </div>
+    <div class="board">
+      <table class="bl">
+        <caption>Полный перечень эпиков и задач проекта «Агентские расчеты»</caption>
+        <thead><tr><th scope="col" class="tid">ID</th><th scope="col">Задача</th></tr></thead>
+        <tbody id="blbody"></tbody>
+      </table>
+    </div>
+  </section>
 
   <section>
     <div class="s-head">
@@ -240,6 +278,8 @@
     </div>
   </section>
 
+  </main>
+
   <footer>Источник: «Список задач.xlsx» → «Агентские расчеты» + приоритеты эпиков AP_1…AP_9 + ресурс-план Q3 (старт Спр 2, QA с Спр 6, Arch/DevOps Спр 2–4, роли — последними). Оценки и ёмкость подлежат подтверждению. Роадмап — план, а не обязательство.</footer>
 </div>
 
@@ -263,7 +303,7 @@
     {type:'plat',name:'Девопс · CI/CD, окружения',meta:'по запросу',s:2,e:4,cd:7},
     {wave:'Разработка и QA · этапы: аналитика (BA/UX) → разработка (BE/FE) → тестирование (QA)',stream:'stage'},
     {type:'feat',name:'Авторизация пользователя',meta:'AP_1 · CIBPREM-1726 · взята в сер. Спр 2',ord:1,devS:2,devE:3,ba:5,dev:12.5,qaS:6,qaE:6,qa:5},
-    {type:'feat',name:'Раздел «Задачи и заявки»',meta:'AP_3 · CIBPREM-1733 · BA с сер. Спр 2, авто-заявки из УОС',ord:2,devS:2,devE:4,ba:21.25,dev:25,qaS:6,qaE:6,qa:12.5},
+    {type:'feat',name:'Раздел «Задачи и заявки»',meta:'AP_3 · CIBPREM-1733 · BA с сер. Спр 2, авто-заявки из УОС',ord:2,devS:2,devE:4,ba:21.25,dev:25,qaS:6,qaE:7,qa:12.5},
     {type:'feat',name:'Уведомления о заявке/задаче',meta:'AP_3.6 · CIBPREM-1733 · тест → Q4',ord:3,devS:4,devE:5,ba:7.5,dev:21.25,qaLater:true,qa:8.75},
     {type:'feat',name:'Карточка заявки: проект ПИ',meta:'AP_4 · CIBPREM-1744 · старт Спр 4 · тест → Q4',ord:4,devS:4,devE:5,ba:10,dev:18.75,qaLater:true,qa:18.75}
   ];
@@ -292,7 +332,7 @@
   });
   gb.innerHTML=html;
 
-  var planInc=[0,26.92,33.92,38.67,38.75,17.5,0];
+  var planInc=[0,26.92,33.92,38.67,38.75,11.25,6.25];
   var full=207.5/5.5, half=full/2;
   var capInc=[0,full,full,full,full,full,half];
   var capCum=[],planCum=[],a=0,b=0;
@@ -339,13 +379,70 @@
     {t:'Отчетность и дашборды',ep:'AP_9 · CIBPREM-1767',cd:118.75},
     {t:'Реализация ролевой модели',ep:'AP_2 · CIBPREM-1729',cd:21.25,type:'roles',pill:'последней'},
     {t:'Администрирование ролей',ep:'AP_2 · CIBPREM-1729',cd:50,type:'roles',pill:'последней'},
-    {t:'Буфер рисков и допущений',ep:'резерв',cd:60}
+    {t:'Резерв на доработки',ep:'буфер',cd:60}
   ];
   document.getElementById('q4').innerHTML=q4.map(function(x){
     var cls=x.type?' '+x.type:'';
     return '<div class="q4card'+cls+'"><div class="t">'+x.t+'</div><div class="ep">'+x.ep+'</div><div class="meta">'+
       (x.pill?'<span class="pill">'+x.pill+'</span>':'<span>Q4 2026</span>')+'<span class="cd">'+x.cd+' ЧД</span></div></div>';
   }).join('');
+
+  // Бэклог задач
+  var epics=[
+    {id:'AP_1',name:'Авторизация',jira:'CIBPREM-1726',q:'Q3',tasks:[
+      {id:'AP_1.1',t:'Авторизация в приложении',d:'Флоу входа в приложение, описание интеграции с SSO, приветственный экран (UI/UX)'},
+      {id:'AP_1.2',t:'Выход из приложения',d:''},
+      {id:'AP_1.3',t:'Инструкция по регистрации в SSO нового приложения',d:''}
+    ]},
+    {id:'AP_3',name:'Раздел «Задачи и заявки»',jira:'CIBPREM-1733',q:'Q3',tasks:[
+      {id:'AP_3.1',t:'Формирование статусной модели',d:'Определение статусов, допустимых переходов и событий, которые их изменяют, создание диаграммы состояний'},
+      {id:'AP_3.2',t:'Просмотр списка задач/заявок',d:'Проектирование структуры раздела с перечнем задач/заявок, сортировка, фильтрация, отображение статусов и источников поступления'},
+      {id:'AP_3.3',t:'Автоматическое создание заявок',d:'Интеграция с УОС, формирование UID, определение источника поступления заявки, возможность ручной корректировки'},
+      {id:'AP_3.3.1',t:'Создание новой ТИ для получения данных из УОС (параметры заявки)',d:'Описание ТИ для получения данных о заявке из опции AXD'},
+      {id:'AP_3.3.2',t:'Создание новой ТИ для получения данных из УОС (изменения статуса)',d:'Описание ТИ для получения актуального статуса заявки'},
+      {id:'AP_3.4',t:'Ручное создание задач',d:'Флоу создания задачи, валидация обязательных полей, генерация UID, сохранение задачи'},
+      {id:'AP_3.5',t:'Назначение исполнителя для задачи/заявки',d:'С учётом ролевой модели'},
+      {id:'AP_3.6',t:'Уведомления пользователю о новой заявке/задаче',d:''}
+    ]},
+    {id:'AP_4',name:'Карточка заявки: раздел с проектом ПИ',jira:'CIBPREM-1744',q:'Q3',tasks:[
+      {id:'AP_4.1',t:'Карточка заявки, раздел с проектом ПИ',d:'Отображение общей информации о заявке, отображение формы ПИ с полями, заполняемыми данными из УОС, возможность ручного редактирования значений полей'},
+      {id:'AP_4.2',t:'Работа с документами',d:'Возможность загрузки/просмотра/удаления пакета документов для заявки с учётом ролевого доступа'}
+    ]},
+    {id:'AP_5',name:'Карточка заявки: раздел с условиями расчётов',jira:'CIBPREM-1751',q:'Q4',tasks:[
+      {id:'AP_5.1',t:'Карточка заявки, раздел с условиями расчётов',d:'Отображение раздела для формирования предложения банка по проведению платежа, заполнение/редактирование необходимых полей, валидация обязательных полей, передача данных в УОС'},
+      {id:'AP_5.2',t:'Создание новой ТИ для передачи данных по условиям расчётов в УОС',d:''}
+    ]},
+    {id:'AP_6',name:'Раздел с журналами запросов/исполнения',jira:'CIBPREM-1756',q:'Q4',tasks:[
+      {id:'AP_6.1',t:'Журнал запросов',d:'Проектирование структуры журнала, ручное создание/редактирование/удаление записей, автоматическое создание записей, реализация алгоритмов расчёта параметров, обновление статусов, фильтрация, поиск'},
+      {id:'AP_6.2',t:'Журнал исполнения',d:'Проектирование структуры журнала, ручное создание/редактирование/удаление записей, автоматическое создание записей, реализация алгоритмов расчёта параметров, обновление статусов, фильтрация, поиск'}
+    ]},
+    {id:'AP_7',name:'Справочники',jira:'CIBPREM-1761',q:'Q4',tasks:[
+      {id:'AP_7.1',t:'Управление справочниками',d:'Проектирование перечня и структуры справочников, редактирование справочников'}
+    ]},
+    {id:'AP_8',name:'Логирование',jira:'CIBPREM-1764',q:'Q4',tasks:[
+      {id:'AP_8.1',t:'История действий пользователя',d:'Проектирование раздела с отображением истории действий пользователей: определение перечня событий и структуры лога, пагинация, фильтры'}
+    ]},
+    {id:'AP_9',name:'Отчётность',jira:'CIBPREM-1767',q:'Q4',tasks:[
+      {id:'AP_9.1',t:'Отчёты',d:'Проектирование отчётов'},
+      {id:'AP_9.2',t:'Дашборды',d:'Проектирование дашбордов'},
+      {id:'AP_9.3',t:'Экспорт данных',d:''}
+    ]},
+    {id:'AP_2',name:'Ролевая модель',jira:'CIBPREM-1729',q:'Q4',tasks:[
+      {id:'AP_2.1',t:'Проектирование ролевой модели',d:'Определение ролей, формирование матрицы доступа к разделам, проверка прав при отображении страницы/совершении действий, скрытие/блокировка недоступных разделов и действий'},
+      {id:'AP_2.2',t:'Админ-страница управления ролями пользователей',d:'Назначение/изменение ролей администратором'}
+    ]}
+  ];
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var blb=document.getElementById('blbody'), bh='';
+  epics.forEach(function(e){
+    bh+='<tr class="epic"><td colspan="2"><div class="ename"><span class="eid">'+e.id+'</span>'+
+        '<span class="etitle">'+esc(e.name)+'</span><span class="ejira">'+e.jira+'</span>'+
+        '<span class="qchip '+(e.q==='Q3'?'q3':'q4')+'">'+e.q+'</span></div></td></tr>';
+    e.tasks.forEach(function(t){
+      bh+='<tr class="task"><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+'</td></tr>';
+    });
+  });
+  blb.innerHTML=bh;
 })();
 </script>
 
