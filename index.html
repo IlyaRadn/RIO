@@ -189,6 +189,10 @@
   .livebar .pulse{flex:none;width:10px;height:10px;border-radius:50%;background:var(--good);animation:pulse 2s infinite}
   @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 55%,transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
   @media (prefers-reduced-motion:reduce){.livebar .pulse{animation:none}}
+  .goalbar{max-width:1200px;margin:0 auto 24px;display:flex;align-items:flex-start;gap:12px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));border-left:4px solid var(--accent);border-radius:12px;padding:13px 17px;font-size:13.5px;color:var(--ink);line-height:1.5}
+  .goalbar .gi{font-size:16px;line-height:1.3;flex:none}
+  .goalbar b{font-weight:700}
+  table.bl .uos-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.03em;color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:6px;padding:1px 6px;margin-left:8px;vertical-align:middle;white-space:nowrap}
   table.bl tr.task.has-desc{cursor:help}
   table.bl tr.task.has-desc .tname{text-decoration:underline dotted var(--ink-3);text-underline-offset:3px}
   .tip{position:fixed;z-index:100;max-width:min(420px,86vw);background:var(--surface);color:var(--ink);border:1px solid var(--line-2);font-size:12.5px;line-height:1.5;padding:11px 14px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.24);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
@@ -226,6 +230,8 @@
   </div>
 
   <div class="livebar"><span class="pulse" aria-hidden="true"></span><span><b>Сейчас в работе:</b> настройка окружения разработчиков</span></div>
+
+  <div class="goalbar"><span class="gi" aria-hidden="true">📌</span><span>Требуется оценка от команды УОС по задачам интеграции.</span></div>
 
   <section id="backlog">
     <div class="s-head">
@@ -414,8 +420,8 @@
       {id:'AP_3.1',t:'Формирование статусной модели',d:'Определение статусов, допустимых переходов и событий, которые их изменяют, создание диаграммы состояний'},
       {id:'AP_3.2',t:'Просмотр списка задач/заявок',d:'Проектирование структуры раздела с перечнем задач/заявок, сортировка, фильтрация, отображение статусов и источников поступления'},
       {id:'AP_3.3',t:'Автоматическое создание заявок',d:'Интеграция с УОС, формирование UID, определение источника поступления заявки, возможность ручной корректировки'},
-      {id:'AP_3.3.1',t:'Создание новой ТИ для получения данных из УОС (параметры заявки)',d:'Описание ТИ для получения данных о заявке из опции AXD'},
-      {id:'AP_3.3.2',t:'Создание новой ТИ для получения данных из УОС (изменения статуса)',d:'Описание ТИ для получения актуального статуса заявки'},
+      {id:'AP_3.3.1',t:'Создание новой ТИ для получения данных из УОС (параметры заявки)',d:'Описание ТИ для получения данных о заявке из опции AXD',uos:true},
+      {id:'AP_3.3.2',t:'Создание новой ТИ для получения данных из УОС (изменения статуса)',d:'Описание ТИ для получения актуального статуса заявки',uos:true},
       {id:'AP_3.4',t:'Ручное создание задач',d:'Флоу создания задачи, валидация обязательных полей, генерация UID, сохранение задачи'},
       {id:'AP_3.5',t:'Назначение исполнителя для задачи/заявки',d:'С учётом ролевой модели'},
       {id:'AP_3.6',t:'Уведомления пользователю о новой заявке/задаче',d:''}
@@ -426,7 +432,7 @@
     ]},
     {id:'AP_5',name:'Карточка заявки: раздел с условиями расчётов',jira:'CIBPREM-1751',q:'Q4',tasks:[
       {id:'AP_5.1',t:'Карточка заявки, раздел с условиями расчётов',d:'Отображение раздела для формирования предложения банка по проведению платежа, заполнение/редактирование необходимых полей, валидация обязательных полей, передача данных в УОС'},
-      {id:'AP_5.2',t:'Создание новой ТИ для передачи данных по условиям расчётов в УОС',d:''}
+      {id:'AP_5.2',t:'Создание новой ТИ для передачи данных по условиям расчётов в УОС',d:'',uos:true}
     ]},
     {id:'AP_6',name:'Раздел с журналами запросов/исполнения',jira:'CIBPREM-1756',q:'Q4',tasks:[
       {id:'AP_6.1',t:'Журнал запросов',d:'Проектирование структуры журнала, ручное создание/редактирование/удаление записей, автоматическое создание записей, реализация алгоритмов расчёта параметров, обновление статусов, фильтрация, поиск'},
@@ -460,7 +466,8 @@
         '<span class="st-chip '+sc.c+'">'+sc.l+'</span></div></td></tr>';
     e.tasks.forEach(function(t){
       var attrs=t.d?(' has-desc" data-id="'+t.id+'" data-desc="'+escA(t.d)+'"'):'"';
-      bh+='<tr class="task'+attrs+'><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+'</td>'+
+      bh+='<tr class="task'+attrs+'><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+
+          (t.uos?' <span class="uos-tag">УОС · оценка</span>':'')+'</td>'+
           '<td class="tstatus"><span class="st-chip '+sc.c+'">'+sc.l+'</span></td></tr>';
     });
   });
