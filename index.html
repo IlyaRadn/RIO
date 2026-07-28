@@ -180,6 +180,11 @@
   table.bl td.tname{font-weight:600;color:var(--ink);min-width:210px}
   table.bl td.tdesc{color:var(--ink-2);line-height:1.5;max-width:620px}
   table.bl td.tdesc:empty::after{content:"—";color:var(--ink-3)}
+  table.bl tr.task.has-desc{cursor:help}
+  table.bl tr.task.has-desc .tname{text-decoration:underline dotted var(--ink-3);text-underline-offset:3px}
+  .tip{position:fixed;z-index:100;max-width:min(420px,86vw);background:var(--surface);color:var(--ink);border:1px solid var(--line-2);font-size:12.5px;line-height:1.5;padding:11px 14px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.24);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
+  .tip.show{opacity:1;transform:translateY(0)}
+  .tip .tip-id{display:block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.03em;margin-bottom:4px;font-variant-numeric:tabular-nums}
 
   footer{max-width:1200px;margin:26px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
   @media(max-width:720px){.tiles{grid-template-columns:repeat(2,1fr)}:root{--labelw:186px}}
@@ -227,7 +232,7 @@
 
   <section>
     <div class="s-head">
-      <h2>План по спринтам</h2>
+      <h2>План по спринтам — 3 квартал</h2>
       <div class="legend">
         <span class="li"><span class="swatch" style="background:var(--st-ba)"></span>Аналитика · BA/UX</span>
         <span class="li"><span class="swatch" style="background:var(--s-c)"></span>Разработка · BE/FE</span>
@@ -433,16 +438,25 @@
     ]}
   ];
   function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function escA(s){return esc(s).replace(/"/g,'&quot;');}
   var blb=document.getElementById('blbody'), bh='';
   epics.forEach(function(e){
     bh+='<tr class="epic"><td colspan="2"><div class="ename"><span class="eid">'+e.id+'</span>'+
         '<span class="etitle">'+esc(e.name)+'</span><span class="ejira">'+e.jira+'</span>'+
         '<span class="qchip '+(e.q==='Q3'?'q3':'q4')+'">'+e.q+'</span></div></td></tr>';
     e.tasks.forEach(function(t){
-      bh+='<tr class="task"><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+'</td></tr>';
+      var attrs=t.d?(' has-desc" data-id="'+t.id+'" data-desc="'+escA(t.d)+'"'):'"';
+      bh+='<tr class="task'+attrs+'><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+'</td></tr>';
     });
   });
-  blb.innerHTML=bh;
+  if(blb){
+    blb.innerHTML=bh;
+    var tipEl=document.createElement('div');tipEl.className='tip';tipEl.setAttribute('role','tooltip');document.body.appendChild(tipEl);
+    var moveTip=function(e){var pad=14,w=tipEl.offsetWidth,h=tipEl.offsetHeight,x=e.clientX+pad,y=e.clientY+pad;if(x+w>window.innerWidth-8)x=Math.max(8,e.clientX-w-pad);if(y+h>window.innerHeight-8)y=Math.max(8,e.clientY-h-pad);tipEl.style.left=x+'px';tipEl.style.top=y+'px';};
+    blb.addEventListener('mouseover',function(e){var tr=e.target.closest('tr.task');if(tr&&tr.getAttribute('data-desc')){tipEl.innerHTML='<span class="tip-id">'+tr.getAttribute('data-id')+'</span>';tipEl.appendChild(document.createTextNode(tr.getAttribute('data-desc')));tipEl.classList.add('show');moveTip(e);}else{tipEl.classList.remove('show');}});
+    blb.addEventListener('mousemove',function(e){if(tipEl.classList.contains('show'))moveTip(e);});
+    blb.addEventListener('mouseleave',function(){tipEl.classList.remove('show');});
+  }
 })();
 </script>
 
