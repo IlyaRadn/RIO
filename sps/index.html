@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Рабочее место сотрудника СПС — эпики и бизнес-бэклог">
+<title>Рабочее место сотрудника СПС — Планирование работ</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef2f0;
+    --ink:#161b24; --ink-2:#556074; --ink-3:#8a94a6;
+    --line:#e0e6ef; --line-2:#cdd6e3; --accent:#2f9e6e; --accent-soft:#e2f3ec;
+    --good:#2f9e6e; --muted:#9aa6b8; --warn:#c98a12; --info:#3b5bdb; --rev:#7c6bd6;
+    --shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06);
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0d1016;--surface:#151a22;--surface-2:#1a2420;--ink:#e9edf4;--ink-2:#a3adbe;--ink-3:#6b7688;
+      --line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35)}
+  }
+  :root[data-theme="light"]{--bg:#f5f7fa;--surface:#ffffff;--surface-2:#eef2f0;--ink:#161b24;--ink-2:#556074;--ink-3:#8a94a6;--line:#e0e6ef;--line-2:#cdd6e3;--accent:#2f9e6e;--accent-soft:#e2f3ec;--good:#2f9e6e;--muted:#9aa6b8;--warn:#c98a12;--info:#3b5bdb;--rev:#7c6bd6;--shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06)}
+  :root[data-theme="dark"]{--bg:#0d1016;--surface:#151a22;--surface-2:#1a2420;--ink:#e9edf4;--ink-2:#a3adbe;--ink-3:#6b7688;--line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35)}
+
+  *{box-sizing:border-box} body{margin:0}
+  .wrap{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:34px clamp(16px,4vw,56px) 72px;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .tnum{font-variant-numeric:tabular-nums}
+  .skip-link{position:absolute;left:12px;top:-52px;z-index:50;background:var(--accent);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:top .15s ease}
+  .skip-link:focus{top:12px}
+  :where(a,th,td):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  .topnav{max-width:1080px;margin:0 auto 18px}
+  .topnav a{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:color .12s,border-color .12s}
+  .topnav a:hover{color:var(--accent);border-color:var(--accent)}
+
+  header.head{max-width:1080px;margin:0 auto 26px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;align-items:center;margin-bottom:12px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1{font-size:clamp(26px,3.6vw,40px);line-height:1.08;margin:0 0 10px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+  .sub{color:var(--ink-2);font-size:clamp(14px,1.4vw,16px);max-width:64ch;margin:0}
+
+  .tiles{max-width:1080px;margin:22px auto 30px;display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .tile .rail{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .tile.mut .rail{background:var(--muted)} .tile.warn .rail{background:var(--warn)}
+  .tile .k{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+  .tile .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:8px;line-height:1}
+  .tile .u{font-size:12px;color:var(--ink-2);margin-top:6px}
+
+  section{max-width:1080px;margin:0 auto 34px}
+  .s-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px}
+  h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
+  .s-note{font-size:13px;color:var(--ink-2)}
+
+  .streams{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+  .stream{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 22px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .stream .bar{position:absolute;left:0;top:0;right:0;height:4px;background:var(--accent)}
+  .stream .rfc{font-size:11.5px;font-weight:700;letter-spacing:.03em;color:var(--accent);font-variant-numeric:tabular-nums}
+  .stream h3{font-size:17px;font-weight:700;margin:8px 0 6px;line-height:1.25}
+  .stream .d{font-size:13px;color:var(--ink-2);margin-bottom:16px}
+  .stream .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .epiclink{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line-2);display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;align-self:flex-start}
+  .epiclink:hover{text-decoration:underline}
+
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:4px 11px;white-space:nowrap}
+  .chip .pt{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+  .chip.work{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+  .chip.soglas,.chip.note{color:var(--warn);background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+  .chip.plan{color:var(--info);background:color-mix(in srgb,var(--info) 12%,transparent);border:1px solid color-mix(in srgb,var(--info) 40%,transparent)}
+  .chip.review{color:var(--rev);background:color-mix(in srgb,var(--rev) 14%,transparent);border:1px solid color-mix(in srgb,var(--rev) 45%,transparent)}
+  .chip.pause,.chip.backlog{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+
+  .board{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .board-head{background:var(--accent-soft);border-bottom:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));padding:11px 16px;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+  .board-head b{color:var(--accent);font-variant-numeric:tabular-nums}
+  .board-scroll{overflow-x:auto}
+  table.bl{width:100%;border-collapse:collapse;min-width:660px;font-size:13px}
+  table.bl caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  table.bl thead th{text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:12px 16px;border-bottom:1px solid var(--line-2)}
+  table.bl td,table.bl tbody th{padding:13px 16px;vertical-align:top;border-bottom:1px solid var(--line);text-align:left}
+  table.bl tbody tr:last-child td,table.bl tbody tr:last-child th{border-bottom:0}
+  table.bl tbody tr:hover{background:var(--surface-2)}
+  table.bl .num{font-weight:800;color:var(--accent);width:1%;font-variant-numeric:tabular-nums}
+  table.bl .tname{font-weight:600;color:var(--ink);min-width:200px}
+  table.bl .rfc{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.bl .tstatus{width:1%}
+  table.bl .cmt{color:var(--ink-2);line-height:1.5;max-width:440px}
+  .cstat{display:flex;flex-direction:column;gap:7px}
+  .cstat .row{display:flex;align-items:center;gap:9px}
+  .cstat .cn{font-size:11px;font-weight:700;color:var(--ink-3);min-width:46px;text-transform:uppercase;letter-spacing:.03em}
+
+  footer{max-width:1080px;margin:28px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
+
+  @media (max-width:760px){
+    .streams{grid-template-columns:1fr}
+    table.bl{min-width:0}
+    table.bl .tname{min-width:0}
+    table.bl .cmt{white-space:normal}
+  }
+  @media (max-width:480px){.tiles{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="#main" class="skip-link">Перейти к содержанию</a>
+  <nav class="topnav"><a href="../">← Все проекты</a></nav>
+  <header class="head">
+    <div class="eyebrow"><span class="dot"></span>Планирование работы · КИБ Премиум</div>
+    <h1>Рабочее место сотрудника СПС</h1>
+    <p class="sub">Непроектная деятельность СПС: развитие рабочего места и текущие доработки. Эпики и бизнес-бэклог со статусами.</p>
+  </header>
+
+  <main id="main">
+    <div class="tiles">
+      <div class="tile"><span class="rail"></span><div class="k">Эпики</div><div class="v tnum">2</div><div class="u">RFC-622 · RFC-4509</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Бэклог RFC-622</div><div class="v tnum">3</div><div class="u">задачи</div></div>
+      <div class="tile warn"><span class="rail"></span><div class="k">Ключевая зависимость</div><div class="v">Edna</div><div class="u">чат · на согласовании</div></div>
+    </div>
+
+    <section>
+      <h2>Эпики</h2>
+      <div class="streams">
+        <div class="stream">
+          <span class="bar" aria-hidden="true"></span>
+          <div class="rfc">RFC-622</div>
+          <h3>Рабочее место СПС</h3>
+          <div class="d">Вне проекта</div>
+          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span></div>
+          <a class="epiclink" href="#bl622">Бэклог: 3 задачи ↓</a>
+        </div>
+        <div class="stream">
+          <span class="bar" aria-hidden="true"></span>
+          <div class="rfc">RFC-4509</div>
+          <h3>Развитие СПС</h3>
+          <div class="d">Текущая деятельность</div>
+          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span><span class="chip note">ПреБА</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="s-head">
+        <h2>Business Backlog</h2>
+        <div class="s-note">задачи привязаны к эпику RFC-622</div>
+      </div>
+      <div class="board" id="bl622">
+        <div class="board-head">Эпик <b>RFC-622</b> · Рабочее место СПС</div>
+        <div class="board-scroll">
+          <table class="bl">
+            <caption>Бизнес-бэклог эпика RFC-622</caption>
+            <thead><tr><th class="num">#</th><th>Задача</th><th>RFC</th><th>Статус</th><th>Комментарий</th></tr></thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="num">1</th>
+                <td class="tname">Интеграция чата Edna</td>
+                <td class="rfc">RFC-2598</td>
+                <td class="tstatus">
+                  <div class="cstat">
+                    <div class="row"><span class="cn">BPM</span><span class="chip work"><span class="pt"></span>В работе</span></div>
+                    <div class="row"><span class="cn">СДБО</span><span class="chip plan"><span class="pt"></span>Старт 17.08</span></div>
+                    <div class="row"><span class="cn">Edna</span><span class="chip soglas"><span class="pt"></span>На согласовании</span></div>
+                  </div>
+                </td>
+                <td class="cmt">Отв.: Петушок А.И., Лемеш Н.А.</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">2</th>
+                <td class="tname">Изменение логики полей BPM</td>
+                <td class="rfc">RFC-4508</td>
+                <td class="tstatus"><span class="chip pause"><span class="pt"></span>На паузе</span></td>
+                <td class="cmt">Старт после Edna</td>
+              </tr>
+              <tr>
+                <th scope="row" class="num">3</th>
+                <td class="tname">Поиск клиента по номеру телефона</td>
+                <td class="rfc">RFC-4452</td>
+                <td class="tstatus"><span class="chip review"><span class="pt"></span>Review</span></td>
+                <td class="cmt">Ожидание приёмочного тестирования</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Источник: статус-встреча «КИБ Премиум: СПС и UPremium» · 23.07.2026 (слайд «Непроектная деятельность СПС»). Статусы актуальны на дату встречи.</footer>
+</div>
+</body>
+</html>

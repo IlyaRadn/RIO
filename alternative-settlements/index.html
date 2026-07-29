@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Роадмап 3 квартала — Рабочее место сотрудника: Альтернативные расчеты">
+<title>Рабочее место сотрудника: Альтернативные расчеты — Роадмап Q3</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef1f7; --surface-3:#e7ecf4;
+    --ink:#161b24; --ink-2:#556074; --ink-3:#8a94a6;
+    --line:#e0e6ef; --line-2:#cdd6e3;
+    --accent:#3b5bdb; --accent-soft:#e8ecfb;
+    --s-a:#64748b; --s-b:#3b5bdb; --s-c:#0d9488; --s-d:#c98a12; --st-ba:#8a76d6;
+    --good:#2f9e6e; --warn:#d99400; --crit:#d6455f;
+    --q4:#9aa6b8; --q4-bg:#eef1f5;
+    --shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0d1016; --surface:#151a22; --surface-2:#1c222c; --surface-3:#232b37;
+      --ink:#e9edf4; --ink-2:#a3adbe; --ink-3:#6b7688;
+      --line:#28303c; --line-2:#333d4c; --accent:#7089f2; --accent-soft:#1e2740;
+      --s-a:#93a1b5; --s-b:#7089f2; --s-c:#33b6a6; --s-d:#e0a83a; --st-ba:#a294ec;
+      --good:#3bb57e; --warn:#e2a92f; --crit:#e56377; --q4:#7a8699; --q4-bg:#1b212b;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef1f7; --surface-3:#e7ecf4;
+    --ink:#161b24; --ink-2:#556074; --ink-3:#8a94a6; --line:#e0e6ef; --line-2:#cdd6e3;
+    --accent:#3b5bdb; --accent-soft:#e8ecfb; --s-a:#64748b; --s-b:#3b5bdb; --s-c:#0d9488; --s-d:#c98a12; --st-ba:#8a76d6;
+    --good:#2f9e6e; --warn:#d99400; --crit:#d6455f; --q4:#9aa6b8; --q4-bg:#eef1f5;
+    --shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06);
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1016; --surface:#151a22; --surface-2:#1c222c; --surface-3:#232b37;
+    --ink:#e9edf4; --ink-2:#a3adbe; --ink-3:#6b7688; --line:#28303c; --line-2:#333d4c;
+    --accent:#7089f2; --accent-soft:#1e2740; --s-a:#93a1b5; --s-b:#7089f2; --s-c:#33b6a6; --s-d:#e0a83a; --st-ba:#a294ec;
+    --good:#3bb57e; --warn:#e2a92f; --crit:#e56377; --q4:#7a8699; --q4-bg:#1b212b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box} body{margin:0}
+  .wrap{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:34px clamp(16px,4vw,56px) 72px;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .tnum{font-variant-numeric:tabular-nums}
+
+  header.head{max-width:1200px;margin:0 auto 22px}
+  .topnav{max-width:1200px;margin:0 auto 18px}
+  .topnav a{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:color .12s,border-color .12s}
+  .topnav a:hover{color:var(--accent);border-color:var(--accent)}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;align-items:center;margin-bottom:12px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1{font-size:clamp(26px,3.6vw,40px);line-height:1.08;margin:0 0 10px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+  .sub{color:var(--ink-2);font-size:clamp(14px,1.4vw,16px);max-width:72ch;margin:0}
+  .chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+  .chip{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);padding:6px 12px;border-radius:999px;box-shadow:var(--shadow)}
+  .chip b{color:var(--ink);font-weight:600}
+  .chip .cd{width:7px;height:7px;border-radius:50%}
+
+  .tiles{max-width:1200px;margin:22px auto 26px;display:grid;gap:14px;grid-template-columns:repeat(5,1fr)}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .tile .k{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+  .tile .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:8px;line-height:1}
+  .tile .u{font-size:12px;color:var(--ink-2);margin-top:6px;line-height:1.35}
+  .tile.accent{background:linear-gradient(180deg,var(--accent-soft),var(--surface))}
+  .tile .rail{position:absolute;left:0;top:0;bottom:0;width:4px}
+  .r-demand{background:var(--crit)} .r-cap{background:var(--accent)} .r-plan{background:var(--s-c)} .r-buf{background:var(--good)} .r-q4{background:var(--q4)}
+
+  section{max-width:1200px;margin:0 auto 34px}
+  .s-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 16px;flex-wrap:wrap}
+  h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
+  .s-note{font-size:13px;color:var(--ink-2)}
+  .legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+  .legend .li{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+  .callout{max-width:1200px;margin:0 auto 24px;display:flex;gap:13px;align-items:flex-start;background:color-mix(in srgb,var(--warn) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-left:4px solid var(--warn);border-radius:12px;padding:14px 17px}
+  .callout .ic{font-size:16px;line-height:1.3}
+  .callout p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.55}
+  .callout b{font-weight:700} .callout .rk{color:var(--crit);font-weight:700}
+
+  .board{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+  .gantt{min-width:900px}
+  :root{--labelw:288px}
+  .g-head{display:grid;grid-template-columns:var(--labelw) repeat(7,1fr);border-bottom:1px solid var(--line-2);position:sticky;top:0;background:var(--surface);z-index:2}
+  .g-head .corner{padding:14px 16px;font-size:12px;font-weight:600;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:flex-end}
+  .g-head .sp{padding:10px 8px;border-left:1px solid var(--line);text-align:center;position:relative}
+  .g-head .sp.ramp{background:repeating-linear-gradient(135deg,transparent,transparent 6px,var(--surface-2) 6px,var(--surface-2) 12px)}
+  .g-head .sp.qaz{background:color-mix(in srgb,var(--s-d) 9%,transparent)}
+  .g-head .sp .n{font-size:13px;font-weight:700;color:var(--ink)}
+  .g-head .sp .d{font-size:10.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap}
+  .g-head .sp .tag{font-size:9.5px;font-weight:700;letter-spacing:.03em;margin-top:3px;text-transform:uppercase}
+  .g-head .sp.ramp .tag{color:var(--ink-3)} .g-head .sp.qaz .tag{color:var(--s-d)}
+
+  .g-row{display:grid;grid-template-columns:var(--labelw) repeat(7,1fr);border-bottom:1px solid var(--line);min-height:46px;align-items:center}
+  .g-row:hover{background:var(--surface-2)}
+  .g-lab{padding:9px 16px;display:flex;flex-direction:column;gap:2px}
+  .g-lab .t{font-size:13.5px;font-weight:600;line-height:1.25}
+  .g-lab .m{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  .g-track{grid-column:2 / span 7;display:grid;grid-template-columns:repeat(7,1fr);position:relative;height:100%}
+  .g-cell{border-left:1px solid var(--line);height:100%}
+  .g-cell.r1{background:repeating-linear-gradient(135deg,transparent,transparent 7px,var(--surface-2) 7px,var(--surface-2) 14px)}
+  .bar{align-self:center;height:26px;border-radius:7px;display:flex;align-items:center;gap:8px;padding:0 10px;font-size:12px;font-weight:600;color:#fff;position:relative;z-index:1;margin:0 4px;box-shadow:0 1px 3px rgba(0,0,0,.16);white-space:nowrap;overflow:hidden}
+  .bar .ord{font-weight:800;font-size:11px;background:rgba(255,255,255,.24);border-radius:5px;padding:1px 6px}
+  .bar .cd{font-weight:700;font-variant-numeric:tabular-nums;opacity:.94}
+  .bar .ph{opacity:.9;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+  .bar.platform{background:var(--s-a);height:20px;opacity:.9}
+  .wbar,.qbar{align-self:center;height:26px;border-radius:7px;margin:0 4px;position:relative;z-index:1;box-shadow:0 1px 3px rgba(0,0,0,.16);overflow:hidden}
+  .wbar{display:flex}
+  .wbar .seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;min-width:0;overflow:hidden;white-space:nowrap}
+  .wbar .seg.ba{background:var(--st-ba)} .wbar .seg.dev{background:var(--s-c)}
+  .wbar .ord{position:absolute;left:5px;top:50%;transform:translateY(-50%);z-index:3;background:rgba(0,0,0,.32);border-radius:5px;padding:1px 6px;font-size:11px;font-weight:800;color:#fff}
+  .qbar{background:var(--s-d);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em}
+  .qlater{align-self:center;height:26px;border-radius:7px;margin:0 4px;border:1.5px dashed var(--s-d);color:var(--s-d);background:color-mix(in srgb,var(--s-d) 9%,transparent);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;letter-spacing:.02em}
+
+  .wave-band{grid-column:1 / -1;background:var(--surface-2);padding:7px 16px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+  .wave-band .sw{width:9px;height:9px;border-radius:2px}
+
+  .grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:22px}
+  @media(max-width:880px){.grid2{grid-template-columns:1fr}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 4px;font-size:15px;font-weight:700}
+  .card .cap{font-size:12.5px;color:var(--ink-2);margin:0 0 16px}
+  .burn-legend{display:flex;gap:18px;font-size:12px;color:var(--ink-2);margin-top:12px;flex-wrap:wrap}
+  .burn-legend .li{display:inline-flex;align-items:center;gap:7px}
+  .burn-legend .ln{width:16px;height:0;border-top:3px solid;border-radius:2px}
+
+  .disc{display:flex;flex-direction:column;gap:13px}
+  .disc .row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center}
+  .disc .dn{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+  .disc .track{height:20px;background:var(--surface-2);border-radius:6px;overflow:hidden;display:flex}
+  .disc .seg-q3{height:100%;background:var(--accent)}
+  .disc .seg-q4{height:100%;background:color-mix(in srgb,var(--accent) 26%,transparent)}
+  .disc .val{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);min-width:44px;text-align:right}
+  .disc-leg{display:flex;gap:16px;font-size:11.5px;color:var(--ink-2);margin:2px 0 14px}
+  .disc-leg span{display:inline-flex;align-items:center;gap:6px}
+  .disc-leg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .disc-leg .l3{background:var(--accent)} .disc-leg .l4{background:color-mix(in srgb,var(--accent) 26%,transparent)}
+
+  .q4grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:13px}
+  .q4card{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--q4);border-radius:11px;padding:13px 15px;box-shadow:var(--shadow)}
+  .q4card .t{font-size:13.5px;font-weight:600;line-height:1.3;margin-bottom:4px}
+  .q4card .ep{font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-bottom:9px}
+  .q4card .meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink-2)}
+  .q4card .cd{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .q4card.enabler{border-left-color:var(--warn)} .q4card.moved{border-left-color:var(--s-c)} .q4card.roles{border-left-color:var(--crit)}
+  .q4card .pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:2px 7px}
+  .q4card.enabler .pill{color:var(--warn);border:1px solid var(--warn)}
+  .q4card.moved .pill{color:var(--s-c);border:1px solid var(--s-c)}
+  .q4card.roles .pill{color:var(--crit);border:1px solid var(--crit)}
+
+  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .note{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+  .note .nt{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+  .note p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.55}
+  .note b{color:var(--ink)}
+
+  /* a11y */
+  :root{color-scheme:light dark}
+  .skip-link{position:absolute;left:12px;top:-52px;z-index:50;background:var(--accent);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:top .15s ease}
+  .skip-link:focus{top:12px}
+  :where(a,button,summary,[tabindex],th,td):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+  /* Backlog */
+  #backlog .board{padding:0}
+  table.bl{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+  table.bl caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  table.bl thead th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:12px 16px;border-bottom:1px solid var(--line-2);z-index:2}
+  table.bl td,table.bl tbody th{padding:10px 16px;vertical-align:top;border-bottom:1px solid var(--line);text-align:left}
+  table.bl tr.epic td{background:var(--surface-2);border-bottom:1px solid var(--line-2)}
+  table.bl .ename{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  table.bl .eid{font-weight:800;color:var(--accent);font-size:12px;background:var(--accent-soft);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+  table.bl .etitle{font-weight:700;font-size:13.5px;color:var(--ink)}
+  table.bl .ejira{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  table.bl .qchip{font-size:10px;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:2px 8px}
+  table.bl .qchip.q3{color:var(--s-c);border:1px solid var(--s-c)}
+  table.bl .qchip.q4{color:var(--q4);border:1px solid var(--q4)}
+  table.bl tbody tr.task:hover{background:var(--surface-2)}
+  table.bl th.tid{font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap;width:1%;font-size:12px}
+  table.bl td.tname{font-weight:600;color:var(--ink);min-width:210px}
+  table.bl td.tdesc{color:var(--ink-2);line-height:1.5;max-width:620px}
+  table.bl td.tdesc:empty::after{content:"—";color:var(--ink-3)}
+  table.bl td.tstatus{white-space:nowrap;width:1%}
+  table.bl .st-chip{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  table.bl .st-chip.backlog{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  table.bl .st-chip.analysis{color:var(--st-ba);background:color-mix(in srgb,var(--st-ba) 13%,transparent);border:1px solid color-mix(in srgb,var(--st-ba) 45%,transparent)}
+  .livebar{max-width:1200px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;background:color-mix(in srgb,var(--good) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 38%,var(--line));border-left:4px solid var(--good);border-radius:12px;padding:12px 17px;font-size:13.5px;color:var(--ink)}
+  .livebar b{font-weight:700}
+  .livebar .pulse{flex:none;width:10px;height:10px;border-radius:50%;background:var(--good);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 55%,transparent)}70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media (prefers-reduced-motion:reduce){.livebar .pulse{animation:none}}
+  .goalbar{max-width:1200px;margin:0 auto 24px;display:flex;align-items:flex-start;gap:12px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));border-left:4px solid var(--accent);border-radius:12px;padding:13px 17px;font-size:13.5px;color:var(--ink);line-height:1.5}
+  .goalbar .gi{font-size:16px;line-height:1.3;flex:none}
+  .goalbar b{font-weight:700}
+  table.bl .uos-tag{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.03em;color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:6px;padding:1px 6px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+  table.bl tr.task.has-desc{cursor:help}
+  table.bl tr.task.has-desc .tname{text-decoration:underline dotted var(--ink-3);text-underline-offset:3px}
+  .tip{position:fixed;z-index:100;max-width:min(420px,86vw);background:var(--surface);color:var(--ink);border:1px solid var(--line-2);font-size:12.5px;line-height:1.5;padding:11px 14px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.24);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
+  .tip.show{opacity:1;transform:translateY(0)}
+  .tip .tip-id{display:block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.03em;margin-bottom:4px;font-variant-numeric:tabular-nums}
+
+  footer{max-width:1200px;margin:26px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
+  .board{-webkit-overflow-scrolling:touch}
+
+  /* Планшет */
+  @media (max-width:900px){
+    .wrap{padding:26px clamp(14px,3.2vw,30px) 56px}
+    section{margin-bottom:28px}
+    .card{padding:18px}
+    h2{font-size:18px}
+    .grid2{gap:16px}
+  }
+  /* Малый планшет / крупный телефон */
+  @media (max-width:720px){
+    .wrap{padding:22px 14px 48px}
+    .tiles{grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:22px}
+    .tile{padding:14px}
+    .tile .v{font-size:24px}
+    .chips{gap:7px}
+    .chip{font-size:12px;padding:5px 10px}
+    .livebar,.goalbar{font-size:13px;padding:11px 14px;margin-bottom:20px}
+    :root{--labelw:150px}
+    .gantt{min-width:740px}
+    .s-head{gap:8px}
+    /* Бэклог помещается по ширине, без горизонтальной прокрутки */
+    table.bl{min-width:0;font-size:12.5px}
+    table.bl thead th,table.bl td,table.bl tbody th{padding:9px 12px}
+    table.bl td.tname{min-width:0}
+    table.bl .st-chip{white-space:normal}
+    table.bl .uos-tag{margin-left:6px}
+  }
+  /* Телефон */
+  @media (max-width:480px){
+    .wrap{padding:18px 12px 44px}
+    h1{font-size:clamp(21px,7vw,26px)}
+    .sub{font-size:14px}
+    .tiles{grid-template-columns:repeat(2,1fr);gap:9px}
+    .tile{padding:12px}
+    .tile .v{font-size:21px}
+    .tile .u{font-size:11px}
+    .legend{gap:9px;font-size:11.5px}
+    .card{padding:15px}
+    .card h3{font-size:14.5px}
+    table.bl thead th,table.bl td,table.bl tbody th{padding:8px 10px}
+    table.bl .eid{font-size:11px}
+    table.bl .etitle{font-size:12.5px}
+    table.bl .ejira{font-size:10px}
+    .disc .row{grid-template-columns:44px 1fr auto;gap:9px}
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <a href="#main" class="skip-link">Перейти к содержанию</a>
+  <nav class="topnav"><a href="../">← Все проекты</a></nav>
+  <header class="head">
+    <div class="eyebrow"><span class="dot"></span>Планирование работы · CIBPREM · RFC-4113</div>
+    <h1>Рабочее место сотрудника: Альтернативные расчеты</h1>
+    <p class="sub">План по 7 спринтам. Очередность — по приоритету эпиков (AP_1 → AP_9); ролевая модель вынесена в самый конец. Старт разработки со Спринта 2, QA с Спринта 6, архитектура и DevOps — по запросу на Спр 2–4.</p>
+    <div class="chips">
+      <span class="chip"><span class="cd" style="background:var(--ink-3)"></span><b>Спр 1</b> — разгон</span>
+      <span class="chip"><span class="cd" style="background:var(--s-b)"></span>Порядок: <b>приоритет AP_1→AP_9</b></span>
+      <span class="chip"><span class="cd" style="background:var(--crit)"></span>Ролевая модель — <b>последней</b></span>
+      <span class="chip"><span class="cd" style="background:var(--s-d)"></span>QA <b>с Спр 6</b></span>
+      <span class="chip"><span class="cd" style="background:var(--s-a)"></span>Arch/DevOps <b>Спр 2–4</b></span>
+    </div>
+  </header>
+
+  <main id="main">
+  <div class="tiles">
+    <div class="tile"><span class="rail r-demand"></span><div class="k">Спрос (весь проект)</div><div class="v tnum">678</div><div class="u">ЧД · 12 задач + инфра</div></div>
+    <div class="tile accent"><span class="rail r-cap"></span><div class="k">Ёмкость на Q3</div><div class="v tnum">207.5</div><div class="u">ЧД, ложится на Спр 2–7</div></div>
+    <div class="tile"><span class="rail r-plan"></span><div class="k">План Q3</div><div class="v tnum">~156</div><div class="u">разработка 4 фич; QA — 2 из них</div></div>
+    <div class="tile"><span class="rail r-buf"></span><div class="k">Буфер</div><div class="v tnum">~52</div><div class="u">QA-фаза Q3 разгружена</div></div>
+    <div class="tile"><span class="rail r-q4"></span><div class="k">Перенос в Q4</div><div class="v tnum">~522</div><div class="u">+ QA уведомл. и карточек</div></div>
+  </div>
+
+  <div class="livebar"><span class="pulse" aria-hidden="true"></span><span><b>Сейчас в работе:</b> настройка окружения разработчиков</span></div>
+
+  <div class="goalbar"><span class="gi" aria-hidden="true">📌</span><span>Требуется оценка от команды УОС по задачам интеграции.</span></div>
+
+  <section id="backlog">
+    <div class="s-head">
+      <h2>Бэклог задач</h2>
+      <div class="s-note">9 эпиков · 24 задачи · Jira CIBPREM · <b style="color:var(--s-c)">Q3</b> — этот квартал, <b style="color:var(--q4)">Q4</b> — следующий</div>
+    </div>
+    <div class="board">
+      <table class="bl">
+        <caption>Полный перечень эпиков и задач проекта «Рабочее место сотрудника: Альтернативные расчеты»</caption>
+        <thead><tr><th scope="col" class="tid">ID</th><th scope="col">Задача</th><th scope="col">Статус</th></tr></thead>
+        <tbody id="blbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="s-head">
+      <h2>План по спринтам — 3 квартал</h2>
+      <div class="legend">
+        <span class="li"><span class="swatch" style="background:var(--st-ba)"></span>Аналитика · BA/UX</span>
+        <span class="li"><span class="swatch" style="background:var(--s-c)"></span>Разработка · BE/FE</span>
+        <span class="li"><span class="swatch" style="background:var(--s-d)"></span>Тестирование · QA</span>
+        <span class="li"><span class="swatch" style="background:var(--s-a)"></span>Платформа</span>
+      </div>
+    </div>
+    <div class="board">
+      <div class="gantt"><div class="g-head" id="ghead"></div><div id="gbody"></div></div>
+    </div>
+    <div class="s-note" style="margin-top:12px">Каждая фича разбита на этапы: <b style="color:var(--st-ba)">аналитика (BA/UX)</b> → <b style="color:var(--s-c)">разработка (BE/FE)</b> → <b style="color:var(--s-d)">тестирование (QA)</b>. В Q3 QA-блок есть только у Авторизации и Раздела «Задачи и заявки»; у Уведомлений и Карточек тестирование перенесено в Q4 (метка «QA → Q4»). Число в кружке — порядок по приоритету; наведи курсор на блок, чтобы увидеть ЧД по этапу. Спринт 1 заштрихован — проект ещё не в работе.</div>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h3>Ёмкость: план vs доступно</h3>
+      <p class="cap">Накопительно: работы против ёмкости (207.5 ЧД на Спр 2–7). План идёт с запасом; пик разработки Спр 4–5 (жёлтые точки) держим за счёт слабо загруженной QA-фазы Спр 6.</p>
+      <div style="position:relative"><svg id="burn" viewBox="0 0 620 300" width="100%" role="img" aria-label="Burn-up ёмкости"></svg></div>
+      <div class="burn-legend">
+        <span class="li"><span class="ln" style="border-color:var(--accent)"></span>Ёмкость (накопит.)</span>
+        <span class="li"><span class="ln" style="border-color:var(--s-c)"></span>План (накопит.)</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Нагрузка по направлениям</h3>
+      <p class="cap">Спрос всего проекта <b>(Q3 + Q4)</b>, ЧД. Один и тот же ресурс работает оба квартала — в Q3 задействована лишь часть, поэтому это не нагрузка одного квартала.</p>
+      <div class="disc-leg"><span><i class="l3"></i>в Q3</span><span><i class="l4"></i>в Q4</span></div>
+      <div class="disc" id="disc"></div>
+      <p class="cap" style="margin:16px 0 0">Ресурс: BE ×2 · FE ×2 · BA ×3 · UX/UI ×1 · Arch ×1 · DevOps ×1 · PM ×1 · QA ×2 (в Q3 — с Спр 6). Команда закрывает обе квартальные волны.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="s-head">
+      <h2>Переносим в Q4</h2>
+      <div class="s-note">≈495 ЧД · по приоритету, ролевая модель (AP_2) — в самом конце</div>
+    </div>
+    <div class="q4grid" id="q4"></div>
+  </section>
+
+  <section>
+    <div class="s-head"><h2>Допущения и правила плана</h2></div>
+    <div class="notes">
+      <div class="note"><div class="nt">Очередность</div><p>По приоритету эпиков со скрина: <b>AP_1 → AP_3 → AP_4 → AP_5 → AP_6 → AP_7 → AP_8 → AP_9</b>. Ролевая модель (AP_2) и админ-страница ролей — <b>в самом конце</b> по твоему указанию.</p></div>
+      <div class="note"><div class="nt">Ресурс и старт</div><p>Старт со <b>Спринта 2</b> (Спр 1 — разгон). Ёмкость <b>207.5 ЧД</b> на Спр 2–7. <b>Arch и DevOps — по запросу, Спр 2–4</b>.</p></div>
+      <div class="note"><div class="nt">QA</div><p><b>QA только с Спр 6 и ограничен по охвату.</b> В Q3 тестируем <b>только Авторизацию и Раздел «Задачи и заявки»</b>. QA Уведомлений и Карточек заявок — в Q4 (+27.5 ЧД).</p></div>
+      <div class="note"><div class="nt">Что влезает</div><p>Разработка: AP_1, AP_3, AP_3.6, AP_4. Приёмка в Q3 — только AP_1 и AP_3. Остальное тестирование, документы (AP_4.2) и AP_5+ — в Q4. Оценки = сумма по направлениям <b>× 1.25</b>.</p></div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer>Источник: план и оценки проекта + приоритеты эпиков AP_1…AP_9 + ресурс-план Q3 (старт Спр 2, QA с Спр 6, Arch/DevOps Спр 2–4, роли — последними). Оценки и ёмкость подлежат подтверждению. Роадмап — план, а не обязательство.</footer>
+</div>
+
+<script>
+(function(){
+  var sprints=[
+    {n:1,d:"06.07–19.07",ramp:true},{n:2,d:"20.07–02.08"},{n:3,d:"03.08–16.08"},
+    {n:4,d:"17.08–30.08"},{n:5,d:"31.08–13.09"},{n:6,d:"14.09–27.09",qa:true},
+    {n:7,d:"28.09–04.10",qa:true,short:true}
+  ];
+  var gh=document.getElementById('ghead');
+  gh.innerHTML='<div class="corner">Задача · эпик</div>'+sprints.map(function(s){
+    var cls=s.ramp?' ramp':(s.qa?' qaz':'');
+    var tag=s.ramp?'<div class="tag">разгон</div>':(s.qa?'<div class="tag">QA</div>':'');
+    return '<div class="sp'+cls+'"><div class="n">Спр '+s.n+(s.short?' ½':'')+'</div><div class="d">'+s.d+'</div>'+tag+'</div>';
+  }).join('');
+
+  var rows=[
+    {wave:'Платформа · по запросу · Спр 2–4',stream:'platform'},
+    {type:'plat',name:'Архитектура',meta:'по запросу',s:2,e:4,cd:10},
+    {type:'plat',name:'Девопс · CI/CD, окружения',meta:'по запросу',s:2,e:4,cd:7},
+    {wave:'Разработка и QA · этапы: аналитика (BA/UX) → разработка (BE/FE) → тестирование (QA)',stream:'stage'},
+    {type:'feat',name:'Авторизация пользователя',meta:'AP_1 · CIBPREM-1726 · взята в сер. Спр 2',ord:1,devS:2,devE:3,ba:5,dev:12.5,qaS:6,qaE:6,qa:5},
+    {type:'feat',name:'Раздел «Задачи и заявки»',meta:'AP_3 · CIBPREM-1733 · BA с сер. Спр 2, авто-заявки из УОС',ord:2,devS:2,devE:4,ba:21.25,dev:25,qaS:6,qaE:7,qa:12.5},
+    {type:'feat',name:'Уведомления о заявке/задаче',meta:'AP_3.6 · CIBPREM-1733 · тест → Q4',ord:3,devS:4,devE:5,ba:7.5,dev:21.25,qaLater:true,qa:8.75},
+    {type:'feat',name:'Карточка заявки: проект ПИ',meta:'AP_4 · CIBPREM-1744 · старт Спр 4 · тест → Q4',ord:4,devS:4,devE:5,ba:10,dev:18.75,qaLater:true,qa:18.75}
+  ];
+  var swatch={platform:'var(--s-a)',stage:'var(--s-c)'};
+  var gb=document.getElementById('gbody'),html='';
+  function cells(){var s='';for(var c=1;c<=7;c++)s+='<div class="g-cell'+(c===1?' r1':'')+'"></div>';return s;}
+  rows.forEach(function(r){
+    if(r.wave){html+='<div class="wave-band"><span class="sw" style="background:'+swatch[r.stream]+'"></span>'+r.wave+'</div>';return;}
+    html+='<div class="g-row"><div class="g-lab"><span class="t">'+r.name+'</span><span class="m">'+r.meta+'</span></div><div class="g-track">'+cells();
+    if(r.type==='plat'){
+      html+='<div class="bar platform" style="grid-column:'+r.s+' / span '+(r.e-r.s+1)+';" title="'+r.name+': '+r.cd+' ЧД"></div>';
+    }else{
+      var wspan=r.devE-r.devS+1;
+      html+='<div class="wbar" style="grid-column:'+r.devS+' / span '+wspan+';" title="Аналитика BA/UX: '+r.ba+' ЧД · Разработка BE/FE: '+r.dev+' ЧД">'+
+              '<span class="ord">'+r.ord+'</span>'+
+              '<div class="seg ba" style="flex-grow:'+r.ba+'" title="Аналитика (BA/UX): '+r.ba+' ЧД"></div>'+
+              '<div class="seg dev" style="flex-grow:'+r.dev+'" title="Разработка (BE/FE): '+r.dev+' ЧД"></div>'+
+            '</div>';
+      if(r.qaLater){
+        html+='<div class="qlater" style="grid-column:6 / span 2;" title="Тестирование (QA): '+r.qa+' ЧД — перенесено в Q4">QA → Q4</div>';
+      }else{
+        html+='<div class="qbar" style="grid-column:'+r.qaS+' / span '+(r.qaE-r.qaS+1)+';" title="Тестирование (QA): '+r.qa+' ЧД">QA</div>';
+      }
+    }
+    html+='</div></div>';
+  });
+  gb.innerHTML=html;
+
+  var planInc=[0,26.92,33.92,38.67,38.75,11.25,6.25];
+  var full=207.5/5.5, half=full/2;
+  var capInc=[0,full,full,full,full,full,half];
+  var capCum=[],planCum=[],a=0,b=0;
+  for(var i=0;i<7;i++){a+=capInc[i];capCum.push(a);b+=planInc[i];planCum.push(b);}
+  var W=620,H=300,pl=44,pr=16,pt=18,pb=40,iw=W-pl-pr,ih=H-pt-pb,maxY=210;
+  function X(i){return pl+iw*i/6} function Y(v){return pt+ih*(1-v/maxY)}
+  var g='';
+  for(var y=0;y<=200;y+=50){g+='<line x1="'+pl+'" y1="'+Y(y)+'" x2="'+(W-pr)+'" y2="'+Y(y)+'" stroke="var(--line)"/>';g+='<text x="'+(pl-8)+'" y="'+(Y(y)+4)+'" text-anchor="end" font-size="11" fill="var(--ink-3)">'+y+'</text>';}
+  for(var i=0;i<7;i++){g+='<text x="'+X(i)+'" y="'+(H-14)+'" text-anchor="middle" font-size="11" fill="'+(i>=5?'var(--s-d)':'var(--ink-3)')+'">С'+(i+1)+'</text>';}
+  function path(arr){var p='';for(var i=0;i<7;i++){p+=(i?'L':'M')+X(i).toFixed(1)+' '+Y(arr[i]).toFixed(1)+' ';}return p;}
+  g+='<path d="'+path(capCum)+'L'+X(6)+' '+Y(0)+' L'+X(0)+' '+Y(0)+' Z" fill="var(--accent)" opacity="0.06"/>';
+  g+='<path d="'+path(capCum)+'" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="6 4"/>';
+  g+='<path d="'+path(planCum)+'" fill="none" stroke="var(--s-c)" stroke-width="3"/>';
+  g+='<line x1="'+X(4.5)+'" y1="'+pt+'" x2="'+X(4.5)+'" y2="'+(H-pb)+'" stroke="var(--s-d)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>';
+  g+='<text x="'+X(4.5)+'" y="'+(pt+2)+'" text-anchor="middle" font-size="9.5" fill="var(--s-d)" font-weight="700">QA →</text>';
+  for(var i=0;i<7;i++){var peak=(i===3||i===4);g+='<circle cx="'+X(i)+'" cy="'+Y(planCum[i])+'" r="'+(peak?4.5:3.5)+'" fill="'+(peak?'var(--warn)':(i>=5?'var(--s-d)':'var(--s-c)'))+'" stroke="var(--surface)" stroke-width="2"/>';}
+  document.getElementById('burn').innerHTML=g;
+
+  var disc=[
+    {n:'BE',q3:39,q4:111},
+    {n:'QA',q3:14,q4:98},
+    {n:'FE',q3:23,q4:62},
+    {n:'BA',q3:25,q4:56},
+    {n:'UI/UX',q3:10,q4:43}
+  ];
+  var dmax=150;
+  document.getElementById('disc').innerHTML=disc.map(function(d){
+    var w3=(d.q3/dmax*100).toFixed(1), w4=(d.q4/dmax*100).toFixed(1), tot=d.q3+d.q4;
+    return '<div class="row"><span class="dn">'+d.n+'</span>'+
+      '<div class="track">'+
+        '<div class="seg-q3" style="width:'+w3+'%" title="'+d.n+' в Q3: '+d.q3+' ЧД"></div>'+
+        '<div class="seg-q4" style="width:'+w4+'%" title="'+d.n+' в Q4: '+d.q4+' ЧД"></div>'+
+      '</div>'+
+      '<span class="val">'+tot+' ЧД</span></div>';
+  }).join('');
+
+  var q4=[
+    {t:'Тестирование: Уведомления + Карточки заявок',ep:'перенос QA из Q3',cd:27.5,type:'moved',pill:'QA из Q3'},
+    {t:'Загрузка файлов / документы',ep:'AP_4.2 · CIBPREM-1744',cd:11.25,type:'moved',pill:'продолжение AP_4'},
+    {t:'Карточка: условия расчетов',ep:'AP_5 · CIBPREM-1751',cd:27.5},
+    {t:'Журнал запросов / исполнения',ep:'AP_6 · CIBPREM-1756',cd:73.75},
+    {t:'Справочники',ep:'AP_7 · CIBPREM-1761',cd:81.25,type:'enabler',pill:'enabler'},
+    {t:'Логирование действий',ep:'AP_8 · CIBPREM-1764',cd:51.25},
+    {t:'Отчетность и дашборды',ep:'AP_9 · CIBPREM-1767',cd:118.75},
+    {t:'Реализация ролевой модели',ep:'AP_2 · CIBPREM-1729',cd:21.25,type:'roles',pill:'последней'},
+    {t:'Администрирование ролей',ep:'AP_2 · CIBPREM-1729',cd:50,type:'roles',pill:'последней'},
+    {t:'Резерв на доработки',ep:'буфер',cd:60}
+  ];
+  document.getElementById('q4').innerHTML=q4.map(function(x){
+    var cls=x.type?' '+x.type:'';
+    return '<div class="q4card'+cls+'"><div class="t">'+x.t+'</div><div class="ep">'+x.ep+'</div><div class="meta">'+
+      (x.pill?'<span class="pill">'+x.pill+'</span>':'<span>Q4 2026</span>')+'<span class="cd">'+x.cd+' ЧД</span></div></div>';
+  }).join('');
+
+  // Бэклог задач
+  var epics=[
+    {id:'AP_1',name:'Авторизация',jira:'CIBPREM-1726',q:'Q3',tasks:[
+      {id:'AP_1.1',t:'Авторизация в приложении',d:'Флоу входа в приложение, описание интеграции с SSO, приветственный экран (UI/UX)'},
+      {id:'AP_1.2',t:'Выход из приложения',d:''},
+      {id:'AP_1.3',t:'Инструкция по регистрации в SSO нового приложения',d:''}
+    ]},
+    {id:'AP_3',name:'Раздел «Задачи и заявки»',jira:'CIBPREM-1733',q:'Q3',tasks:[
+      {id:'AP_3.1',t:'Формирование статусной модели',d:'Определение статусов, допустимых переходов и событий, которые их изменяют, создание диаграммы состояний'},
+      {id:'AP_3.2',t:'Просмотр списка задач/заявок',d:'Проектирование структуры раздела с перечнем задач/заявок, сортировка, фильтрация, отображение статусов и источников поступления'},
+      {id:'AP_3.3',t:'Автоматическое создание заявок',d:'Интеграция с УОС, формирование UID, определение источника поступления заявки, возможность ручной корректировки'},
+      {id:'AP_3.3.1',t:'Создание новой ТИ для получения данных из УОС (параметры заявки)',d:'Описание ТИ для получения данных о заявке из опции AXD',uos:true},
+      {id:'AP_3.3.2',t:'Создание новой ТИ для получения данных из УОС (изменения статуса)',d:'Описание ТИ для получения актуального статуса заявки',uos:true},
+      {id:'AP_3.4',t:'Ручное создание задач',d:'Флоу создания задачи, валидация обязательных полей, генерация UID, сохранение задачи'},
+      {id:'AP_3.5',t:'Назначение исполнителя для задачи/заявки',d:'С учётом ролевой модели'},
+      {id:'AP_3.6',t:'Уведомления пользователю о новой заявке/задаче',d:''}
+    ]},
+    {id:'AP_4',name:'Карточка заявки: раздел с проектом ПИ',jira:'CIBPREM-1744',q:'Q3',tasks:[
+      {id:'AP_4.1',t:'Карточка заявки, раздел с проектом ПИ',d:'Отображение общей информации о заявке, отображение формы ПИ с полями, заполняемыми данными из УОС, возможность ручного редактирования значений полей'},
+      {id:'AP_4.2',t:'Работа с документами',d:'Возможность загрузки/просмотра/удаления пакета документов для заявки с учётом ролевого доступа'}
+    ]},
+    {id:'AP_5',name:'Карточка заявки: раздел с условиями расчётов',jira:'CIBPREM-1751',q:'Q4',tasks:[
+      {id:'AP_5.1',t:'Карточка заявки, раздел с условиями расчётов',d:'Отображение раздела для формирования предложения банка по проведению платежа, заполнение/редактирование необходимых полей, валидация обязательных полей, передача данных в УОС'},
+      {id:'AP_5.2',t:'Создание новой ТИ для передачи данных по условиям расчётов в УОС',d:'',uos:true}
+    ]},
+    {id:'AP_6',name:'Раздел с журналами запросов/исполнения',jira:'CIBPREM-1756',q:'Q4',tasks:[
+      {id:'AP_6.1',t:'Журнал запросов',d:'Проектирование структуры журнала, ручное создание/редактирование/удаление записей, автоматическое создание записей, реализация алгоритмов расчёта параметров, обновление статусов, фильтрация, поиск'},
+      {id:'AP_6.2',t:'Журнал исполнения',d:'Проектирование структуры журнала, ручное создание/редактирование/удаление записей, автоматическое создание записей, реализация алгоритмов расчёта параметров, обновление статусов, фильтрация, поиск'}
+    ]},
+    {id:'AP_7',name:'Справочники',jira:'CIBPREM-1761',q:'Q4',tasks:[
+      {id:'AP_7.1',t:'Управление справочниками',d:'Проектирование перечня и структуры справочников, редактирование справочников'}
+    ]},
+    {id:'AP_8',name:'Логирование',jira:'CIBPREM-1764',q:'Q4',tasks:[
+      {id:'AP_8.1',t:'История действий пользователя',d:'Проектирование раздела с отображением истории действий пользователей: определение перечня событий и структуры лога, пагинация, фильтры'}
+    ]},
+    {id:'AP_9',name:'Отчётность',jira:'CIBPREM-1767',q:'Q4',tasks:[
+      {id:'AP_9.1',t:'Отчёты',d:'Проектирование отчётов'},
+      {id:'AP_9.2',t:'Дашборды',d:'Проектирование дашбордов'},
+      {id:'AP_9.3',t:'Экспорт данных',d:''}
+    ]},
+    {id:'AP_2',name:'Ролевая модель',jira:'CIBPREM-1729',q:'Q4',tasks:[
+      {id:'AP_2.1',t:'Проектирование ролевой модели',d:'Определение ролей, формирование матрицы доступа к разделам, проверка прав при отображении страницы/совершении действий, скрытие/блокировка недоступных разделов и действий'},
+      {id:'AP_2.2',t:'Админ-страница управления ролями пользователей',d:'Назначение/изменение ролей администратором'}
+    ]}
+  ];
+  function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function escA(s){return esc(s).replace(/"/g,'&quot;');}
+  var STAT={backlog:{l:'Бэклог',c:'backlog'},analysis:{l:'Аналитика · BA / UX/UI',c:'analysis'}};
+  var blb=document.getElementById('blbody'), bh='';
+  epics.forEach(function(e){
+    var est=(e.id==='AP_1'||e.id==='AP_3')?'analysis':'backlog', sc=STAT[est];
+    bh+='<tr class="epic"><td colspan="3"><div class="ename"><span class="eid">'+e.id+'</span>'+
+        '<span class="etitle">'+esc(e.name)+'</span><span class="ejira">'+e.jira+'</span>'+
+        '<span class="qchip '+(e.q==='Q3'?'q3':'q4')+'">'+e.q+'</span>'+
+        '<span class="st-chip '+sc.c+'">'+sc.l+'</span></div></td></tr>';
+    e.tasks.forEach(function(t){
+      var attrs=t.d?(' has-desc" data-id="'+t.id+'" data-desc="'+escA(t.d)+'"'):'"';
+      bh+='<tr class="task'+attrs+'><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+
+          (t.uos?' <span class="uos-tag">УОС · оценка</span>':'')+'</td>'+
+          '<td class="tstatus"><span class="st-chip '+sc.c+'">'+sc.l+'</span></td></tr>';
+    });
+  });
+  if(blb){
+    blb.innerHTML=bh;
+    var tipEl=document.createElement('div');tipEl.className='tip';tipEl.setAttribute('role','tooltip');document.body.appendChild(tipEl);
+    var moveTip=function(e){var pad=14,w=tipEl.offsetWidth,h=tipEl.offsetHeight,x=e.clientX+pad,y=e.clientY+pad;if(x+w>window.innerWidth-8)x=Math.max(8,e.clientX-w-pad);if(y+h>window.innerHeight-8)y=Math.max(8,e.clientY-h-pad);tipEl.style.left=x+'px';tipEl.style.top=y+'px';};
+    blb.addEventListener('mouseover',function(e){var tr=e.target.closest('tr.task');if(tr&&tr.getAttribute('data-desc')){tipEl.innerHTML='<span class="tip-id">'+tr.getAttribute('data-id')+'</span>';tipEl.appendChild(document.createTextNode(tr.getAttribute('data-desc')));tipEl.classList.add('show');moveTip(e);}else{tipEl.classList.remove('show');}});
+    blb.addEventListener('mousemove',function(e){if(tipEl.classList.contains('show'))moveTip(e);});
+    blb.addEventListener('mouseleave',function(){tipEl.classList.remove('show');});
+  }
+})();
+</script>
+
+</body>
+</html>
