@@ -200,7 +200,53 @@
   .tip .tip-id{display:block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.03em;margin-bottom:4px;font-variant-numeric:tabular-nums}
 
   footer{max-width:1200px;margin:26px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
-  @media(max-width:720px){.tiles{grid-template-columns:repeat(2,1fr)}:root{--labelw:186px}}
+  .board{-webkit-overflow-scrolling:touch}
+
+  /* Планшет */
+  @media (max-width:900px){
+    .wrap{padding:26px clamp(14px,3.2vw,30px) 56px}
+    section{margin-bottom:28px}
+    .card{padding:18px}
+    h2{font-size:18px}
+    .grid2{gap:16px}
+  }
+  /* Малый планшет / крупный телефон */
+  @media (max-width:720px){
+    .wrap{padding:22px 14px 48px}
+    .tiles{grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:22px}
+    .tile{padding:14px}
+    .tile .v{font-size:24px}
+    .chips{gap:7px}
+    .chip{font-size:12px;padding:5px 10px}
+    .livebar,.goalbar{font-size:13px;padding:11px 14px;margin-bottom:20px}
+    :root{--labelw:150px}
+    .gantt{min-width:740px}
+    .s-head{gap:8px}
+    /* Бэклог помещается по ширине, без горизонтальной прокрутки */
+    table.bl{min-width:0;font-size:12.5px}
+    table.bl thead th,table.bl td,table.bl tbody th{padding:9px 12px}
+    table.bl td.tname{min-width:0}
+    table.bl .st-chip{white-space:normal}
+    table.bl .uos-tag{margin-left:6px}
+  }
+  /* Телефон */
+  @media (max-width:480px){
+    .wrap{padding:18px 12px 44px}
+    h1{font-size:clamp(21px,7vw,26px)}
+    .sub{font-size:14px}
+    .tiles{grid-template-columns:repeat(2,1fr);gap:9px}
+    .tile{padding:12px}
+    .tile .v{font-size:21px}
+    .tile .u{font-size:11px}
+    .legend{gap:9px;font-size:11.5px}
+    .card{padding:15px}
+    .card h3{font-size:14.5px}
+    table.bl thead th,table.bl td,table.bl tbody th{padding:8px 10px}
+    table.bl .eid{font-size:11px}
+    table.bl .etitle{font-size:12.5px}
+    table.bl .ejira{font-size:10px}
+    .disc .row{grid-template-columns:44px 1fr auto;gap:9px}
+  }
 </style>
 
 </head>
