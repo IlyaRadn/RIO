@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="UPremium «Мобильный ассистент» — релиз 2.3.0, задачи, сопровождение">
+<title>UPremium «Мобильный ассистент» — Планирование работ</title>
+<style>
+  :root{
+    --bg:#f7f6f2; --surface:#ffffff; --surface-2:#f3efe4;
+    --ink:#1c1a14; --ink-2:#5c5645; --ink-3:#938c78;
+    --line:#e8e2d3; --line-2:#d8cfb8; --accent:#bf8f2a; --accent-soft:#f7efd9;
+    --good:#2f9e6e; --info:#3b5bdb; --muted:#a99f88;
+    --shadow:0 1px 2px rgba(40,34,15,.06),0 6px 20px rgba(40,34,15,.07);
+    color-scheme:light dark;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#12100a;--surface:#1a1710;--surface-2:#231e12;--ink:#efe9d9;--ink-2:#b7ae95;--ink-3:#8a8069;
+      --line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.4)}
+  }
+  :root[data-theme="light"]{--bg:#f7f6f2;--surface:#ffffff;--surface-2:#f3efe4;--ink:#1c1a14;--ink-2:#5c5645;--ink-3:#938c78;--line:#e8e2d3;--line-2:#d8cfb8;--accent:#bf8f2a;--accent-soft:#f7efd9;--good:#2f9e6e;--info:#3b5bdb;--muted:#a99f88;--shadow:0 1px 2px rgba(40,34,15,.06),0 6px 20px rgba(40,34,15,.07)}
+  :root[data-theme="dark"]{--bg:#12100a;--surface:#1a1710;--surface-2:#231e12;--ink:#efe9d9;--ink-2:#b7ae95;--ink-3:#8a8069;--line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.4)}
+
+  *{box-sizing:border-box} body{margin:0}
+  .wrap{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:34px clamp(16px,4vw,56px) 72px;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .tnum{font-variant-numeric:tabular-nums}
+  .skip-link{position:absolute;left:12px;top:-52px;z-index:50;background:var(--accent);color:#1c1a14;padding:9px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:top .15s ease}
+  .skip-link:focus{top:12px}
+  :where(a,th,td):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  .topnav{max-width:1080px;margin:0 auto 18px}
+  .topnav a{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--ink-2);text-decoration:none;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);box-shadow:var(--shadow);transition:color .12s,border-color .12s}
+  .topnav a:hover{color:var(--accent);border-color:var(--accent)}
+
+  header.head{max-width:1080px;margin:0 auto 26px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:flex;gap:10px;align-items:center;margin-bottom:12px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  h1{font-size:clamp(26px,3.6vw,40px);line-height:1.08;margin:0 0 10px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+  .sub{color:var(--ink-2);font-size:clamp(14px,1.4vw,16px);max-width:64ch;margin:0}
+
+  .tiles{max-width:1080px;margin:22px auto 30px;display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .tile .rail{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .tile.mut .rail{background:var(--muted)}
+  .tile .k{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3)}
+  .tile .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:8px;line-height:1}
+  .tile .u{font-size:12px;color:var(--ink-2);margin-top:6px}
+
+  section{max-width:1080px;margin:0 auto 34px}
+  .s-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px}
+  h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0}
+  .s-note{font-size:13px;color:var(--ink-2)}
+  .relchip{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:999px;padding:5px 13px}
+
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:4px 11px;white-space:nowrap}
+  .chip .pt{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+  .chip.work{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+  .chip.done{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+  .chip.q4{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  .chip.wait{color:var(--info);background:color-mix(in srgb,var(--info) 12%,transparent);border:1px solid color-mix(in srgb,var(--info) 40%,transparent)}
+  table.tk.narrow{min-width:480px}
+
+  .board{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow-x:auto}
+  table.tk{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+  table.tk caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  table.tk thead th{text-align:left;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:12px 16px;border-bottom:1px solid var(--line-2)}
+  table.tk td,table.tk tbody th{padding:12px 16px;vertical-align:top;border-bottom:1px solid var(--line);text-align:left}
+  table.tk tbody tr:last-child td,table.tk tbody tr:last-child th{border-bottom:0}
+  table.tk tbody tr:hover{background:var(--surface-2)}
+  table.tk .nm{font-weight:600;color:var(--ink);min-width:240px}
+  table.tk .nm .mp{color:var(--accent);font-weight:800;font-variant-numeric:tabular-nums}
+  table.tk .code{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.tk .st{white-space:nowrap;width:1%}
+  table.tk .who{font-size:12.5px;color:var(--ink-2);white-space:nowrap}
+
+  .blocks{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start}
+  .block{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px 22px}
+  .block.wide{grid-column:1 / -1}
+  .block h3{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .block .code{font-size:11px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+  ol.hand{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+  ol.hand li{font-size:13.5px;color:var(--ink);line-height:1.45}
+  ol.hand li .o{color:var(--ink-3);font-size:12px}
+  .block p{margin:0 0 8px;font-size:13.5px;color:var(--ink);line-height:1.5}
+  .block .muted{color:var(--ink-2);font-size:12.5px}
+  .block .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+  footer{max-width:1080px;margin:28px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
+
+  @media (max-width:760px){.blocks{grid-template-columns:1fr}.tiles{gap:11px}table.tk{min-width:0}table.tk .nm{min-width:0}table.tk .who{white-space:normal}}
+  @media (max-width:480px){.tiles{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="#main" class="skip-link">Перейти к содержанию</a>
+  <nav class="topnav"><a href="../">← Все проекты</a></nav>
+  <header class="head">
+    <div class="eyebrow"><span class="dot"></span>Планирование работы · КИБ Премиум · UPremium</div>
+    <h1>UPremium «Мобильный ассистент»</h1>
+    <p class="sub">Фаза 2: плановый релиз 2.3.0 (27 августа), задачи в работе и передача на сопровождение.</p>
+  </header>
+
+  <main id="main">
+    <div class="tiles">
+      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.3.0</div><div class="u">план · 27.08.2026</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">1 готово · 5 в работе</div></div>
+      <div class="tile mut"><span class="rail"></span><div class="k">Сопровождение и доработки</div><div class="v tnum">3</div><div class="u">блока: ЗНИ · СДБО ЮЛ · вебхуки</div></div>
+    </div>
+
+    <section>
+      <div class="s-head">
+        <h2>Релиз 2.3.0</h2>
+        <span class="relchip">📅 Плановая дата — 27 августа</span>
+      </div>
+      <div class="board">
+        <table class="tk">
+          <caption>Задачи релиза 2.3.0</caption>
+          <thead><tr><th>Задача</th><th>Код</th><th>Статус</th><th>Ответственный</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="nm"><span class="mp">MP_15</span> · График платежей для кредитов</th><td class="code">CIBPREM-1046</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_33</span> · BE: интеграционные тесты (TestContainers)</th><td class="code">CIBPREM-1659</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Балашевич Г.Л.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_34</span> · BE: оптимизация синхронизации с УОС</th><td class="code">CIBPREM-1660</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Кохановский А.В.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_13</span> · Существенные условия по договорам финансирования (залоги, поручительства)</th><td class="code">CIBPREM-1044</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_37</span> · Онбординг</th><td class="code">CIBPREM-1717</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_21</span> · Оценка удовлетворённости</th><td class="code">RFC-2094</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="s-head">
+        <h2>Все задачи</h2>
+        <div class="s-note">общий список задач фазы 2 · 8</div>
+      </div>
+      <div class="board">
+        <table class="tk narrow">
+          <caption>Все задачи UPremium (фаза 2)</caption>
+          <thead><tr><th>Задача</th><th>Код</th></tr></thead>
+          <tbody>
+            <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь</th><td class="code">CIBPREM-1076</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_20-3</span> · FE: Переход на детали сделки / депозита / кредита из уведомлений</th><td class="code">CIBPREM-1677</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_25</span> · Пользовательское поведение (метрики) <span class="chip wait" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Ожидаем Арх. комитета банка</span></th><td class="code">CIBPREM-1715</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_29</span> · Уведомления по окончанию срока для аккредитивов и гарантий</th><td class="code">CIBPREM-1639</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_30</span> · Отправка имейла КМ при заказе обратного звонка</th><td class="code">CIBPREM-1657</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления</th><td class="code">CIBPREM-1640</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_32</span> · Навигация по разделам</th><td class="code">CIBPREM-1661</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_36</span> · Отображение относительных процентных ставок</th><td class="code">CIBPREM-1716</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Передача на сопровождение и доработки</h2>
+      <div class="blocks">
+        <div class="block wide">
+          <h3>Передача на сопровождение</h3>
+          <ol class="hand">
+            <li>Подготовка документов по проекту «Мобильный ассистент» — размещение новостей ежедневно</li>
+            <li>ЗНИ на дефекты ПРОМ <span class="o">· RFC-1611</span></li>
+            <li>ЗНИ на добавление услуги в каталог SMAX <span class="o">· отв. Минько В.А.</span></li>
+            <li>ЗНИ на интеграцию Jira &amp; SMAX <span class="o">· отв. Минько В.А.</span></li>
+          </ol>
+        </div>
+        <div class="block">
+          <h3>Доработка СДБО ЮЛ <span class="code">RFC-316</span></h3>
+          <p>Актуализация суммы и валюты в графической визуализации.</p>
+          <p class="muted">Ожидаем поставку в ПРОД.</p>
+          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span></div>
+        </div>
+        <div class="block">
+          <h3>Вебхуки <span class="code">CR-29595</span></h3>
+          <p>Актуализация оценки УОС — CR-35395 (аккредитивы + гарантии · 34 ч/д).</p>
+          <div class="chips"><span class="chip done"><span class="pt"></span>Оценка завершена</span><span class="chip q4"><span class="pt"></span>Ожидание Q4</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Источник: статус-встреча «КИБ Премиум: СПС и UPremium» · 23.07.2026 + Jira-эпик релиза 2.3.0. Статусы актуальны на дату обновления.</footer>
+</div>
+</body>
+</html>
