@@ -92,6 +92,14 @@
   .g-head .sp .n{font-size:13px;font-weight:700;color:var(--ink)}
   .g-head .sp .d{font-size:10.5px;color:var(--ink-3);margin-top:2px;white-space:nowrap}
   .g-head .sp .tag{font-size:9.5px;font-weight:700;letter-spacing:.03em;margin-top:3px;text-transform:uppercase}
+  .g-head .sp.current{background:var(--accent-soft)}
+  .g-head .sp.current .n{color:var(--accent)}
+  .g-head .sp .stat{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-top:3px;display:inline-flex;align-items:center;gap:5px}
+  .g-head .sp .stat.cur{color:var(--accent)}
+  .g-head .sp .stat.cur .d2{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse2 2s infinite}
+  .g-head .sp .stat.fin{color:var(--good)}
+  @keyframes pulse2{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 55%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+  @media (prefers-reduced-motion:reduce){.g-head .sp .stat.cur .d2{animation:none}}
   .g-head .sp.ramp .tag{color:var(--ink-3)} .g-head .sp.qaz .tag{color:var(--s-d)}
 
   .g-row{display:grid;grid-template-columns:var(--labelw) repeat(7,1fr);border-bottom:1px solid var(--line);min-height:46px;align-items:center}
@@ -358,15 +366,24 @@
 <script>
 (function(){
   var sprints=[
-    {n:1,d:"06.07–19.07",ramp:true},{n:2,d:"20.07–02.08"},{n:3,d:"03.08–16.08"},
-    {n:4,d:"17.08–30.08"},{n:5,d:"31.08–13.09"},{n:6,d:"14.09–27.09",qa:true},
-    {n:7,d:"28.09–04.10",qa:true,short:true}
+    {n:1,d:"06.07–19.07",ramp:true,s:"2026-07-06",e:"2026-07-19"},
+    {n:2,d:"20.07–02.08",s:"2026-07-20",e:"2026-08-02"},
+    {n:3,d:"03.08–16.08",s:"2026-08-03",e:"2026-08-16"},
+    {n:4,d:"17.08–30.08",s:"2026-08-17",e:"2026-08-30"},
+    {n:5,d:"31.08–13.09",s:"2026-08-31",e:"2026-09-13"},
+    {n:6,d:"14.09–27.09",qa:true,s:"2026-09-14",e:"2026-09-27"},
+    {n:7,d:"28.09–04.10",qa:true,short:true,s:"2026-09-28",e:"2026-10-04"}
   ];
+  // Авто-статус спринта по текущей дате (пересчитывается при каждом открытии)
+  var _today=new Date(); _today.setHours(0,0,0,0);
+  function _pd(iso){var p=iso.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+  sprints.forEach(function(s){var st=_pd(s.s),en=_pd(s.e);s.status=(_today>en)?'done':((_today>=st)?'current':'future');});
   var gh=document.getElementById('ghead');
   gh.innerHTML='<div class="corner">Задача · эпик</div>'+sprints.map(function(s){
-    var cls=s.ramp?' ramp':(s.qa?' qaz':'');
+    var cls=(s.ramp?' ramp':(s.qa?' qaz':''))+(s.status==='current'?' current':(s.status==='done'?' done':''));
     var tag=s.ramp?'<div class="tag">разгон</div>':(s.qa?'<div class="tag">QA</div>':'');
-    return '<div class="sp'+cls+'"><div class="n">Спр '+s.n+(s.short?' ½':'')+'</div><div class="d">'+s.d+'</div>'+tag+'</div>';
+    var stat=s.status==='current'?'<div class="stat cur"><span class="d2" aria-hidden="true"></span>идёт</div>':(s.status==='done'?'<div class="stat fin">✓ завершён</div>':'');
+    return '<div class="sp'+cls+'"><div class="n">Спр '+s.n+(s.short?' ½':'')+'</div><div class="d">'+s.d+'</div>'+stat+tag+'</div>';
   }).join('');
 
   var rows=[
