@@ -85,6 +85,10 @@
   .block p{margin:0 0 8px;font-size:13.5px;color:var(--ink);line-height:1.5}
   .block .muted{color:var(--ink-2);font-size:12.5px}
   .block .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .datepill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:999px;padding:3px 10px;margin-left:8px;white-space:nowrap}
+  .resp{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:14px}
+  .resp .rlbl{font-size:12.5px;color:var(--ink-3);font-weight:600}
+  .ptag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line-2);border-radius:999px;padding:4px 12px}
 
   footer{max-width:1080px;margin:28px auto 0;font-size:12px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:16px}
 
@@ -158,12 +162,13 @@
       <div class="blocks">
         <div class="block wide">
           <h3>Передача на сопровождение</h3>
-          <ol class="hand">
-            <li>Подготовка документов по проекту «Мобильный ассистент» — размещение новостей ежедневно</li>
-            <li>ЗНИ на дефекты ПРОМ <span class="o">· RFC-1611</span></li>
-            <li>ЗНИ на добавление услуги в каталог SMAX <span class="o">· отв. Минько В.А.</span></li>
-            <li>ЗНИ на интеграцию Jira &amp; SMAX <span class="o">· отв. Минько В.А.</span></li>
-          </ol>
+          <p><b>Проект на сопровождении</b> <span class="datepill">📅 4 авг. 2026</span></p>
+          <div class="resp">
+            <span class="rlbl">Ответственные:</span>
+            <span class="ptag">Легкий Сергей Анатольевич</span>
+            <span class="ptag">Заяц Игорь Петрович</span>
+            <span class="ptag">Логвинов Юрий Петрович</span>
+          </div>
         </div>
         <div class="block">
           <h3>Доработка СДБО ЮЛ <span class="code">RFC-316</span></h3>
