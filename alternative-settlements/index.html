@@ -195,6 +195,8 @@
   table.bl .st-chip{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:2px 9px;white-space:nowrap}
   table.bl .st-chip.backlog{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
   table.bl .st-chip.analysis{color:var(--st-ba);background:color-mix(in srgb,var(--st-ba) 13%,transparent);border:1px solid color-mix(in srgb,var(--st-ba) 45%,transparent)}
+  table.bl .st-chip.dev{color:var(--s-c);background:color-mix(in srgb,var(--s-c) 13%,transparent);border:1px solid color-mix(in srgb,var(--s-c) 45%,transparent)}
+  table.bl .st-chip + .st-chip{margin-left:6px}
   .livebar{max-width:1200px;margin:0 auto 24px;display:flex;align-items:center;gap:12px;background:color-mix(in srgb,var(--good) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 38%,var(--line));border-left:4px solid var(--good);border-radius:12px;padding:12px 17px;font-size:13.5px;color:var(--ink)}
   .livebar b{font-weight:700}
   .livebar .pulse{flex:none;width:10px;height:10px;border-radius:50%;background:var(--good);animation:pulse 2s infinite}
@@ -391,10 +393,10 @@
     {type:'plat',name:'Архитектура',meta:'по запросу',s:2,e:4,cd:10},
     {type:'plat',name:'Девопс · CI/CD, окружения',meta:'по запросу',s:2,e:4,cd:7},
     {wave:'Разработка и QA · этапы: аналитика (BA/UX) → разработка (BE/FE) → тестирование (QA)',stream:'stage'},
-    {type:'feat',name:'Авторизация пользователя',meta:'AP_1 · CIBPREM-1726 · взята в сер. Спр 2',ord:1,devS:2,devE:3,ba:5,dev:12.5,qaS:6,qaE:6,qa:5},
-    {type:'feat',name:'Раздел «Задачи и заявки»',meta:'AP_3 · CIBPREM-1733 · BA с сер. Спр 2, авто-заявки из УОС',ord:2,devS:2,devE:4,ba:21.25,dev:25,qaS:6,qaE:7,qa:12.5},
-    {type:'feat',name:'Уведомления о заявке/задаче',meta:'AP_3.6 · CIBPREM-1733 · тест → Q4',ord:3,devS:4,devE:5,ba:7.5,dev:21.25,qaLater:true,qa:8.75},
-    {type:'feat',name:'Карточка заявки: проект ПИ',meta:'AP_4 · CIBPREM-1744 · старт Спр 4 · тест → Q4',ord:4,devS:4,devE:5,ba:10,dev:18.75,qaLater:true,qa:18.75}
+    {type:'feat',name:'Авторизация пользователя',meta:'AP_1 · CIBPREM-1726 · взята в сер. Спр 2',ord:1,devS:2,devE:5,ba:5,dev:12.5,qaS:6,qaE:6,qa:5},
+    {type:'feat',name:'Раздел «Задачи и заявки»',meta:'AP_3 · CIBPREM-1733 · BA с сер. Спр 2, авто-заявки из УОС',ord:2,devS:2,devE:5,ba:21.25,dev:25,qaS:6,qaE:7,qa:12.5},
+    {type:'feat',name:'Уведомления о заявке/задаче',meta:'AP_3.6 · CIBPREM-1733 · тест → Q4',ord:3,devS:4,devE:6,ba:7.5,dev:21.25,qaLater:true,qa:8.75},
+    {type:'feat',name:'Карточка заявки: проект ПИ',meta:'AP_4 · CIBPREM-1744 · старт Спр 4 · тест → Q4',ord:4,devS:4,devE:6,ba:10,dev:18.75,qaLater:true,qa:18.75}
   ];
   var swatch={platform:'var(--s-a)',stage:'var(--s-c)'};
   var gb=document.getElementById('gbody'),html='';
@@ -412,7 +414,7 @@
               '<div class="seg dev" style="flex-grow:'+r.dev+'" title="Разработка (BE/FE): '+r.dev+' ЧД"></div>'+
             '</div>';
       if(r.qaLater){
-        html+='<div class="qlater" style="grid-column:6 / span 2;" title="Тестирование (QA): '+r.qa+' ЧД — перенесено в Q4">QA → Q4</div>';
+        html+='<div class="qlater" style="grid-column:7 / span 1;" title="Тестирование (QA): '+r.qa+' ЧД — перенесено в Q4">QA → Q4</div>';
       }else{
         html+='<div class="qbar" style="grid-column:'+r.qaS+' / span '+(r.qaE-r.qaS+1)+';" title="Тестирование (QA): '+r.qa+' ЧД">QA</div>';
       }
@@ -526,16 +528,19 @@
   var STAT={backlog:{l:'Бэклог',c:'backlog'},analysis:{l:'Аналитика · BA / UX/UI',c:'analysis'}};
   var blb=document.getElementById('blbody'), bh='';
   epics.forEach(function(e){
-    var est=(e.id==='AP_1'||e.id==='AP_3')?'analysis':'backlog', sc=STAT[est];
+    var est=(e.id==='AP_1'||e.id==='AP_3')?'analysis':'backlog';
+    var stHtml=(est==='analysis')
+      ? '<span class="st-chip analysis">'+STAT.analysis.l+'</span><span class="st-chip dev">Разработка · FE/BE</span>'
+      : '<span class="st-chip backlog">'+STAT.backlog.l+'</span>';
     bh+='<tr class="epic"><td colspan="3"><div class="ename"><span class="eid">'+e.id+'</span>'+
         '<span class="etitle">'+esc(e.name)+'</span><span class="ejira">'+e.jira+'</span>'+
         '<span class="qchip '+(e.q==='Q3'?'q3':'q4')+'">'+e.q+'</span>'+
-        '<span class="st-chip '+sc.c+'">'+sc.l+'</span></div></td></tr>';
+        stHtml+'</div></td></tr>';
     e.tasks.forEach(function(t){
       var attrs=t.d?(' has-desc" data-id="'+t.id+'" data-desc="'+escA(t.d)+'"'):'"';
       bh+='<tr class="task'+attrs+'><th scope="row" class="tid">'+t.id+'</th><td class="tname">'+esc(t.t)+
           (t.uos?' <span class="uos-tag">УОС · оценка</span>':'')+'</td>'+
-          '<td class="tstatus"><span class="st-chip '+sc.c+'">'+sc.l+'</span></td></tr>';
+          '<td class="tstatus">'+stHtml+'</td></tr>';
     });
   });
   if(blb){
