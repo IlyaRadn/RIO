@@ -16,11 +16,11 @@
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#0d1016;--surface:#151a22;--surface-2:#1a2420;--ink:#e9edf4;--ink-2:#a3adbe;--ink-3:#6b7688;
-      --line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;
+      --line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;--crit:#dd97a0;
       --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35)}
   }
-  :root[data-theme="light"]{--bg:#f5f7fa;--surface:#ffffff;--surface-2:#eef2f0;--ink:#161b24;--ink-2:#556074;--ink-3:#8a94a6;--line:#e0e6ef;--line-2:#cdd6e3;--accent:#2f9e6e;--accent-soft:#e2f3ec;--good:#2f9e6e;--muted:#9aa6b8;--warn:#c98a12;--info:#3b5bdb;--rev:#7c6bd6;--shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06)}
-  :root[data-theme="dark"]{--bg:#0d1016;--surface:#151a22;--surface-2:#1a2420;--ink:#e9edf4;--ink-2:#a3adbe;--ink-3:#6b7688;--line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35)}
+  :root[data-theme="light"]{--bg:#f5f7fa;--surface:#ffffff;--surface-2:#eef2f0;--ink:#161b24;--ink-2:#556074;--ink-3:#8a94a6;--line:#e0e6ef;--line-2:#cdd6e3;--accent:#2f9e6e;--accent-soft:#e2f3ec;--good:#2f9e6e;--muted:#9aa6b8;--warn:#c98a12;--info:#3b5bdb;--rev:#7c6bd6;--crit:#cf7a86;--shadow:0 1px 2px rgba(20,27,40,.06),0 6px 20px rgba(20,27,40,.06)}
+  :root[data-theme="dark"]{--bg:#0d1016;--surface:#151a22;--surface-2:#1a2420;--ink:#e9edf4;--ink-2:#a3adbe;--ink-3:#6b7688;--line:#28303c;--line-2:#333d4c;--accent:#3bb57e;--accent-soft:#14291f;--good:#3bb57e;--muted:#7a8699;--warn:#e0a83a;--info:#7089f2;--rev:#a294ec;--crit:#dd97a0;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 26px rgba(0,0,0,.35)}
 
   *{box-sizing:border-box} body{margin:0}
   .wrap{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:34px clamp(16px,4vw,56px) 72px;-webkit-font-smoothing:antialiased;line-height:1.5}
@@ -69,6 +69,10 @@
   .chip.plan{color:var(--info);background:color-mix(in srgb,var(--info) 12%,transparent);border:1px solid color-mix(in srgb,var(--info) 40%,transparent)}
   .chip.review{color:var(--rev);background:color-mix(in srgb,var(--rev) 14%,transparent);border:1px solid color-mix(in srgb,var(--rev) 45%,transparent)}
   .chip.pause,.chip.backlog{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  .chip.blocker{color:var(--crit);background:color-mix(in srgb,var(--crit) 10%,transparent);border:1px solid color-mix(in srgb,var(--crit) 32%,transparent)}
+  .chip.done2{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 42%,transparent)}
+  .blocknote{margin-top:11px;background:color-mix(in srgb,var(--crit) 6%,transparent);border:1px solid color-mix(in srgb,var(--crit) 20%,transparent);border-left:3px solid color-mix(in srgb,var(--crit) 70%,transparent);border-radius:9px;padding:10px 13px;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  .blocknote b{color:var(--crit);font-weight:700}
 
   .board{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
   .board-head{background:var(--accent-soft);border-bottom:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));padding:11px 16px;font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
@@ -133,7 +137,7 @@
           <div class="rfc">RFC-4509</div>
           <h3>Развитие СПС</h3>
           <div class="d">Фаза 4 · текущая деятельность</div>
-          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span><span class="chip note">Архконтроль</span></div>
+          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span><span class="chip note">Бизнес-анализ · сдача 31.08</span></div>
         </div>
       </div>
     </section>
@@ -157,11 +161,11 @@
                 <td class="tstatus">
                   <div class="cstat">
                     <div class="row"><span class="cn">BPM</span><span class="chip work"><span class="pt"></span>В работе</span></div>
-                    <div class="row"><span class="cn">СДБО</span><span class="chip plan"><span class="pt"></span>Старт 17.08</span></div>
+                    <div class="row"><span class="cn">СДБО</span><span class="chip blocker"><span class="pt"></span>Блокер</span></div>
                     <div class="row"><span class="cn">Edna</span><span class="chip soglas"><span class="pt"></span>Закупки</span></div>
                   </div>
                 </td>
-                <td class="cmt">Отв.: Петушок А.И., Лемеш Н.А.</td>
+                <td class="cmt">Отв.: Петушок А.И., Лемеш Н.А.<div class="blocknote"><b>⛔ Блокер (СДБО):</b> нет задачи на интеграцию СДБО с чат-платформой Edna. Нет возможности протестировать — у СТ нет доступа в тестовый контур банка.</div></td>
               </tr>
               <tr>
                 <th scope="row" class="num">2</th>
@@ -174,8 +178,8 @@
                 <th scope="row" class="num">3</th>
                 <td class="tname">Поиск клиента по номеру телефона</td>
                 <td class="rfc">RFC-4452</td>
-                <td class="tstatus"><span class="chip review"><span class="pt"></span>Review</span></td>
-                <td class="cmt">Установлено на us1 · ожидание приёмочного тестирования</td>
+                <td class="tstatus"><span class="chip done2"><span class="pt"></span>Done</span></td>
+                <td class="cmt">Поставлено на Prod 19.08</td>
               </tr>
             </tbody>
           </table>
