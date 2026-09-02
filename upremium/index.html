@@ -16,11 +16,11 @@
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#12100a;--surface:#1a1710;--surface-2:#231e12;--ink:#efe9d9;--ink-2:#b7ae95;--ink-3:#8a8069;
-      --line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;
+      --line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;--qa:#a294ec;
       --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.4)}
   }
-  :root[data-theme="light"]{--bg:#f7f6f2;--surface:#ffffff;--surface-2:#f3efe4;--ink:#1c1a14;--ink-2:#5c5645;--ink-3:#938c78;--line:#e8e2d3;--line-2:#d8cfb8;--accent:#bf8f2a;--accent-soft:#f7efd9;--good:#2f9e6e;--info:#3b5bdb;--muted:#a99f88;--shadow:0 1px 2px rgba(40,34,15,.06),0 6px 20px rgba(40,34,15,.07)}
-  :root[data-theme="dark"]{--bg:#12100a;--surface:#1a1710;--surface-2:#231e12;--ink:#efe9d9;--ink-2:#b7ae95;--ink-3:#8a8069;--line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.4)}
+  :root[data-theme="light"]{--bg:#f7f6f2;--surface:#ffffff;--surface-2:#f3efe4;--ink:#1c1a14;--ink-2:#5c5645;--ink-3:#938c78;--line:#e8e2d3;--line-2:#d8cfb8;--accent:#bf8f2a;--accent-soft:#f7efd9;--good:#2f9e6e;--info:#3b5bdb;--muted:#a99f88;--qa:#7c6bd6;--shadow:0 1px 2px rgba(40,34,15,.06),0 6px 20px rgba(40,34,15,.07)}
+  :root[data-theme="dark"]{--bg:#12100a;--surface:#1a1710;--surface-2:#231e12;--ink:#efe9d9;--ink-2:#b7ae95;--ink-3:#8a8069;--line:#2c2618;--line-2:#3a3222;--accent:#e3ba4d;--accent-soft:#2a2413;--good:#3bb57e;--info:#7089f2;--muted:#8a8069;--qa:#a294ec;--shadow:0 1px 2px rgba(0,0,0,.4),0 8px 26px rgba(0,0,0,.4)}
 
   *{box-sizing:border-box} body{margin:0}
   .wrap{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:34px clamp(16px,4vw,56px) 72px;-webkit-font-smoothing:antialiased;line-height:1.5}
@@ -58,6 +58,7 @@
   .chip.work{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
   .chip.done{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
   .chip.q4{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  .chip.qa{color:var(--qa);background:color-mix(in srgb,var(--qa) 13%,transparent);border:1px solid color-mix(in srgb,var(--qa) 42%,transparent)}
   .chip.wait{color:var(--info);background:color-mix(in srgb,var(--info) 12%,transparent);border:1px solid color-mix(in srgb,var(--info) 40%,transparent)}
   table.tk.narrow{min-width:480px}
 
@@ -108,20 +109,20 @@
   <header class="head">
     <div class="eyebrow"><span class="dot"></span>Планирование работы · КИБ Премиум · UPremium</div>
     <h1>UPremium «Мобильный ассистент»</h1>
-    <p class="sub">Фаза 2: плановый релиз 2.3.0 (10 сентября), задачи в работе.</p>
+    <p class="sub">Фаза 2: плановый релиз 2.3.0 (15 сентября), задачи в работе.</p>
   </header>
 
   <main id="main">
     <div class="tiles">
-      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.3.0</div><div class="u">план · 10.09.2026</div></div>
-      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">4 готово · 2 в работе</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.3.0</div><div class="u">план · 15.09.2026</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">все 6 готово</div></div>
       <div class="tile mut"><span class="rail"></span><div class="k">Сопровождение и доработки</div><div class="v tnum">3</div><div class="u">блока: ЗНИ · СДБО ЮЛ · вебхуки</div></div>
     </div>
 
     <section>
       <div class="s-head">
         <h2>Релиз 2.3.0</h2>
-        <span class="relchip">📅 Плановая дата — 10 сентября</span>
+        <span class="relchip">📅 Плановая дата — 15 сентября</span>
       </div>
       <div class="board">
         <table class="tk">
@@ -131,8 +132,8 @@
             <tr><th scope="row" class="nm"><span class="mp">MP_15</span> · График платежей для кредитов</th><td class="code">CIBPREM-1046</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Рядняный И.О.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_33</span> · BE: интеграционные тесты (TestContainers)</th><td class="code">CIBPREM-1659</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Балашевич Г.Л.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_34</span> · BE: оптимизация синхронизации с УОС</th><td class="code">CIBPREM-1660</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Кохановский А.В.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_13</span> · Существенные условия по договорам финансирования (залоги, поручительства)</th><td class="code">CIBPREM-1044</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_37</span> · Онбординг</th><td class="code">CIBPREM-1717</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_13</span> · Существенные условия по договорам финансирования (залоги, поручительства)</th><td class="code">CIBPREM-1044</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_37</span> · Онбординг</th><td class="code">CIBPREM-1717</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Рядняный И.О.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_21</span> · Оценка удовлетворённости</th><td class="code">RFC-2094</td><td class="st"><span class="chip done"><span class="pt"></span>Готово</span></td><td class="who">Рядняный И.О.</td></tr>
           </tbody>
         </table>
@@ -142,19 +143,21 @@
     <section>
       <div class="s-head">
         <h2>Релиз 2.4.0</h2>
-        <span class="relchip">📅 Плановый релиз — октябрь</span>
+        <span class="relchip">📅 Плановый релиз — 13 октября</span>
       </div>
       <div class="board">
         <table class="tk">
           <caption>Задачи релиза 2.4.0</caption>
           <thead><tr><th>Задача</th><th>Код</th><th>Статус</th><th>Ответственный</th></tr></thead>
           <tbody>
-            <tr><th scope="row" class="nm"><span class="mp">MP_29</span> · Уведомления по окончанию срока для аккредитивов и гарантий</th><td class="code">CIBPREM-1639</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_36</span> · Отображение относительных процентных ставок</th><td class="code">CIBPREM-1716</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_20-3</span> · FE: Переход на детали сделки / депозита / кредита из уведомлений</th><td class="code">CIBPREM-1677</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Шевелев Д.С.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium</th><td class="code">CIBPREM-1640</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Петушок А.И.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_30</span> · Отправка имейла КМ при заказе обратного звонка</th><td class="code">CIBPREM-1657</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Твердая К.А.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_32</span> · Навигация по разделам</th><td class="code">CIBPREM-1661</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_29</span> · Уведомления по окончанию срока для аккредитивов и гарантий</th><td class="code">CIBPREM-1639</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_36</span> · Отображение относительных процентных ставок</th><td class="code">CIBPREM-1716</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_20-3</span> · FE: Переход на детали сделки / депозита / кредита из уведомлений</th><td class="code">CIBPREM-1677</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Шевелев Д.С.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium</th><td class="code">CIBPREM-1640</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Петушок А.И.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_30</span> · Отправка имейла КМ при заказе обратного звонка</th><td class="code">CIBPREM-1657</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Твердая К.А.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_32</span> · Навигация по разделам</th><td class="code">CIBPREM-1661</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь</th><td class="code">CIBPREM-1076</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_38</span> · Страница КМ</th><td class="code">CIBPREM-1920</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span></td><td class="who">Рядняный И.О.</td></tr>
           </tbody>
         </table>
       </div>
@@ -163,14 +166,13 @@
     <section>
       <div class="s-head">
         <h2>Все задачи</h2>
-        <div class="s-note">вне релизов 2.3.0 / 2.4.0 · 2</div>
+        <div class="s-note">вне релизов 2.3.0 / 2.4.0 · 1</div>
       </div>
       <div class="board">
         <table class="tk narrow">
           <caption>Задачи вне релизов (фаза 2)</caption>
           <thead><tr><th>Задача</th><th>Код</th></tr></thead>
           <tbody>
-            <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь</th><td class="code">CIBPREM-1076</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_25</span> · Пользовательское поведение (метрики) <span class="chip wait" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Ожидаем Арх. комитета банка</span></th><td class="code">CIBPREM-1715</td></tr>
           </tbody>
         </table>
@@ -204,14 +206,13 @@
           </div>
           <div class="wh-item">
             <p><b>b.</b> Доработка УОС точки — ТИ UEQG252M (реестр задолженности кредитного договора, в т.ч. мультивалютного, или клиента). <span class="code">RFC-5196 · 3 ч/д</span></p>
-            <div class="chips"><span class="chip done"><span class="pt"></span>Оценка завершена</span></div>
+            <div class="chips"><span class="chip work"><span class="pt"></span>В работе на сентябрь</span></div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer>Источник: статус-встреча «КИБ Премиум: СПС и UPremium» · 23.07.2026 + Jira-эпик релиза 2.3.0. Статусы актуальны на дату обновления.</footer>
 </div>
 </body>
 </html>
