@@ -57,7 +57,7 @@
   .chip .pt{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
   .chip.work{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
   .chip.done{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
-  .chip.q4{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  .chip.q4,.chip.pause{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
   .chip.qa{color:var(--qa);background:color-mix(in srgb,var(--qa) 13%,transparent);border:1px solid color-mix(in srgb,var(--qa) 42%,transparent)}
   .chip.ba{color:#0d9488;background:color-mix(in srgb,#0d9488 14%,transparent);border:1px solid color-mix(in srgb,#0d9488 45%,transparent)}
   .prodbar{max-width:1080px;margin:0 auto 24px;display:flex;align-items:center;gap:11px;background:color-mix(in srgb,var(--good) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-left:4px solid var(--good);border-radius:12px;padding:12px 17px;font-size:13.5px;color:var(--ink);font-weight:600}
@@ -119,7 +119,7 @@
 
     <div class="tiles">
       <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.4.0</div><div class="u">план · 13.10.2026</div></div>
-      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">7</div><div class="u">6 QA · 1 БА</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">5 QA · 1 БА</div></div>
       <div class="tile mut"><span class="rail"></span><div class="k">Сопровождение и доработки</div><div class="v tnum">3</div><div class="u">блока: ЗНИ · СДБО ЮЛ · вебхуки</div></div>
     </div>
 
@@ -136,7 +136,6 @@
             <tr><th scope="row" class="nm"><span class="mp">MP_29</span> · Уведомления по окончанию срока для аккредитивов и гарантий</th><td class="code">CIBPREM-1639</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_36</span> · Отображение относительных процентных ставок</th><td class="code">CIBPREM-1716</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_20-3</span> · FE: Переход на детали сделки / депозита / кредита из уведомлений</th><td class="code">CIBPREM-1677</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Шевелев Д.С.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium</th><td class="code">CIBPREM-1640</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Петушок А.И.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_30</span> · Отправка имейла КМ при заказе обратного звонка</th><td class="code">CIBPREM-1657</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Твердая К.А.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_32</span> · Навигация по разделам</th><td class="code">CIBPREM-1661</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_38</span> · Страница КМ</th><td class="code">CIBPREM-1920</td><td class="st"><span class="chip ba"><span class="pt"></span>БА</span></td><td class="who">Рядняный И.О.</td></tr>
@@ -148,7 +147,7 @@
     <section>
       <div class="s-head">
         <h2>Все задачи</h2>
-        <div class="s-note">вне релизов 2.3.0 / 2.4.0 · 2</div>
+        <div class="s-note">вне релизов 2.3.0 / 2.4.0 · 3</div>
       </div>
       <div class="board">
         <table class="tk narrow">
@@ -157,6 +156,7 @@
           <tbody>
             <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь</th><td class="code">CIBPREM-1076</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_25</span> · Пользовательское поведение (метрики) <span class="chip wait" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Ожидаем Арх. комитета банка</span></th><td class="code">CIBPREM-1715</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">CIBPREM-1640</td></tr>
           </tbody>
         </table>
       </div>
