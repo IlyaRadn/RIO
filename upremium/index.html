@@ -58,6 +58,7 @@
   .chip.work{color:var(--accent);background:color-mix(in srgb,var(--accent) 15%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
   .chip.done{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
   .chip.q4,.chip.pause{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
+  .chip.calm{color:#5a9478;background:color-mix(in srgb,#5a9478 12%,transparent);border:1px solid color-mix(in srgb,#5a9478 38%,transparent)}
   .chip.qa{color:var(--qa);background:color-mix(in srgb,var(--qa) 13%,transparent);border:1px solid color-mix(in srgb,var(--qa) 42%,transparent)}
   .chip.ba{color:#0d9488;background:color-mix(in srgb,#0d9488 14%,transparent);border:1px solid color-mix(in srgb,#0d9488 45%,transparent)}
   .prodbar{max-width:1080px;margin:0 auto 24px;display:flex;align-items:center;gap:11px;background:color-mix(in srgb,var(--good) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-left:4px solid var(--good);border-radius:12px;padding:12px 17px;font-size:13.5px;color:var(--ink);font-weight:600}
@@ -111,22 +112,20 @@
   <header class="head">
     <div class="eyebrow"><span class="dot"></span>Планирование работы · КИБ Премиум · UPremium</div>
     <h1>UPremium «Мобильный ассистент»</h1>
-    <p class="sub">Фаза 2: релиз 2.3.0 вышел в прод 15.09; следующий релиз — 2.4.0 (13 октября).</p>
+    <p class="sub">Фаза 2: плановый релиз 2.4.0 — 20 октября.</p>
   </header>
 
   <main id="main">
-    <div class="prodbar">✅ Релиз 2.3.0 успешно вышел в прод — 15.09.2026</div>
-
     <div class="tiles">
-      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.4.0</div><div class="u">план · 13.10.2026</div></div>
-      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">5 QA · 1 БА</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.4.0</div><div class="u">план · 20.10.2026</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Задач в релизе</div><div class="v tnum">6</div><div class="u">6 QA</div></div>
       <div class="tile mut"><span class="rail"></span><div class="k">Сопровождение и доработки</div><div class="v tnum">3</div><div class="u">блока: ЗНИ · СДБО ЮЛ · вебхуки</div></div>
     </div>
 
     <section>
       <div class="s-head">
         <h2>Релиз 2.4.0</h2>
-        <span class="relchip">📅 Плановая дата — 13 октября</span>
+        <span class="relchip">📅 Плановая дата — 20 октября</span>
       </div>
       <div class="board">
         <table class="tk">
@@ -138,7 +137,7 @@
             <tr><th scope="row" class="nm"><span class="mp">MP_20-3</span> · FE: Переход на детали сделки / депозита / кредита из уведомлений</th><td class="code">CIBPREM-1677</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Шевелев Д.С.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_30</span> · Отправка имейла КМ при заказе обратного звонка</th><td class="code">CIBPREM-1657</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Твердая К.А.</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_32</span> · Навигация по разделам</th><td class="code">CIBPREM-1661</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_38</span> · Страница КМ</th><td class="code">CIBPREM-1920</td><td class="st"><span class="chip ba"><span class="pt"></span>БА</span></td><td class="who">Рядняный И.О.</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_38</span> · Страница КМ</th><td class="code">CIBPREM-1920</td><td class="st"><span class="chip qa"><span class="pt"></span>QA</span></td><td class="who">Рядняный И.О.</td></tr>
           </tbody>
         </table>
       </div>
@@ -147,16 +146,20 @@
     <section>
       <div class="s-head">
         <h2>Все задачи</h2>
-        <div class="s-note">вне релизов 2.3.0 / 2.4.0 · 3</div>
+        <div class="s-note">вне релиза 2.4.0 · 7</div>
       </div>
       <div class="board">
         <table class="tk narrow">
           <caption>Задачи вне релизов (фаза 2)</caption>
           <thead><tr><th>Задача</th><th>Код</th></tr></thead>
           <tbody>
-            <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь</th><td class="code">CIBPREM-1076</td></tr>
-            <tr><th scope="row" class="nm"><span class="mp">MP_25</span> · Пользовательское поведение (метрики) <span class="chip wait" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Ожидаем Арх. комитета банка</span></th><td class="code">CIBPREM-1715</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_39</span> · Изменения для онлайн-факторинга <span class="chip work" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>В работе</span></th><td class="code">—</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">RFC-5794</span> · Переход на микросервисную архитектуру <span class="chip work" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>В работе</span></th><td class="code">CIBPREM-2050</td></tr>
+            <tr><th scope="row" class="nm">Уведомления — веб-сокеты <span class="chip calm" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Анализ</span></th><td class="code">—</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">CIBPREM-1076</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">CIBPREM-1640</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_40</span> · Вкладка «Новости банка» <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">—</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_25</span> · Пользовательское поведение (метрики) <span class="chip wait" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>Ожидаем Арх. комитета банка</span></th><td class="code">CIBPREM-1715</td></tr>
           </tbody>
         </table>
       </div>
@@ -185,11 +188,7 @@
           <h3>Вебхуки <span class="code">CR-29595</span></h3>
           <div class="wh-item">
             <p><b>a.</b> Актуализация оценки УОС — CR-35395 (аккредитивы + гарантии · 34 ч/д).</p>
-            <div class="chips"><span class="chip done"><span class="pt"></span>Оценка завершена</span><span class="chip q4"><span class="pt"></span>Ожидание Q4</span></div>
-          </div>
-          <div class="wh-item">
-            <p><b>b.</b> Доработка УОС точки — ТИ UEQG252M (реестр задолженности кредитного договора, в т.ч. мультивалютного, или клиента). <span class="code">RFC-5196 · 3 ч/д</span></p>
-            <div class="chips"><span class="chip work"><span class="pt"></span>В работе на сентябрь</span></div>
+            <div class="chips"><span class="chip calm"><span class="pt"></span>Оценка завершена</span></div>
           </div>
         </div>
       </div>
@@ -199,13 +198,8 @@
       <div class="blocks">
         <div class="block">
           <h3>Бизнес-анализ и UX/UI дизайн</h3>
-          <p class="muted">Плановый период — 4 квартал 2026 года.</p>
+          <p class="muted">Проведение пред-БА и работ по дизайну.</p>
           <div class="chips"><span class="chip q4"><span class="pt"></span>Q4 2026</span></div>
-        </div>
-        <div class="block">
-          <h3>Переход на микросервисную архитектуру <span class="code">RFC-5794</span></h3>
-          <p>Мобильный ассистент — миграция на микросервисную архитектуру.</p>
-          <div class="chips"><span class="chip qa"><span class="pt"></span>Арх ревью</span></div>
         </div>
       </div>
     </section>
