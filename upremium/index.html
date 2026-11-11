@@ -62,6 +62,10 @@
   .chip.done{color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
   .chip.q4,.chip.pause{color:var(--ink-3);background:var(--surface-2);border:1px solid var(--line-2)}
   .chip.calm{color:#5a9478;background:color-mix(in srgb,#5a9478 12%,transparent);border:1px solid color-mix(in srgb,#5a9478 38%,transparent)}
+  .kpk-list{margin:8px 0 0;display:flex;flex-direction:column;gap:7px}
+  .kpk-row{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:var(--ink-2);line-height:1.45}
+  .kpk-l{flex:none;min-width:15px;color:var(--ink-3);font-weight:700;font-size:12.5px;margin-top:1px}
+  .kpk-sub{color:var(--ink-3)}
   .chip.qa{color:var(--qa);background:color-mix(in srgb,var(--qa) 13%,transparent);border:1px solid color-mix(in srgb,var(--qa) 42%,transparent)}
   .chip.ba{color:#0d9488;background:color-mix(in srgb,#0d9488 14%,transparent);border:1px solid color-mix(in srgb,#0d9488 45%,transparent)}
   .prodbar{max-width:1080px;margin:0 auto 24px;display:flex;align-items:center;gap:11px;background:color-mix(in srgb,var(--good) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-left:4px solid var(--good);border-radius:12px;padding:12px 17px;font-size:13.5px;color:var(--ink);font-weight:600}
@@ -115,13 +119,12 @@
   <header class="head">
     <div class="eyebrow"><span class="dot"></span>Планирование работы · КИБ Премиум · UPremium</div>
     <h1>UPremium «Мобильный ассистент»</h1>
-    <p class="sub">Фаза 2: релизы 2.4.0 (22.10) и 2.4.1 (27.10) завершены; следующий — 2.5.0 (24.11).</p>
+    <p class="sub">Фаза 2: релиз 2.5.0 — переход на микросервисную архитектуру (24.11).</p>
   </header>
 
   <main id="main">
     <div class="tiles">
-      <div class="tile done"><span class="rail"></span><div class="k">Релиз 2.4.0</div><div class="v soft"><span class="rdot"></span>Завершён</div><div class="u">22.10.2026</div></div>
-      <div class="tile done"><span class="rail"></span><div class="k">Релиз 2.4.1 · RFC-6937</div><div class="v soft"><span class="rdot"></span>Завершён</div><div class="u">27.10.2026</div></div>
+      <div class="tile"><span class="rail"></span><div class="k">Следующий релиз</div><div class="v">2.5.0</div><div class="u">микросервисы · 24.11.2026</div></div>
       <div class="tile mut"><span class="rail"></span><div class="k">Сопровождение и доработки</div><div class="v tnum">3</div><div class="u">блока: ЗНИ · СДБО ЮЛ · вебхуки</div></div>
     </div>
 
@@ -135,7 +138,7 @@
           <caption>Задачи релиза 2.5.0</caption>
           <thead><tr><th>Задача</th><th>Код</th><th>Статус</th><th>Ответственный</th></tr></thead>
           <tbody>
-            <tr><th scope="row" class="nm"><span class="mp">RFC-5794</span> · Переход на микросервисную архитектуру</th><td class="code">CIBPREM-2050</td><td class="st"><span class="chip work"><span class="pt"></span>В работе</span><span class="chip wait" style="margin-left:6px"><span class="pt"></span>с 04.11 — старт тестирования</span></td><td class="who">—</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">RFC-5794</span> · Переход на микросервисную архитектуру</th><td class="code">CIBPREM-2050</td><td class="st"><span class="chip qa"><span class="pt"></span>Тестирование</span></td><td class="who">—</td></tr>
           </tbody>
         </table>
       </div>
@@ -144,14 +147,15 @@
     <section>
       <div class="s-head">
         <h2>Все задачи</h2>
-        <div class="s-note">вне релизов · 6</div>
+        <div class="s-note">вне релизов · 7</div>
       </div>
       <div class="board">
         <table class="tk narrow">
           <caption>Задачи вне релизов (фаза 2)</caption>
           <thead><tr><th>Задача</th><th>Код</th></tr></thead>
           <tbody>
-            <tr><th scope="row" class="nm"><span class="mp">MP_39</span> · Изменения для онлайн-факторинга <span class="chip work" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>В работе</span></th><td class="code">—</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_39</span> · Изменения для онлайн-факторинга <span class="chip work" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>В работе</span></th><td class="code">CIBPREM-1996</td></tr>
+            <tr><th scope="row" class="nm"><span class="mp">MP_44</span> · Отображение абсолютного значения процентной ставки <span class="chip work" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>В работе</span></th><td class="code">CIBPREM-2296</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_16</span> · Платёжный календарь <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">CIBPREM-1076</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_31</span> · Push-уведомления для UPremium <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">CIBPREM-1640</td></tr>
             <tr><th scope="row" class="nm"><span class="mp">MP_40</span> · Вкладка «Новости банка» <span class="chip pause" style="margin-left:8px;vertical-align:middle"><span class="pt"></span>На паузе</span></th><td class="code">—</td></tr>
@@ -195,8 +199,16 @@
       <div class="blocks">
         <div class="block">
           <h3>Бизнес-анализ и UX/UI дизайн</h3>
-          <p class="muted">Проведение пред-БА и работ по дизайну.</p>
-          <div class="chips"><span class="chip calm"><span class="pt"></span>Предварительный бизнес-анализ завершён</span><span class="chip calm"><span class="pt"></span>Архитектурный анализ завершён</span></div>
+          <div class="chips"><span class="chip work"><span class="pt"></span>В работе</span></div>
+          <p class="muted" style="margin-top:11px">В работе — бизнес-анализ и UX/UI:</p>
+          <div class="kpk-list">
+            <div class="kpk-row"><span class="kpk-l">A</span><span>Авторизация</span></div>
+            <div class="kpk-row"><span class="kpk-l">B</span><span>Раздел «Главная страница» <span class="kpk-sub">(пользовательская страница / админка)</span></span></div>
+            <div class="kpk-row"><span class="kpk-l">C</span><span>Раздел «Календарь событий» <span class="kpk-sub">(пользовательская страница / админка)</span></span></div>
+            <div class="kpk-row"><span class="kpk-l">D</span><span>Раздел «Лайфстайл-сервисы» <span class="kpk-sub">(пользовательская страница / админка)</span></span></div>
+            <div class="kpk-row"><span class="kpk-l">E</span><span>Раздел «Персональные привилегии» <span class="kpk-sub">(пользовательская страница / админка)</span></span></div>
+            <div class="kpk-row"><span class="kpk-l">F</span><span>Ролевая модель</span></div>
+          </div>
         </div>
       </div>
     </section>
