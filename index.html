@@ -50,15 +50,11 @@
 
   @media (max-width:520px){.wrap{padding:38px 16px 56px}.grid{grid-template-columns:1fr;gap:16px}.card{padding:22px}}
 
-  .gamebar{max-width:1080px;margin:20px auto 0;display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:18px;background:#123b31;color:#e9f2ec;text-decoration:none;box-shadow:var(--shadow);transition:transform .16s ease,box-shadow .16s ease}
-  .gamebar:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
-  .gamebar:focus-visible{outline:2px solid #f3b734;outline-offset:3px}
-  .gamebar .gb-ic{width:46px;height:46px;border-radius:14px;background:#f3b734;display:grid;place-items:center;font-size:26px;flex:none}
-  .gamebar .gb-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-  .gamebar .gb-t b{font-size:17px}
-  .gamebar .gb-t span{font-size:13px;color:#a7c4b7}
-  .gamebar .gb-go{font-weight:700;color:#f3b734;white-space:nowrap}
-  @media (max-width:520px){.gamebar{flex-wrap:wrap}.gamebar .gb-go{width:100%}}
+  .catlink{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:24px;text-decoration:none;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);opacity:.75;transition:opacity .16s ease,transform .16s ease;z-index:5}
+  .catlink:hover,.catlink:focus-visible{opacity:1;transform:translateY(-2px)}
+  .catlink:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .catlink .tip{position:absolute;left:52px;white-space:nowrap;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 8px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .16s ease}
+  .catlink:hover .tip,.catlink:focus-visible .tip{opacity:1}
   .team{max-width:1080px;margin:48px auto 0}
   .team h2{font-size:20px;font-weight:700;letter-spacing:-.01em;margin:0 0 18px}
   .teamgrid{display:grid;gap:20px;grid-template-columns:1fr 1fr}
@@ -76,6 +72,7 @@
 </head>
 <body>
 <div class="wrap">
+  <a class="catlink" href="https://claude.ai/artifact/Pys3aEExSWwRG6yE3bUTL7" target="_blank" rel="noopener" aria-label="Котофонд — игра идей"><span aria-hidden="true">🐱</span><span class="tip">Котофонд — игра идей</span></a>
   <header>
     <div class="eyebrow"><span class="dot"></span>Планирование работы</div>
     <h1>Проекты: КИБ Премиум</h1>
@@ -103,12 +100,6 @@
       <span class="open">Открыть <span class="arrow" aria-hidden="true">→</span></span>
     </a>
   </main>
-
-  <a class="gamebar" href="https://claude.ai/artifact/Pys3aEExSWwRG6yE3bUTL7" target="_blank" rel="noopener">
-    <span class="gb-ic" aria-hidden="true">🐱</span>
-    <span class="gb-t"><b>Котофонд — игра идей</b><span>Придумываем идеи для проектов командой: карты, коты и аукцион монет</span></span>
-    <span class="gb-go">Играть <span aria-hidden="true">→</span></span>
-  </a>
 
   <section class="team">
     <h2>Команда проектов</h2>
