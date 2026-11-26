@@ -972,7 +972,7 @@ function curCat(){ if(draft.cat!=null && catLeft(draft.cat)>0) return draft.cat;
 function playerIdeas(){
   const s=sets(), done=me.done||0;
   if(done>=s.cards) return `<div class="eyebrow">Раунд идей</div><div class="h">Все карты сданы</div>${myIdeasBox(false)}<div class="wait"><div class="bigcat">😸</div><b>Ждём остальных</b><div class="small muted">Когда все допишут, ведущий закроет раунд.</div></div>`;
-  const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[0], T=TYPES[type];
+  const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[(me.pos||0)%TYPE_KEYS.length], T=TYPES[type];
   const head=`<div class="row between"><div class="eyebrow">Карта ${done+1} из ${s.cards}</div>${me.cardAt?`<div class="timer" style="font-size:22px" data-down="${me.cardAt+s.min*60000}">${mmss(me.cardAt+s.min*60000-Date.now())}</div>`:""}</div>`;
   if(!me.cardAt) return head+`<button class="facedown" data-act="draw" ${busy?"disabled":""} style="cursor:pointer;font:inherit"><span style="font-size:44px">🃏</span><b>Тяни карту</b><span class="small">Выпадет тип идеи и подсказка. На ответ ${s.min} мин.</span><span class="small" style="color:var(--gold-2)">Иногда выпадает ⭐ золотая карта: монеты за идею ×2</span></button>`;
   const cat=curCat(); const qp=pickQ(G.gid+":"+(me.pos||0)+":"+me.cardAt, type, false);
@@ -1067,7 +1067,7 @@ setInterval(tick, 1000);
 async function hostUpdate(patch){ await gs().update(patch); }
 function submitIdea(auto){
   return run(async ()=>{
-    const s=sets(), text=draft.text.trim().slice(0,400), type=(me.deck||[])[me.pos||0]||TYPE_KEYS[0];
+    const s=sets(), text=draft.text.trim().slice(0,400), type=(me.deck||[])[me.pos||0] || TYPE_KEYS[(me.pos||0)%TYPE_KEYS.length];
     if(!text && !auto){ errMsg="Напиши идею: хотя бы одно предложение."; return; }
     if(text){
       const cat=curCat(); const ref=db.collection("ideas").doc();
@@ -1082,7 +1082,7 @@ function submitIdea(auto){
 }
 function goldFx(){ setTimeout(()=>{ banner("⭐","Золотая карта!","Монеты за эту идею удвоятся"); if(soundOn){ const ac=audio(); if(ac){ chime(ac,ac.currentTime+.02); chime(ac,ac.currentTime+.25); meowOnce(ac,ac.currentTime+.3,1.35,1); } } rain(12,["⭐","✨","🪙"]); }, 250); }
 const ACT = {
-  reroll(){ if(!me || !G) return; const type=(me.deck||[])[me.pos||0]||TYPE_KEYS[0]; pickQ(G.gid+":"+(me.pos||0)+":"+me.cardAt, type, true); qPick.flash=true; dice(); render(); setTimeout(()=>{ qPick.flash=false; }, 50); },
+  reroll(){ if(!me || !G) return; const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[(me.pos||0)%TYPE_KEYS.length]; pickQ(G.gid+":"+(me.pos||0)+":"+me.cardAt, type, true); qPick.flash=true; dice(); render(); setTimeout(()=>{ qPick.flash=false; }, 50); },
   sound(){ soundOn=!soundOn; if(soundOn) audio(); render(); },
   snore(){ audio(); setTimeout(()=>{ snore(); render(); }, 60); },
   create(){ run(()=>gs().set({gid:rid(), code:newCode(), project:"up", phase:"lobby", settings:DEF, order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
@@ -1139,7 +1139,7 @@ document.addEventListener("click", e=>{
   const f=e.target.closest("[data-fib]"); if(f && !f.disabled){ fib=+f.dataset.fib; render(); return; }
   const st=e.target.closest("[data-set]"); if(st && G && !busy){
     const [k,i]=st.dataset.set.split(":"), d=+st.dataset.d, s=sets();
-    const lim={min:[1,10,1], cards:[1,8,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,10,1]}[k];
+    const lim={min:[1,10,1], cards:[1,18,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,18,1]}[k];
     if(k==="cats"){ const cats=s.cats.slice(); cats[+i]=Math.max(lim[0],Math.min(lim[1],cats[+i]+d)); s.cats=cats; }
     else s[k]=Math.max(lim[0],Math.min(lim[1],s[k]+d*lim[2]));
     run(()=>hostUpdate({settings:s})); return; }
