@@ -1,0 +1,1125 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
+<style>html,body{margin:0}[hidden]{display:none!important}#netpill{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:60;font:600 12px/1.2 Manrope,system-ui,sans-serif;padding:7px 11px;border-radius:999px;background:#0b1512;color:#e9f2ec;border:1px solid #2b6453;box-shadow:0 6px 18px rgba(0,0,0,.35)}#netpill.warn{background:#3a2a08;border-color:#f3b734;color:#ffd46b}</style>
+</head><body>
+<title>Котофонд</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: игровой стол (сукно). Ведущий — широкая панель, игрок — одна карточка по центру телефона */
+:root{
+  color-scheme: dark;
+  --felt:#103a30; --felt-2:#174a3d; --felt-line:#2b6453; --felt-ink:#e9f2ec; --felt-mute:#a7c4b7;
+  --paper:#ffffff; --paper-2:#f2f6f3; --line:#dbe5df; --ink:#16211d; --mute:#5b6b65;
+  --gold:#f3b734; --gold-2:#ffd46b; --gold-ink:#5a3d00; --gold-soft:#fff3cf;
+  --coral:#ff6f4f; --coral-soft:#fff1ec; --ok:#1f9d63; --ok-soft:#e9f8f0; --bad:#c0392b;
+  --t1:#2f6fe4; --t2:#7a4cd9; --t3:#d4841a; --t4:#0f8f86; --t5:#d23f7a; --t6:#5f7a1f; --t7:#2a8fc9; --t8:#b4372f;
+  --f-display:"Unbounded", "Manrope", system-ui, sans-serif;
+  --f-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--felt);color:var(--felt-ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;min-height:100%;
+  background:radial-gradient(1200px 600px at 50% -10%, var(--felt-2), var(--felt) 70%) fixed, var(--felt);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 56px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{text-wrap:balance;margin:0}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--gold-2);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--gold);display:grid;place-items:center;font-size:26px;box-shadow:0 5px 0 #b8841a}
+.brand h1{font-family:var(--f-display);font-weight:800;font-size:clamp(22px,3.4vw,32px);line-height:1}
+.brand p{margin:4px 0 0;color:var(--felt-mute);font-size:13px}
+.seg{display:flex;background:rgba(0,0,0,.25);border:1px solid var(--felt-line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--felt-ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink)}
+.panel{background:var(--paper);color:var(--ink);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.35);padding:22px;display:flex;flex-direction:column;gap:18px}
+.pcard{background:var(--paper-2);color:var(--ink);border-radius:24px;box-shadow:0 20px 50px rgba(0,0,0,.35);padding:20px 18px;display:flex;flex-direction:column;gap:14px;width:100%;max-width:460px;margin:0 auto;position:relative;overflow:hidden;min-height:420px}
+.onfelt{color:var(--felt-ink);text-align:center;padding:40px 16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.onfelt .muted{color:var(--felt-mute)}
+.eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.h{font-family:var(--f-display);font-weight:700;font-size:20px;line-height:1.2}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:800;font-size:15px;color:var(--ink)}
+.btn.gold{background:var(--gold);color:var(--gold-ink);box-shadow:0 4px 0 #b8841a}
+.btn.gold:active{transform:translateY(2px);box-shadow:0 2px 0 #b8841a}
+.btn.ghost{background:var(--paper-2);color:var(--ink);border:1px solid var(--line)}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.danger{background:var(--bad);color:#fff}
+.btn.block{width:100%}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.box{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--paper)}
+.muted{color:var(--mute)}
+.small{font-size:13px}
+.err{background:#fdecea;color:#8a1f12;border:1px solid #f3b6ad;border-radius:12px;padding:10px 12px;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:700px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;color:#fff;white-space:nowrap}
+.timer{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+.proj{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.proj{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.proj{grid-template-columns:minmax(0,1fr)}}
+.proj label{border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;position:relative}
+.proj input{position:absolute;opacity:0;pointer-events:none}
+.proj label:has(input:checked){border-color:var(--gold);background:var(--gold-soft)}
+.proj label:has(input:focus-visible){outline:3px solid var(--gold-2)}
+.proj b{font-size:14px}.proj span{font-size:12px;color:var(--mute)}
+.code{font-family:var(--f-mono);font-weight:700;font-size:34px;letter-spacing:.08em}
+.nicks{display:flex;flex-wrap:wrap;gap:8px}
+.nick{background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 6px;font-size:13px;font-weight:600;display:flex;gap:6px;align-items:center}
+.nick .av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:#fff}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.set{background:var(--paper-2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.set span{font-size:12px;color:var(--mute)}
+.step{display:flex;align-items:center;gap:8px}
+.step b{font-family:var(--f-display);font-size:18px;min-width:44px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.step button{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:800;color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:700}
+.field input,.field textarea{font:inherit;border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;color:var(--ink);width:100%}
+.field textarea{resize:vertical;min-height:120px}
+.wait{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:16px 0}
+.bigcat{font-size:64px;line-height:1;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.avtabs{display:flex;gap:6px}
+.avtabs button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--ink)}
+.avtabs button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.avgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;max-height:220px;overflow-y:auto;padding:4px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+.avb{aspect-ratio:1;border:2px solid transparent;border-radius:12px;background:var(--paper-2);font-size:22px;display:grid;place-items:center;padding:0}
+.avb[aria-pressed="true"]{border-color:var(--coral);background:var(--coral-soft);transform:scale(1.08)}
+.me{display:flex;align-items:center;gap:12px}
+.bigav{width:58px;height:58px;border-radius:18px;background:#fff;border:2px solid var(--coral);display:grid;place-items:center;font-size:32px;flex:none}
+.avcap{font-size:12px;color:var(--coral);font-weight:700;min-height:16px}
+.icard{background:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(16,58,48,.18);overflow:hidden;border:1px solid var(--line)}
+.icard .band{padding:12px 14px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.icard .band b{font-family:var(--f-display);font-weight:700;font-size:15px}
+.icard .band span{font-size:12px;opacity:.92}
+.icard .hint{padding:12px 14px 0;font-size:15px;font-weight:700}
+.icard .hint small{display:block;font-weight:500;color:var(--mute);margin-top:4px;font-size:13px}
+.icard .field{padding:10px 14px 14px}
+.icard .txt{padding:12px 14px 14px;font-size:15px;font-weight:600;overflow-wrap:anywhere}
+.facedown{border-radius:18px;min-height:240px;background:repeating-linear-gradient(45deg,var(--felt) 0 10px,var(--felt-2) 10px 20px);border:4px solid #fff;box-shadow:0 10px 24px rgba(16,58,48,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:20px}
+.facedown b{font-family:var(--f-display);font-size:20px}
+.cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cat{border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink)}
+.cat .e{font-size:30px;line-height:1.1}
+.cat .mm{font-style:normal;font-size:10px;color:var(--coral);font-weight:700}
+.kitty{width:1.3em;height:1.3em;display:inline-block;vertical-align:-.35em;flex:none}
+.cat b{font-size:11px;line-height:1.2;text-align:center}
+.cat small{font-size:11px;color:var(--mute);font-family:var(--f-mono)}
+.cat[aria-pressed="true"]{border-color:var(--coral);background:var(--coral-soft)}
+.cat[disabled]{opacity:.4;cursor:not-allowed}
+.pbar{height:10px;background:var(--paper-2);border-radius:9px;overflow:hidden}
+.pbar span{display:block;height:100%;background:var(--ok);border-radius:9px;transition:width .4s}
+.cover{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:700px){.cover{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cv{border-radius:12px;padding:10px;color:#fff;display:flex;flex-direction:column;gap:2px;min-height:74px}
+.cv b{font-size:12px;line-height:1.25}
+.cv span{font-family:var(--f-display);font-size:22px;font-weight:700}
+.cv.empty{background:var(--paper-2)!important;color:var(--mute);border:1.5px dashed #b9c7c0}
+.ilist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ili{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line)}
+.ili:first-child{border-top:0}
+.ili .ct{font-size:22px}
+.ili p{margin:0;font-size:14px;overflow-wrap:anywhere}
+.ili .meta{font-size:12px;color:var(--mute)}
+.order{font-family:var(--f-mono);font-size:12px;color:var(--mute);min-width:22px;text-align:right}
+.coins{font-family:var(--f-mono);font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:3px 10px;font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.queue{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px}
+.queue span{border-radius:999px;padding:3px 10px;background:var(--paper-2);border:1px solid var(--line)}
+.queue span.now{background:var(--coral-soft);border-color:var(--coral);font-weight:700}
+.lot{border-radius:18px;padding:20px;background:var(--ink);color:#fff;display:flex;flex-direction:column;gap:12px}
+.lot p{margin:0;font-family:var(--f-display);font-weight:500;font-size:clamp(18px,2.6vw,26px);line-height:1.35;overflow-wrap:anywhere}
+.votes{display:flex;flex-wrap:wrap;gap:10px;min-height:78px}
+.vc{width:56px;height:78px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-mono);font-weight:700;font-size:22px}
+.vc.back{background:repeating-linear-gradient(45deg,var(--felt) 0 6px,var(--felt-2) 6px 12px);border:3px solid #fff;box-shadow:0 0 0 1px var(--line);animation:pop .3s ease}
+.vc.face{background:#fff;border:2px solid var(--gold);color:var(--gold-ink)}
+.vc.flipin{animation:flip .45s ease both}
+@keyframes flip{from{transform:rotateY(90deg)}to{transform:rotateY(0)}}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.sum{font-family:var(--f-display);font-size:34px;font-weight:800;color:var(--gold-ink)}
+.fib{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.fc{aspect-ratio:3/4;max-width:100%;border-radius:12px;border:2px solid var(--line);background:#fff;font-family:var(--f-mono);font-weight:700;font-size:22px;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.fc small{font-size:10px;color:var(--mute);font-family:var(--f-body)}
+.fc[aria-pressed="true"]{background:var(--gold);border-color:#b8841a;color:var(--gold-ink);transform:translateY(-4px);box-shadow:0 4px 0 #b8841a}
+.fc[disabled]{opacity:.35;cursor:not-allowed}
+.wallet{display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;border-radius:14px;padding:10px 14px}
+.wallet b{font-family:var(--f-display);font-size:22px;color:var(--gold-2)}
+.final{background:var(--coral-soft);border:1.5px solid var(--coral);border-radius:12px;padding:8px 10px;font-size:12px;text-align:center;color:#8a2c14;font-weight:700}
+.betok{background:var(--ok-soft);border:1.5px solid var(--ok);border-radius:14px;padding:12px;text-align:center}
+.meowtxt{font-family:var(--f-display);font-weight:700;color:var(--coral);font-size:16px}
+.floaty{position:fixed;font-size:26px;pointer-events:none;animation:rise 1.4s ease-out forwards;z-index:5}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-260px) scale(1.2) rotate(var(--r,10deg));opacity:0}}
+.champ{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--ink);padding:10px 6px 6px}
+.champ svg{display:block;max-width:100%;height:auto}
+.champ .title{font-family:var(--f-display);font-weight:700;font-size:12px;text-align:center;color:var(--gold-2)}
+.podwrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+@media (max-width:700px){.podwrap{grid-template-columns:minmax(0,1fr)}}
+.podcol{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.pd{padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--paper-2)}
+.pd.p1{background:var(--gold-soft)}
+.pd .place{font-family:var(--f-display);font-weight:800;font-size:22px}
+.pd p{margin:0;font-size:13px;font-weight:600;overflow-wrap:anywhere}
+.podwrap.sm{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px}
+.podwrap.sm .pd{padding:8px}
+.podwrap.sm .pd .place{font-size:15px}
+.podwrap.sm .pd p{font-size:11px}
+.podwrap.sm .champ .title{font-size:10px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nums}
+.hint2{border:1px dashed var(--line);border-radius:12px;padding:12px;font-size:13px;color:var(--mute);background:var(--paper-2)}
+.hint2 b{color:var(--ink)}
+.hint2 ol{margin:6px 0 0;padding-left:18px}
+.mine{display:flex;flex-direction:column;gap:8px}
+.mine div{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;overflow-wrap:anywhere}
+#fxbanner{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:50;opacity:0;transition:opacity .25s;padding:16px}
+#fxbanner.show{opacity:1}
+#fxbanner .bx{background:var(--ink);color:#fff;border:3px solid var(--gold);border-radius:24px;padding:22px 30px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:scale(.6) rotate(-4deg);transition:transform .35s cubic-bezier(.2,1.6,.4,1);max-width:min(90vw,420px);text-align:center}
+#fxbanner.show .bx{transform:scale(1) rotate(0)}
+#fxbanner .be{font-size:56px;line-height:1}
+#fxbanner b{font-family:var(--f-display);font-size:26px;color:var(--gold-2)}
+#fxbanner span{font-size:14px;color:var(--felt-mute)}
+.rain{position:fixed;top:-40px;font-size:28px;pointer-events:none;z-index:49;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(calc(100vh + 80px)) rotate(var(--r,360deg))}}
+.cardflip{animation:cardflip .6s cubic-bezier(.2,1.3,.4,1)}
+@keyframes cardflip{from{transform:perspective(800px) rotateY(-100deg) scale(.8);opacity:.2}to{transform:none;opacity:1}}
+.goldcard{border:2px solid var(--gold);box-shadow:0 0 0 4px rgba(243,183,52,.35),0 10px 24px rgba(16,58,48,.18)}
+.goldcard .band{background:linear-gradient(110deg,#c98a12,#ffd46b 40%,#fff3cf 50%,#ffd46b 60%,#c98a12)!important;background-size:250% 100%!important;animation:shine 2.4s linear infinite;color:var(--gold-ink)!important}
+@keyframes shine{from{background-position:100% 0}to{background-position:-150% 0}}
+.x2{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--gold);color:var(--gold-ink);font-family:var(--f-body)}
+.timer.pulse{display:inline-block;animation:pulse .5s ease-in-out infinite alternate;color:var(--bad)}
+@keyframes pulse{to{transform:scale(1.18)}}
+.slidein{animation:slidein .5s cubic-bezier(.2,1.2,.4,1)}
+@keyframes slidein{from{transform:translateX(60px) rotate(3deg);opacity:0}to{transform:none;opacity:1}}
+.popin{animation:popin .45s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes popin{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.rise{animation:rise2 .7s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes rise2{from{transform:translateY(70px);opacity:0}to{transform:none;opacity:1}}
+.podcol.p1 .champ svg{animation:flex 1.1s ease-in-out infinite alternate}
+@keyframes flex{to{transform:scale(1.06) rotate(-2deg)}}
+.cat:not([disabled]):hover .kitty,.cat[aria-pressed="true"] .kitty{animation:wiggle .5s ease}
+@keyframes wiggle{25%{transform:rotate(-12deg)}75%{transform:rotate(12deg)}}
+.fc:not([disabled]):hover{transform:translateY(-3px)}
+.avb:hover{transform:scale(1.12)}
+.btn:not([disabled]):active{transform:scale(.97)}
+.facedown{transition:transform .2s}
+.facedown:not([disabled]):hover{transform:rotate(-1.5deg) scale(1.02)}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.award{border-radius:14px;padding:12px;background:var(--ink);color:#fff;display:flex;flex-direction:column;gap:4px;min-width:0}
+.award .ai{font-size:28px;line-height:1}
+.award b{color:var(--gold-2);font-family:var(--f-display);font-size:14px}
+.award p{margin:0;font-size:13px;overflow-wrap:anywhere}
+.award small{color:var(--felt-mute);font-size:12px}
+.badges{display:flex;flex-wrap:wrap;gap:8px}
+.badge{display:flex;gap:8px;align-items:center;background:#fff;border:2px solid var(--gold);border-radius:14px;padding:8px 10px;min-width:0}
+.badge .bi{font-size:24px;line-height:1}
+.badge b{display:block;font-size:13px}
+.badge span{color:var(--mute);font-size:12px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap" id="app">
+  <div class="onfelt"><div class="bigcat">🐱</div><b>Котофонд загружается…</b></div>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* Котофонд на сайте RIO: игра живёт во вкладке ведущего, игроки подключаются к ней напрямую (PeerJS / WebRTC).
+   Этот слой подставляет window.claude.use("db" | "user" | "downloads") — остальной код игры тот же, что в claude.ai. */
+(function(){
+  const PREFIX = "kotofond-rio-v1-";
+  const HOST_HASH = "c4bb2eb9f5d42cc34d3f4f01e2ba1d16429bbc6dcd0e4e56f7a056824204fe64";
+  const ls = { get:k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set:(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} } };
+  const rnd = n => { const a="abcdefghijkmnpqrstuvwxyz23456789"; let s=""; const b=crypto.getRandomValues(new Uint8Array(n)); for(const x of b) s+=a[x%a.length]; return s; };
+  const clone = o => o==null ? o : JSON.parse(JSON.stringify(o));
+  const digits = c => String(c||"").replace(/\D/g,"");
+  const newHostCode = () => "KOT-" + String(1000 + Math.floor(Math.random()*9000));
+  window.KF_SITE = true;
+  const NET = window.KF_NET = { role:null, code:"", status:"", peers:0 };
+
+  /* ---------- маленький индикатор связи в углу ---------- */
+  function pill(){
+    let el=document.getElementById("netpill");
+    if(!el){ el=document.createElement("div"); el.id="netpill"; el.setAttribute("role","status"); document.body.appendChild(el); }
+    let t="", ok=NET.status==="online";
+    if(NET.role==="host") t = ok ? `🟢 Игра в сети · подключено: ${NET.peers}` : "🟡 Восстанавливаем связь…";
+    else if(NET.role==="player") t = ok ? "🟢 На связи с ведущим" : "🟡 Связь с ведущим потеряна, переподключаемся…";
+    el.textContent=t; el.className = ok ? "ok" : "warn"; el.hidden = !t;
+  }
+
+  /* ---------- хранилище ведущего ---------- */
+  function makeStore(initial, onChange){
+    const data = initial || {}, listeners = new Set();
+    const inColl = (k,c) => k.startsWith(c+"/") && k.split("/").length===c.split("/").length+1;
+    return {
+      data, listeners,
+      emit(){ listeners.forEach(f=>{ try{ f(); }catch(e){} }); onChange && onChange(); },
+      query(c, filters){ return Object.keys(data).filter(k=>inColl(k,c)).filter(k=>(filters||[]).every(([f,v])=>data[k] && data[k][f]===v)).sort(); },
+      set(p,d){ data[p]=clone(d); this.emit(); },
+      update(p,d){ if(!(p in data)) throw {code:"invalid_argument"}; data[p]=Object.assign({}, data[p], clone(d)); this.emit(); },
+      del(p){ delete data[p]; this.emit(); }
+    };
+  }
+  const snapDoc = (p,v) => ({ id:p.split("/").pop(), exists:v!==undefined && v!==null, data:()=>v, metadata:{fromCache:false, hasPendingWrites:false} });
+  const snapQuery = list => { const docs=list.map(([p,v])=>snapDoc(p,v)); return { docs, size:docs.length, empty:!docs.length, docChanges:()=>[], metadata:{fromCache:false, hasPendingWrites:false} }; };
+
+  function localDb(store){
+    function watch(compute, deliver){ let last=" init"; const f=()=>{ const v=compute(); const s=JSON.stringify(v===undefined?null:v); if(s===last) return; last=s; deliver(clone(v)); }; store.listeners.add(f); setTimeout(f); return ()=>store.listeners.delete(f); }
+    function docRef(p){ return { id:p.split("/").pop(), path:p,
+      get: async()=>snapDoc(p, clone(store.data[p])),
+      set: async d=>store.set(p,d), update: async d=>store.update(p,d), delete: async()=>store.del(p),
+      onSnapshot(next){ return watch(()=>store.data[p], v=>next(snapDoc(p,v))); },
+      collection: c=>coll(p+"/"+c) }; }
+    function coll(c, filters){ return { path:c,
+      doc: id=>docRef(c+"/"+(id||rnd(12))),
+      where: (f,op,v)=>coll(c, (filters||[]).concat([[f,v]])),
+      add: async d=>{ const r=docRef(c+"/"+rnd(12)); await r.set(d); return r; },
+      get: async()=>snapQuery(store.query(c,filters).map(k=>[k, clone(store.data[k])])),
+      onSnapshot(next){ return watch(()=>store.query(c,filters).map(k=>[k, store.data[k]]), list=>next(snapQuery(list))); } }; }
+    return { doc:docRef, collection:c=>coll(c) };
+  }
+
+  /* что игрок может читать и писать — то же, что правила базы в claude.ai */
+  function canRead(p,U){ const s=p.split("/");
+    if(p==="game/state") return true;
+    if(s[0]==="ideas" && s.length===2) return true;
+    if(s[0]==="players" && s.length===2) return s[1]===U;
+    if(s[0]==="data" && s[1]==="users" && s[2]===U) return true;
+    return false; }
+  function canWrite(p,op,U,store){ const s=p.split("/");
+    if(s[0]==="players" && s.length===2 && s[1]===U && op==="set") return true;
+    if(s[0]==="data" && s[1]==="users" && s[2]===U && s.length===4 && op!=="delete") return true;
+    if((s[0]==="ideas" || s[0]==="bets") && s.length===2 && op==="set" && !(p in store.data)) return true;
+    return false; }
+
+  /* ---------- ведущий ---------- */
+  function startHost(){
+    let saved=null; try{ saved=JSON.parse(ls.get("kf-host-store")||"null"); }catch(e){}
+    let lastGid = saved && saved["game/state"] ? saved["game/state"].gid : null, saveT=null;
+    const store = makeStore(saved || {}, ()=>{
+      const g=store.data["game/state"];
+      if(g && g.gid!==lastGid){ lastGid=g.gid; Object.keys(store.data).forEach(k=>{ const v=store.data[k]; if(k!=="game/state" && v && v.gid && v.gid!==g.gid) delete store.data[k]; }); }
+      clearTimeout(saveT); saveT=setTimeout(()=>ls.set("kf-host-store", JSON.stringify(store.data)), 300);
+    });
+    let code = ls.get("kf-host-code") || newHostCode(); ls.set("kf-host-code", code);
+    NET.role="host"; NET.code=code; NET.status="connecting"; pill();
+    const conns=new Set(); let peer=null, busyTries=0;
+    function open(){
+      peer = new Peer(PREFIX+digits(code), {debug:0});
+      peer.on("open", ()=>{ NET.status="online"; busyTries=0; pill(); });
+      peer.on("connection", c=>attach(c));
+      peer.on("disconnected", ()=>{ NET.status="reconnecting"; pill(); setTimeout(()=>{ try{ if(peer && !peer.destroyed && peer.disconnected) peer.reconnect(); }catch(e){} }, 2500); });
+      peer.on("error", e=>{
+        if(e && e.type==="unavailable-id"){
+          /* после перезагрузки сервер ещё помнит старое подключение — ждём; если код занят надолго, берём новый (только пока игра не начата) */
+          busyTries++;
+          const g=store.data["game/state"];
+          if(busyTries>8 && (!g || g.phase==="lobby")){ code=newHostCode(); ls.set("kf-host-code",code); NET.code=code; busyTries=0; if(g) store.update("game/state",{code}); }
+          try{ peer.destroy(); }catch(x){} setTimeout(open, 3000);
+        } else if(e && (e.type==="network" || e.type==="server-error" || e.type==="socket-error" || e.type==="socket-closed")){
+          NET.status="reconnecting"; pill();
+          setTimeout(()=>{ try{ if(peer.destroyed){ open(); } else if(peer.disconnected){ peer.reconnect(); } }catch(x){} }, 4000);
+        }
+      });
+    }
+    function safeSend(c,m){ try{ if(c.open){ c.send(m); return true; } }catch(e){} return false; }
+    function attach(c){
+      const subs=new Map(); let U=null;
+      c.on("open", ()=>{ conns.add(c); NET.peers=conns.size; pill(); });
+      c.on("data", m=>{
+        if(!m || typeof m!=="object") return;
+        if(m.t==="hello"){ U=String(m.uid||"").replace(/[^a-z0-9_]/gi,"").slice(0,40) || null; return; }
+        if(!U) return;
+        if(m.t==="sub" && typeof m.path==="string"){
+          const filters = Array.isArray(m.filters) ? m.filters.slice(0,5).filter(f=>Array.isArray(f) && typeof f[0]==="string") : [];
+          let last; const send=()=>{
+            let payload;
+            if(m.kind==="doc") payload={ v: canRead(m.path,U) ? store.data[m.path] : null };
+            else payload={ list: m.path==="ideas" ? store.query("ideas",filters).map(k=>[k, store.data[k]]) : [] };
+            const s=JSON.stringify(payload); if(s===last) return; last=s; safeSend(c,{t:"snap", id:m.id, payload});
+          };
+          if(subs.has(m.id)) subs.get(m.id)();
+          store.listeners.add(send); subs.set(m.id, ()=>store.listeners.delete(send)); send(); return;
+        }
+        if(m.t==="unsub"){ const u=subs.get(m.id); if(u){ u(); subs.delete(m.id); } return; }
+        if(m.t==="write" && typeof m.path==="string"){
+          try{
+            const d=m.data||{};
+            if(JSON.stringify(d).length>20000 || !canWrite(m.path, m.op, U, store)) throw {code:"invalid_argument"};
+            if(m.op==="set") store.set(m.path,d); else if(m.op==="update") store.update(m.path,d); else throw {code:"invalid_argument"};
+            safeSend(c,{t:"ack", id:m.id, ok:true});
+          }catch(e){ safeSend(c,{t:"ack", id:m.id, ok:false, code:(e && e.code) || "invalid_argument"}); }
+        }
+      });
+      const drop=()=>{ subs.forEach(u=>u()); subs.clear(); conns.delete(c); NET.peers=conns.size; pill(); };
+      c.on("close", drop); c.on("error", drop);
+    }
+    open();
+    /* не дать экрану погаснуть, пока вкладка на виду, и предупредить перед закрытием */
+    let lock=null; const wake=async()=>{ try{ if(document.visibilityState==="visible" && navigator.wakeLock && !lock){ lock=await navigator.wakeLock.request("screen"); lock.addEventListener("release",()=>{ lock=null; }); } }catch(e){} };
+    document.addEventListener("visibilitychange", wake); wake();
+    window.addEventListener("beforeunload", e=>{ const g=store.data["game/state"]; if(g && g.phase!=="lobby"){ e.preventDefault(); e.returnValue=""; } });
+    return { db:localDb(store), uid:"host", owner:true };
+  }
+
+  /* ---------- игрок ---------- */
+  function remoteDb(link){
+    let seq=0; const subs=new Map(), acks=new Map();
+    link.onMsg(m=>{
+      if(m.t==="snap"){ const s=subs.get(m.id); if(s) s.deliver(m.payload||{}); }
+      else if(m.t==="ack"){ const a=acks.get(m.id); if(a){ acks.delete(m.id); clearTimeout(a.t); m.ok ? a.res() : a.rej({code:m.code||"invalid_argument"}); } }
+    });
+    link.onReconnect(()=>{ subs.forEach(s=>link.send(s.msg)); });
+    function write(path, op, data){ return new Promise((res,rej)=>{ const id=++seq; const t=setTimeout(()=>{ acks.delete(id); rej({code:"unavailable"}); }, 10000); acks.set(id,{res,rej,t}); if(!link.send({t:"write", id, path, op, data:clone(data)})){ clearTimeout(t); acks.delete(id); rej({code:"unavailable"}); } }); }
+    function sub(msg, deliver){ const id=++seq; msg.t="sub"; msg.id=id; subs.set(id,{msg,deliver}); link.send(msg); return ()=>{ subs.delete(id); link.send({t:"unsub", id}); }; }
+    function docRef(p){ return { id:p.split("/").pop(), path:p,
+      set: d=>write(p,"set",d), update: d=>write(p,"update",d), delete: ()=>write(p,"delete"),
+      get: ()=>new Promise(res=>{ let u=null; u=sub({kind:"doc", path:p}, pl=>{ if(u) u(); res(snapDoc(p, pl.v)); }); }),
+      onSnapshot(next){ return sub({kind:"doc", path:p}, pl=>next(snapDoc(p, pl.v))); },
+      collection: c=>coll(p+"/"+c) }; }
+    function coll(c, filters){ return { path:c,
+      doc: id=>docRef(c+"/"+(id||rnd(12))),
+      where: (f,op,v)=>coll(c, (filters||[]).concat([[f,v]])),
+      add: async d=>{ const r=docRef(c+"/"+rnd(12)); await r.set(d); return r; },
+      onSnapshot(next){ return sub({kind:"query", path:c, filters:filters||[]}, pl=>next(snapQuery(pl.list||[]))); } }; }
+    return { doc:docRef, collection:c=>coll(c) };
+  }
+
+  function startPlayer(){
+    let uid=ls.get("kf-uid"); if(!uid){ uid="p_"+rnd(16); ls.set("kf-uid",uid); }
+    NET.role="player";
+    const app=document.getElementById("app");
+    return new Promise(resolve=>{
+      let peer=null, conn=null, code="", resolved=false, retryT=null, handlers=[], reconnectHandlers=[];
+      const link = {
+        send(m){ try{ if(conn && conn.open){ conn.send(m); return true; } }catch(e){} return false; },
+        onMsg(f){ handlers.push(f); }, onReconnect(f){ reconnectHandlers.push(f); }
+      };
+      function screen(err, busy){
+        if(resolved) return;
+        app.innerHTML = `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div></header>
+          <section class="pcard"><div class="eyebrow">Вход в игру</div><div class="h">Введи код от ведущего</div>
+          ${err?`<div class="err" role="alert">${err}</div>`:""}
+          <div class="field"><label for="netcode">Код игры</label><input id="netcode" autocomplete="off" inputmode="numeric" placeholder="KOT-…" value="${(code||"").replace(/[^A-Za-z0-9-]/g,"")}"></div>
+          <button class="btn gold block" id="netgo" ${busy?"disabled":""}>${busy?"Подключаемся…":"Подключиться"}</button>
+          <div class="small muted">Код покажет ведущий на своём экране. Регистрация не нужна.</div></section>`;
+        const go=()=>{ const v=document.getElementById("netcode").value; if(!digits(v)){ screen("Введи код, который назвал ведущий."); return; } code=v.trim().toUpperCase(); connect(true); };
+        document.getElementById("netgo").onclick=go;
+        document.getElementById("netcode").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); go(); } };
+      }
+      function openConn(firstTime){
+        clearTimeout(retryT);
+        conn = peer.connect(PREFIX+digits(code), {reliable:true, serialization:"json"});
+        const failT = setTimeout(()=>{ if(!conn.open){ try{ conn.close(); }catch(e){} fail(); } }, 9000);
+        conn.on("open", ()=>{
+          clearTimeout(failT); conn.send({t:"hello", uid}); NET.status="online"; pill(); ls.set("kf-last-code", code);
+          if(!resolved){ resolved=true; window.KF_CODE=code; resolve({ db:remoteDb(link), uid, owner:false }); }
+          else reconnectHandlers.forEach(f=>f());
+        });
+        conn.on("data", m=>{ if(m && typeof m==="object") handlers.forEach(f=>f(m)); });
+        const lost=()=>{ if(!resolved) return; NET.status="reconnecting"; pill(); clearTimeout(retryT); retryT=setTimeout(()=>reopen(), 3000); };
+        conn.on("close", lost); conn.on("error", lost);
+      }
+      function reopen(){ if(!peer || peer.destroyed){ makePeer(false); return; } if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} } openConn(false); }
+      function fail(){
+        if(resolved){ NET.status="reconnecting"; pill(); clearTimeout(retryT); retryT=setTimeout(()=>reopen(), 3000); return; }
+        screen("Не получилось подключиться к игре с кодом "+code.replace(/[^A-Za-z0-9-]/g,"")+". Проверь код и что у ведущего открыта вкладка с игрой.");
+      }
+      function makePeer(firstTime){
+        try{ if(peer) peer.destroy(); }catch(e){}
+        peer = new Peer(undefined, {debug:0});
+        peer.on("open", ()=>openConn(firstTime));
+        peer.on("error", e=>{ if(e && e.type==="peer-unavailable") fail(); else if(!resolved) screen("Нет связи с сервером подключения. Проверь интернет и попробуй ещё раз."); else fail(); });
+        peer.on("disconnected", ()=>{ if(resolved) setTimeout(()=>{ try{ if(!peer.destroyed && peer.disconnected) peer.reconnect(); }catch(e){} }, 2500); });
+      }
+      function connect(firstTime){ screen("", true); makePeer(firstTime); }
+      const begin=()=>{ const last = ls.get("kf-last-code"); if(last){ code=last; connect(false); } else screen(""); };
+      /* ждём, пока основной код игры нарисует свою заставку, и только потом показываем ввод кода */
+      if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", ()=>setTimeout(begin,0)); else setTimeout(begin,0);
+    });
+  }
+
+  /* ---------- вход: секретная ссылка ведущего или игрок ---------- */
+  async function isHostLink(){
+    const t=location.hash.slice(1); if(!t || !window.crypto || !crypto.subtle) return false;
+    try{ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")===HOST_HASH; }catch(e){ return false; }
+  }
+  const ready = (async()=> (await isHostLink()) ? startHost() : startPlayer())();
+  const downloads = { save: async ({filename, data})=>{ const b=new Blob([data], {type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); } };
+  window.claude = { use: async name => {
+    const r = await ready;
+    if(name==="db") return r.db;
+    if(name==="user") return { id:async()=>r.uid, isOwner:async()=>r.owner, canEdit:async()=>r.owner, me:async()=>({id:r.uid}) };
+    if(name==="downloads") return downloads;
+    return null;
+  } };
+})();
+</script>
+<script>
+function buffCat(lv){
+  const s={3:1,2:.6,1:.22}[lv], fur="#f2a541", furD="#c9741f", belly="#ffe3b8", ink="#2a1d12", pink="#ff9aa2";
+  const cx=80, tw=22+16*s, shY=96, sx=cx-tw+5, ex=sx-24-8*s, hy=shY-2, px=ex+3, py=hy-30-4*s, aw=10+8*s;
+  const arm=`<path d="M${sx} ${shY} L${ex} ${hy} L${px} ${py}" stroke="${ink}" stroke-width="${aw+5}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M${sx} ${shY} L${ex} ${hy} L${px} ${py}" stroke="${fur}" stroke-width="${aw}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="${(sx+ex)/2}" cy="${hy-3-4*s}" rx="${7+9*s}" ry="${5+8*s}" fill="${fur}" stroke="${ink}" stroke-width="2.5"/>
+    <path d="M${(sx+ex)/2-4-4*s} ${hy-4-4*s} q${4+4*s} -${4+5*s} ${8+8*s} 0" stroke="${furD}" stroke-width="2" fill="none"/>
+    <circle cx="${px}" cy="${py}" r="${aw/2+3}" fill="${fur}" stroke="${ink}" stroke-width="2.5"/>`;
+  let abs="";
+  if(s>=.5){ const rows=s>=1?3:2; for(let r=0;r<rows;r++){ abs+=`<rect x="${cx-9}" y="${106+r*8}" width="8" height="6" rx="2.5" fill="none" stroke="${furD}" stroke-width="1.8"/><rect x="${cx+1}" y="${106+r*8}" width="8" height="6" rx="2.5" fill="none" stroke="${furD}" stroke-width="1.8"/>`; }
+    abs+=`<path d="M${cx-tw*.75} 97 Q${cx-tw*.38} 106 ${cx-2} 98" stroke="${furD}" stroke-width="2.2" fill="none"/><path d="M${cx+tw*.75} 97 Q${cx+tw*.38} 106 ${cx+2} 98" stroke="${furD}" stroke-width="2.2" fill="none"/>`; }
+  const eyes = lv===3
+    ? `<rect x="${cx-22}" y="44" width="19" height="11" rx="4" fill="${ink}"/><rect x="${cx+3}" y="44" width="19" height="11" rx="4" fill="${ink}"/><path d="M${cx-3} 48 h6" stroke="${ink}" stroke-width="2.5"/><path d="M${cx-19} 47 l5 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M${cx+6} 47 l5 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`
+    : lv===2
+    ? `<path d="M${cx-18} 50 q6 -5 12 0" stroke="${ink}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M${cx+6} 50 q6 -5 12 0" stroke="${ink}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M${cx-19} 42 l12 3" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/><path d="M${cx+19} 42 l-12 3" stroke="${ink}" stroke-width="2.5" stroke-linecap="round"/>`
+    : `<circle cx="${cx-11}" cy="49" r="6" fill="#fff" stroke="${ink}" stroke-width="2"/><circle cx="${cx+11}" cy="49" r="6" fill="#fff" stroke="${ink}" stroke-width="2"/><circle cx="${cx-10}" cy="50" r="2.8" fill="${ink}"/><circle cx="${cx+12}" cy="50" r="2.8" fill="${ink}"/><path d="M${cx+27} 38 q4 7 0 10 q-4 -3 0 -10z" fill="#7cc8ff" stroke="${ink}" stroke-width="1.5"/>`;
+  const extra = lv===3
+    ? `<rect x="${cx-tw+2}" y="127" width="${2*tw-4}" height="10" rx="3" fill="#f3b734" stroke="${ink}" stroke-width="2.5"/><rect x="${cx-11}" y="123" width="22" height="18" rx="4" fill="#ffe27a" stroke="${ink}" stroke-width="2.5"/><text x="${cx}" y="136" text-anchor="middle" font-size="10" font-weight="800" fill="${ink}" font-family="Manrope, sans-serif">1</text>
+       <path d="M${cx-17} 26 l6 -12 l11 9 l11 -9 l6 12 z" fill="#f3b734" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/>
+       <text x="16" y="30" font-size="16" fill="#ffd46b">✦</text><text x="134" y="40" font-size="12" fill="#ffd46b">✦</text>`
+    : lv===2
+    ? `<path d="M${cx-26} 39 Q${cx} 30 ${cx+26} 39 L${cx+26} 45 Q${cx} 36 ${cx-26} 45 z" fill="#ff6f4f" stroke="${ink}" stroke-width="2"/><path d="M${cx+25} 41 l12 6 l-3 6 z" fill="#ff6f4f" stroke="${ink}" stroke-width="2"/>`
+    : `<g transform="translate(${160-px} ${py-16})"><rect x="-14" y="-2" width="28" height="4" rx="2" fill="#8b98a5" stroke="${ink}" stroke-width="1.5"/><rect x="-17" y="-7" width="6" height="14" rx="2" fill="#5b6b75" stroke="${ink}" stroke-width="1.5"/><rect x="11" y="-7" width="6" height="14" rx="2" fill="#5b6b75" stroke="${ink}" stroke-width="1.5"/></g>`;
+  return `<svg viewBox="0 0 160 170" width="${[0,104,128,156][lv]}" role="img" aria-label="Кот ${lv===3?'чемпион':lv===2?'второе место':'третье место'}">
+    <ellipse cx="${cx}" cy="160" rx="${40+10*s}" ry="6" fill="rgba(0,0,0,.25)"/>
+    <rect x="${cx-22}" y="128" width="17" height="28" rx="8" fill="${fur}" stroke="${ink}" stroke-width="2.5"/><rect x="${cx+5}" y="128" width="17" height="28" rx="8" fill="${fur}" stroke="${ink}" stroke-width="2.5"/>
+    <ellipse cx="${cx}" cy="110" rx="${tw}" ry="30" fill="${fur}" stroke="${ink}" stroke-width="2.5"/>
+    <ellipse cx="${cx}" cy="114" rx="${tw*.55}" ry="21" fill="${belly}"/>
+    ${abs}
+    ${arm}<g transform="translate(160 0) scale(-1 1)">${arm}</g>
+    <path d="M${cx-25} 44 L${cx-21} 16 L${cx-5} 30 z" fill="${fur}" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><path d="M${cx-20} 37 L${cx-19} 23 L${cx-10} 31 z" fill="${pink}"/>
+    <path d="M${cx+25} 44 L${cx+21} 16 L${cx+5} 30 z" fill="${fur}" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round"/><path d="M${cx+20} 37 L${cx+19} 23 L${cx+10} 31 z" fill="${pink}"/>
+    <circle cx="${cx}" cy="52" r="27" fill="${fur}" stroke="${ink}" stroke-width="2.5"/>
+    <path d="M${cx-6} 27 v7 M${cx} 26 v8 M${cx+6} 27 v7" stroke="${furD}" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="${cx}" cy="64" rx="13" ry="9" fill="${belly}"/>
+    ${eyes}
+    <path d="M${cx-4} 59 h8 l-4 4 z" fill="${pink}" stroke="${ink}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M${cx-6} 66 q3 3 6 0 q3 ${lv===3?4:3} 7 -1" stroke="${ink}" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M${cx-14} 62 l-14 -3 M${cx-14} 66 l-14 1 M${cx+14} 62 l14 -3 M${cx+14} 66 l14 1" stroke="${ink}" stroke-width="1.5" stroke-linecap="round"/>
+    ${extra}
+  </svg>`;
+}
+const CHAMP = {3:"Кот-чемпион", 2:"Кот-атлет", 1:"Кот-новичок качалки"};
+
+/* ================= данные игры ================= */
+const TYPES = {
+  ux:   {name:"Пользовательская", c:"var(--t1)", q:"Где клиенту сейчас неудобно, долго или непонятно?", ex:"Например: сколько тапов до действия, где люди бросают сценарий"},
+  feat: {name:"Новая функция", c:"var(--t2)", q:"Какую задачу клиент решает вне нашего продукта, хотя мог бы у нас?", ex:"Например: то, за чем клиент уходит в другое приложение"},
+  biz:  {name:"Бизнесовая", c:"var(--t3)", q:"Как это принесёт доход, удержит клиента или снизит отток?", ex:"Например: платный тариф, кросс-продажа, повод заходить чаще"},
+  tech: {name:"Техническая", c:"var(--t4)", q:"Что ускорит, удешевит или сделает систему стабильнее?", ex:"Например: кэш, очереди, мониторинг, отказ от лишних запросов"},
+  data: {name:"Данные и ИИ", c:"var(--t5)", q:"Что мы знаем о клиенте и пока не используем?", ex:"Например: история операций, сезонность, подсказки и прогнозы"},
+  proc: {name:"Процессная", c:"var(--t6)", q:"Что тормозит саму команду: релизы, согласования, ручная работа?", ex:"Например: автотесты, шаблоны, меньше ручных шагов"},
+  intg: {name:"Интеграции", c:"var(--t7)", q:"С кем соединиться, чтобы дать клиенту больше?", ex:"Например: 1С, маркетплейсы, госсервисы, партнёры банка"},
+  sec:  {name:"Безопасность и регуляторика", c:"var(--t8)", q:"Какой риск или требование можно превратить в удобство?", ex:"Например: биометрия вместо SMS, понятные лимиты"}
+};
+const TYPE_KEYS = Object.keys(TYPES);
+const CATS = [{name:"Есть мысль", meme:"Кот-скептик"},{name:"Верю", meme:"Кот в очках"},{name:"Ставлю всё", meme:"Кот ва-банк"}];
+/* мемные коты: серый скептик с косым взглядом, белый в пиксельных очках, розовый ва-банк с монетами в глазах */
+function kitty(l){
+  l=Math.max(0,Math.min(2,l||0)); const C=["#a7b1bd","#f7f3ea","#ff6b8a"][l], k="#1b1b1b", pk="#ff9aa2";
+  const head=`<path d="M8 21 L10 4 L21 13 Z" fill="${C}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><path d="M40 21 L38 4 L27 13 Z" fill="${C}" stroke="${k}" stroke-width="2.5" stroke-linejoin="round"/><path d="M11 16 L12 8 L17 13 Z M37 16 L36 8 L31 13 Z" fill="${pk}"/><ellipse cx="24" cy="27" rx="18" ry="16" fill="${C}" stroke="${k}" stroke-width="2.5"/>`;
+  const nose=`<path d="M22 30 h4 l-2 2.4 z" fill="${pk}" stroke="${k}" stroke-width="1.2" stroke-linejoin="round"/>`;
+  const wh=`<path d="M10 31 l-7 -1 M10 34 l-7 1 M38 31 l7 -1 M38 34 l7 1" stroke="${k}" stroke-width="1.3" stroke-linecap="round"/>`;
+  const face = l===0
+    ? `<ellipse cx="17" cy="25" rx="5" ry="3.4" fill="#fff" stroke="${k}" stroke-width="1.6"/><ellipse cx="31" cy="25" rx="5" ry="3.4" fill="#fff" stroke="${k}" stroke-width="1.6"/><circle cx="20" cy="25.6" r="2.1" fill="${k}"/><circle cx="34" cy="25.6" r="2.1" fill="${k}"/><path d="M11.5 24.2 h11 M25.5 24.2 h11" stroke="${k}" stroke-width="2.4" stroke-linecap="round"/><path d="M12 19 q5 -4 10 -1" stroke="${k}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M20 36 h8" stroke="${k}" stroke-width="2" stroke-linecap="round"/>`
+    : l===1
+    ? `<rect x="8" y="22" width="32" height="3" fill="${k}"/><rect x="10" y="22" width="12" height="7" fill="${k}"/><rect x="26" y="22" width="12" height="7" fill="${k}"/><rect x="12" y="23.5" width="2.5" height="2.5" fill="#fff"/><rect x="28" y="23.5" width="2.5" height="2.5" fill="#fff"/><path d="M19 35 q5 3 10 -2" stroke="${k}" stroke-width="2" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="17" cy="24" r="5.6" fill="#ffcf3a" stroke="${k}" stroke-width="1.8"/><circle cx="31" cy="24" r="5.6" fill="#ffcf3a" stroke="${k}" stroke-width="1.8"/><text x="17" y="27.4" text-anchor="middle" font-size="9" font-weight="900" fill="${k}" font-family="Arial,sans-serif">$</text><text x="31" y="27.4" text-anchor="middle" font-size="9" font-weight="900" fill="${k}" font-family="Arial,sans-serif">$</text><path d="M15 33 q9 11 18 0 z" fill="#5a1020" stroke="${k}" stroke-width="1.8" stroke-linejoin="round"/><path d="M20.5 37.5 q3.5 2.5 7 0 q-3.5 -2.5 -7 0z" fill="${pk}"/>`;
+  return `<svg class="kitty" viewBox="0 0 48 48" role="img" aria-label="${CATS[l].meme}"><title>${CATS[l].meme} · ${CATS[l].name}</title>${head}${l===2?"":nose}${wh}${face}</svg>`;
+}
+const PROJECTS = {
+  up:  {name:"UPremium «Мобильный ассистент»", sub:"Мобильное приложение"},
+  sps: {name:"Рабочее место сотрудника СПС", sub:"Внутренняя система"},
+  alt: {name:"Альтернативные расчеты", sub:"Рабочее место сотрудника"},
+  kpk: {name:"Клуб премиальных клиентов", sub:"КПК"}
+};
+const FIB = [0,1,2,3,5,8,13,21];
+const DEF = {min:3, cards:4, swaps:2, cats:[4,2,1], coins:100};
+const AVATARS = ["🦊","🐼","🐨","🐯","🦁","🐸","🐵","🐧","🦉","🦄","🐙","🦖","🐢","🐳","🦈","🦩","🦥","🦦","🦔","🐝","🦋","🐞","🐲","🦕","🐊","🦓","🦒","🐘","🦛","🦘","🦫","🐺","🐮","🐷","🐰","🐹","🐱","🐶","🐻","🐔","🦜","🦚","🐡","🦀","👽","🤖","👾","👻","🥷","🧙"];
+const MEMES = [["🗿","Каменное лицо на дейли"],["🤡","Клоун на проде"],["💀","Умер от дедлайна"],["🫠","Таю на созвоне"],["🦆","Резиновая уточка-отладчик"],["🥔","Просто картошка"],["🍞","Батон"],["🫡","Будет сделано"],["🤓","Ну, технически…"],["🐐","GOAT"],["🌚","Ночной деплой"],["🥸","Под прикрытием"],["🧌","Тролль из код-ревью"],["🙈","Не вижу багов"],["🔥","Всё горит"],["☕","Третий кофе"],["🐛","Это не баг, это фича"],["🧠","Галактический мозг"],["🤌","Мамма миа, какой код"],["🏚","Легаси"],["🍌","Банан для масштаба"],["😎","Деплой в пятницу"],["🫥","На мьюте"],["📠","Интеграция через факс"]];
+const ALL_AV = new Set([...AVATARS, ...MEMES.map(m=>m[0])]);
+const avCaption = a => (MEMES.find(m=>m[0]===a)||[])[1] || "";
+
+/* ================= утилиты ================= */
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const rid = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const SITE = !!window.KF_SITE;
+const newCode = () => (SITE && window.KF_NET && window.KF_NET.code) ? window.KF_NET.code : "KOT-" + String(Math.floor(100+Math.random()*900));
+const normCode = s => String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+const plural = (n,a,b,c) => { const m10=n%10, m100=n%100; return n+" "+(m10===1&&m100!==11?a:(m10>=2&&m10<=4&&(m100<12||m100>14)?b:c)); };
+const mmss = ms => { ms=Math.max(0,ms); const s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
+const tag = t => TYPES[t] ? `<span class="tag" style="background:${TYPES[t].c}">${TYPES[t].name}</span>` : "";
+const catE = i => kitty(i);
+const proj = () => PROJECTS[(G&&G.project)||"up"] || PROJECTS.up;
+const sets = () => Object.assign({}, DEF, (G&&G.settings)||{});
+function deal(n){ let out=[]; while(out.length<n) out=out.concat(shuffle(TYPE_KEYS)); return out.slice(0,n); }
+
+/* ================= звук ================= */
+let AC=null, MASTER=null, soundOn=true;
+function audio(){ try{ if(!AC){const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; AC=new C();
+  const comp=AC.createDynamicsCompressor(); MASTER=AC.createGain(); MASTER.gain.value=.9; MASTER.connect(comp); comp.connect(AC.destination);}
+  if(AC.state==="suspended") AC.resume(); return AC; }catch(e){ return null; } }
+function meowOnce(ac,t,p,vol){
+  const dur=.66, f0=560*p, stop=t+dur+.05;
+  const o=ac.createOscillator(), o2=ac.createOscillator(); o.type="sawtooth"; o2.type="triangle";
+  [o,o2].forEach(x=>{ x.frequency.setValueAtTime(f0,t); x.frequency.linearRampToValueAtTime(f0*1.4,t+.17); x.frequency.exponentialRampToValueAtTime(f0*.78,t+dur); });
+  const lfo=ac.createOscillator(), lg=ac.createGain(); lfo.frequency.value=6.5; lg.gain.value=f0*.018; lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
+  const src=ac.createGain(), tri=ac.createGain(); tri.gain.value=.7; o.connect(src); o2.connect(tri); tri.connect(src);
+  const F1=ac.createBiquadFilter(); F1.type="bandpass"; F1.Q.value=4;
+  F1.frequency.setValueAtTime(380,t); F1.frequency.linearRampToValueAtTime(950,t+.22); F1.frequency.linearRampToValueAtTime(430,t+dur);
+  const F2=ac.createBiquadFilter(); F2.type="bandpass"; F2.Q.value=7;
+  F2.frequency.setValueAtTime(2300,t); F2.frequency.linearRampToValueAtTime(1450,t+.26); F2.frequency.linearRampToValueAtTime(820,t+dur);
+  const a1=ac.createGain(), a2=ac.createGain(); a1.gain.value=1.6; a2.gain.value=1;
+  src.connect(F1); src.connect(F2); F1.connect(a1); F2.connect(a2);
+  const lp=ac.createBiquadFilter(); lp.type="lowpass"; lp.frequency.setValueAtTime(500,t); lp.frequency.linearRampToValueAtTime(4200,t+.1);
+  a1.connect(lp); a2.connect(lp);
+  const env=ac.createGain(); env.gain.setValueAtTime(.0001,t); env.gain.exponentialRampToValueAtTime(vol,t+.08); env.gain.setValueAtTime(vol*.85,t+.34); env.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  lp.connect(env); env.connect(MASTER);
+  [o,o2,lfo].forEach(x=>{x.start(t); x.stop(stop);});
+}
+function chime(ac,t){ [1568,2093,2637].forEach((f,i)=>{ const o=ac.createOscillator(), g=ac.createGain(); o.type="sine"; o.frequency.value=f;
+  const s=t+i*.055; g.gain.setValueAtTime(.0001,s); g.gain.exponentialRampToValueAtTime(.12,s+.006); g.gain.exponentialRampToValueAtTime(.0001,s+.45);
+  o.connect(g); g.connect(MASTER); o.start(s); o.stop(s+.5); }); }
+/* храп: вдох — рокочущий шум, выдох — тихий свист «фьююю» */
+let NOISE=null, lastSnore=0;
+function noiseBuf(ac){ if(!NOISE){ NOISE=ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate); const d=NOISE.getChannelData(0); let last=0; for(let i=0;i<d.length;i++){ last=(last+.02*(Math.random()*2-1))/1.02; d[i]=last*3.5; } } return NOISE; }
+/* звук кота при выборе: скептик ворчит низко, кот в очках мяукает уверенно, ва-банк — монеты и восторженное двойное мяу */
+function catSound(i){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t=ac.currentTime+.02;
+  if(i===0){ meowOnce(ac,t,.68,.8); }
+  else if(i===1){ meowOnce(ac,t,1,1); }
+  else { chime(ac,t); meowOnce(ac,t+.1,1.25,1.1); meowOnce(ac,t+.42,1.45,1); } }
+/* «шурх» карты: свист шума снизу вверх + щелчок; на сдаче ещё довольное мяу */
+function swoosh(withMeow){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t=ac.currentTime+.02;
+  const src=ac.createBufferSource(); src.buffer=noiseBuf(ac);
+  const bp=ac.createBiquadFilter(); bp.type="bandpass"; bp.Q.value=1.4; bp.frequency.setValueAtTime(500,t); bp.frequency.exponentialRampToValueAtTime(3800,t+.22);
+  const g=ac.createGain(); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.5,t+.05); g.gain.exponentialRampToValueAtTime(.0001,t+.28);
+  src.connect(bp); bp.connect(g); g.connect(MASTER); src.start(t); src.stop(t+.3);
+  const o=ac.createOscillator(), og=ac.createGain(); o.type="sine"; o.frequency.setValueAtTime(650,t+.24); o.frequency.exponentialRampToValueAtTime(1100,t+.3);
+  og.gain.setValueAtTime(.0001,t+.24); og.gain.exponentialRampToValueAtTime(.18,t+.25); og.gain.exponentialRampToValueAtTime(.0001,t+.36);
+  o.connect(og); og.connect(MASTER); o.start(t+.24); o.stop(t+.4);
+  if(withMeow) meowOnce(ac,t+.38,1.1,.9); }
+function snore(){
+  if(!soundOn || !AC || AC.state!=="running") return; const ac=AC, t=ac.currentTime+.03;
+  noiseBuf(ac);
+  const src=ac.createBufferSource(); src.buffer=NOISE;
+  const lp=ac.createBiquadFilter(); lp.type="lowpass"; lp.Q.value=2; lp.frequency.setValueAtTime(220,t); lp.frequency.linearRampToValueAtTime(520,t+1.1);
+  const am=ac.createGain(); am.gain.value=.55; const lfo=ac.createOscillator(); lfo.type="square"; lfo.frequency.setValueAtTime(24,t); lfo.frequency.linearRampToValueAtTime(30,t+1.2);
+  const lg=ac.createGain(); lg.gain.value=.45; lfo.connect(lg); lg.connect(am.gain);
+  const env=ac.createGain(); env.gain.setValueAtTime(.0001,t); env.gain.exponentialRampToValueAtTime(.9,t+.9); env.gain.exponentialRampToValueAtTime(.0001,t+1.35);
+  src.connect(lp); lp.connect(am); am.connect(env); env.connect(MASTER);
+  src.start(t); src.stop(t+1.4); lfo.start(t); lfo.stop(t+1.4);
+  const w=ac.createOscillator(), wg=ac.createGain(), s2=t+1.65; w.type="sine";
+  w.frequency.setValueAtTime(900,s2); w.frequency.linearRampToValueAtTime(1350,s2+.25); w.frequency.exponentialRampToValueAtTime(650,s2+.8);
+  wg.gain.setValueAtTime(.0001,s2); wg.gain.exponentialRampToValueAtTime(.07,s2+.1); wg.gain.exponentialRampToValueAtTime(.0001,s2+.85);
+  w.connect(wg); wg.connect(MASTER); w.start(s2); w.stop(s2+.9);
+  lastSnore=Date.now();
+}
+const meowCount = v => v<=0?0 : v<=2?1 : v<=5?2 : v<=13?3 : 4;
+function meow(n, withChime){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t0=ac.currentTime+.02; if(withChime) chime(ac,t0);
+  for(let i=0;i<n;i++) meowOnce(ac, t0+(withChime?.12:0)+i*.38, .95+i*.07+Math.random()*.06, 1.1); }
+function confetti(btn,n){
+  const b=btn.getBoundingClientRect();
+  for(let i=0;i<n;i++){ const s=document.createElement("span"); s.className="floaty"; s.textContent=i%2?"🪙":"😺";
+    s.style.left=(b.left+b.width*(.15+Math.random()*.7))+"px"; s.style.top=(b.top-10)+"px";
+    s.style.setProperty("--r",(Math.random()*40-20)+"deg"); s.style.animationDelay=(i*.08)+"s";
+    document.body.appendChild(s); setTimeout(()=>s.remove(),1800+i*80); }
+}
+
+/* ================= эффекты: баннеры, дождь, фанфары, барабан ================= */
+const SEEN=new Set(), PEND=[];
+const once = (key, cls) => { if(SEEN.has(key)) return ""; PEND.push(key); return " "+cls; };
+let WHITE=null;
+function whiteBuf(ac){ if(!WHITE){ WHITE=ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d=WHITE.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; } return WHITE; }
+function note(ac,t,f,d,type,vol){ const o=ac.createOscillator(), g=ac.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.18,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g); g.connect(MASTER); o.start(t); o.stop(t+d+.05); }
+function fanfare(big){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t=ac.currentTime+.03;
+  [523,659,784,1047].forEach((f,i)=>note(ac,t+i*.11,f,.22,"square",.06)); note(ac,t+.44,1047,.6,"triangle",.16); note(ac,t+.44,784,.6,"triangle",.1);
+  if(big) [1319,1568,2093].forEach((f,i)=>note(ac,t+.78+i*.13,f,.5,"triangle",.12));
+  meowOnce(ac,t+.5,1.2,.9); }
+function tickSnd(hi){ if(!soundOn) return; const ac=audio(); if(!ac) return; note(ac,ac.currentTime+.01,hi?1500:1000,.06,"square",.05); }
+function buzzer(){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t=ac.currentTime+.01; note(ac,t,150,.5,"sawtooth",.12); note(ac,t,157,.5,"sawtooth",.08); }
+function pop(){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t=ac.currentTime+.01, o=ac.createOscillator(), g=ac.createGain(); o.type="sine"; o.frequency.setValueAtTime(380,t); o.frequency.exponentialRampToValueAtTime(980,t+.09); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.25,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+.14); o.connect(g); g.connect(MASTER); o.start(t); o.stop(t+.16); }
+function drumroll(sec){ if(!soundOn) return; const ac=audio(); if(!ac) return; const t0=ac.currentTime+.02, n=Math.max(4,Math.floor(sec/.045));
+  for(let i=0;i<n;i++){ const t=t0+i*.045, src=ac.createBufferSource(); src.buffer=whiteBuf(ac); const bp=ac.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=230; bp.Q.value=.9; const g=ac.createGain(); g.gain.setValueAtTime(.12+.45*i/n,t); g.gain.exponentialRampToValueAtTime(.0001,t+.04); src.connect(bp); bp.connect(g); g.connect(MASTER); src.start(t, Math.random()*.5); src.stop(t+.05); }
+  const tc=t0+n*.045, cs=ac.createBufferSource(); cs.buffer=whiteBuf(ac); const hp=ac.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=5000; const cg=ac.createGain(); cg.gain.setValueAtTime(.35,tc); cg.gain.exponentialRampToValueAtTime(.0001,tc+1); cs.connect(hp); hp.connect(cg); cg.connect(MASTER); cs.start(tc); cs.stop(tc+1); }
+let bannerTimer=null;
+function banner(emoji,title,sub){ let b=document.getElementById("fxbanner"); if(!b){ b=document.createElement("div"); b.id="fxbanner"; b.setAttribute("role","status"); document.body.appendChild(b); }
+  b.innerHTML=`<div class="bx"><div class="be">${emoji}</div><b>${title}</b><span>${sub||""}</span></div>`; b.className=""; void b.offsetWidth; b.className="show"; clearTimeout(bannerTimer); bannerTimer=setTimeout(()=>{ b.className=""; },2300); }
+function rain(n, set){ const em=set||["🎉","🪙","😺","✨","🐟"]; for(let i=0;i<n;i++){ const sp=document.createElement("span"); sp.className="rain"; sp.textContent=em[i%em.length]; sp.style.left=(Math.random()*96)+"vw"; sp.style.animationDelay=(Math.random()*.9)+"s"; sp.style.animationDuration=(1.8+Math.random()*1.4)+"s"; sp.style.setProperty("--r",(Math.random()*720-360)+"deg"); document.body.appendChild(sp); setTimeout(()=>sp.remove(),4300); } }
+function countUps(){ document.querySelectorAll("[data-count]").forEach(el=>{ const n=+el.dataset.count, d=+el.dataset.delay||0; el.removeAttribute("data-count"); el.textContent="0 🪙"; const t0=performance.now()+d, dur=800;
+  const step=now=>{ const k=Math.max(0,Math.min(1,(now-t0)/dur)); el.textContent=Math.round(n*k)+" 🪙"; if(k<1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }
+/* события игры, которые слышат и видят все: смена шага, вскрытие ставок, следующая идея */
+let phaseKey=null, revKey=null, lastTickSec=0;
+function onGameChange(){
+  const ph = G ? G.gid+":"+G.phase : "none";
+  if(phaseKey!==null && ph!==phaseKey && G){
+    const p=G.phase;
+    if(p==="lobby"){ banner("🐱","Новая игра!","Код "+esc(G.code)); pop(); }
+    else if(p==="ideas"){ banner("🃏","Раунд идей!","Тяни карты и пиши идеи"); fanfare(false); rain(14,["🃏","💡","😺","✨"]); }
+    else if(p==="backlog"){ banner("⏰","Раунд идей закрыт","Все идеи собраны в бэклог"); buzzer(); }
+    else if(p==="auction"){ banner("🔨","Аукцион открыт!","У каждого "+sets().coins+" монет"); fanfare(false); rain(18,["🪙","💰","😼"]); }
+    else if(p==="results"){ drumroll(1.6); setTimeout(()=>{ banner("🏆","Итоги!","Встречайте котов-чемпионов"); fanfare(true); rain(44); },1750); }
+  }
+  phaseKey=ph;
+  const rk = (G && G.phase==="auction") ? G.gid+":"+(G.idx||0)+":"+(G.revealed?1:0) : "";
+  if(revKey!==null && rk!==revKey && G && G.phase==="auction"){
+    if(G.revealed){ const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0); drumroll(.7);
+      setTimeout(()=>{ vals.forEach((v,i)=>setTimeout(()=>tickSnd(true), i*180)); setTimeout(()=>{ meow(Math.min(4,Math.max(1,Math.ceil(vals.length/2))), true); if(sum>=21) rain(16,["🪙","💰","🤑"]); }, vals.length*180+120); }, 750); }
+    else if(revKey && revKey.split(":")[0]===rk.split(":")[0]){ pop(); }
+  }
+  revKey=rk;
+}
+const isGold = i => !!(i && i.gold);
+const x2 = i => isGold(i) ? `<span class="x2" title="Золотая карта: монеты ×2">⭐ ×2</span>` : "";
+
+/* ================= состояние страницы ================= */
+let db=null, user=null, downloads=null, uid=null, owner=false;
+let G=null, gameLoaded=false, slow=false, fatal="";
+let ideas=[], bets=[], players=[], betsLoaded=false;
+let me=null, prof=null, meLoaded=false, profLoaded=false;
+let view="player";
+let draft={text:"", cat:null};
+let join={code:"", nick:"", avatar:"🦆", tab:"meme"};
+let fib=null, busy=false, errMsg="", confirmNew=false, autoFired="";
+let subGid=null, unsubs=[];
+
+const gs = () => db.doc("game/state");
+const kf = () => db.doc("data/users/"+uid+"/kf");
+const joined = () => !!(G && prof && prof.gid===G.gid && me && me.gid===G.gid);
+const lotId = () => (G && G.phase==="auction" && G.order) ? G.order[G.idx||0] : null;
+const ideaById = id => ideas.find(i=>i.id===id);
+const ranked = () => ideas.map(i=>{ const base=((G&&G.results)||{})[i.id]||0; return {...i, base, coins:base*(isGold(i)?2:1)}; }).sort((a,b)=>b.coins-a.coins || (b.cat||0)-(a.cat||0) || (a.at||0)-(b.at||0));
+
+function setErr(e, fallback){
+  const code = e && e.code;
+  if(code==="invalid_argument") errMsg = SITE ? "Ведущий не принял это действие. Обнови страницу и попробуй ещё раз." : "Сервер не дал сохранить. Похоже, у тебя доступ только на просмотр: попроси ведущего дать доступ «Участник» (Contributor) или «Редактор».";
+  else if(SITE && code==="unavailable") errMsg = "Нет связи с ведущим. Подожди, пока внизу загорится «На связи», и попробуй ещё раз.";
+  else if(code==="quota_exceeded") errMsg = "В базе игры кончилось место. Ведущему нужно начать новую игру.";
+  else if(code==="resource_exhausted") errMsg = "Слишком много действий подряд. Подожди пару секунд и попробуй ещё раз.";
+  else errMsg = fallback || "Не получилось сохранить. Проверь интернет и попробуй ещё раз.";
+}
+async function run(fn, fallback){
+  if(busy) return; busy=true; errMsg=""; render();
+  try{ await fn(); }catch(e){ setErr(e, fallback); }
+  busy=false; render();
+}
+
+/* ================= загрузка ================= */
+async function boot(){
+  try{
+    const C = window.claude;
+    if(C && C.use){
+      [db, user, downloads] = await Promise.all([C.use("db"), C.use("user"), C.use("downloads").catch(()=>null)]);
+    }
+  }catch(e){}
+  if(!db){ fatal="nodb"; render(); return; }
+  uid = user ? await user.id() : null;
+  owner = user ? await user.isOwner() : false;
+  view = owner ? "host" : "player";
+  const t = setTimeout(()=>{ if(!gameLoaded){ slow=true; render(); } }, 10000);
+  gs().onSnapshot(s=>{ if(!s.metadata.fromCache){ clearTimeout(t); slow=false; } gameLoaded=true; G = s.exists ? s.data() : null; ensureSubs(); onGameChange(); render(); },
+    e=>{ clearTimeout(t); gameLoaded=true; fatal="load"; render(); });
+  if(uid){
+    kf().onSnapshot(s=>{ meLoaded=true; me = s.exists ? s.data() : null; render(); }, ()=>{ meLoaded=true; render(); });
+    db.doc("players/"+uid).onSnapshot(s=>{ profLoaded=true; prof = s.exists ? s.data() : null; if(prof){ join.nick = join.nick || prof.nick || ""; if(prof.avatar) join.avatar = prof.avatar; } render(); }, ()=>{ profLoaded=true; render(); });
+  }
+  render();
+}
+function ensureSubs(){
+  const gid = G && G.gid;
+  if(gid === subGid) return;
+  subGid = gid; unsubs.forEach(u=>{try{u()}catch(e){}}); unsubs=[]; ideas=[]; bets=[]; players=[]; betsLoaded=false;
+  if(!gid) return;
+  unsubs.push(db.collection("ideas").where("gid","==",gid).onSnapshot(s=>{ ideas=s.docs.map(d=>({id:d.id, ...d.data()})); render(); }, ()=>{}));
+  if(owner){
+    unsubs.push(db.collection("bets").where("gid","==",gid).onSnapshot(s=>{
+      const before = new Set(bets.map(b=>b.id)); bets = s.docs.map(d=>({id:d.id, ...d.data()}));
+      if(betsLoaded && view==="host"){ const lot=lotId(); const fresh=bets.filter(b=>!before.has(b.id) && b.idea===lot).length; if(fresh) meow(Math.min(fresh,3), false); }
+      betsLoaded=true; render(); }, ()=>{}));
+    let plLoaded=false; unsubs.push(db.collection("players").where("gid","==",gid).onSnapshot(s=>{ const before=new Set(players.map(p=>p.id)); players=s.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=>(a.at||0)-(b.at||0)); if(plLoaded && view==="host" && players.some(p=>!before.has(p.id))) pop(); plLoaded=true; render(); }, ()=>{}));
+  }
+}
+
+/* ================= рендер ================= */
+const $app = document.getElementById("app");
+function render(){
+  const a=document.activeElement, fid=a && a.id; let ss=null, se=null;
+  try{ if(fid && a.selectionStart!=null){ ss=a.selectionStart; se=a.selectionEnd; } }catch(e){}
+  const g=document.querySelector(".avgrid"), sc=g?g.scrollTop:0;
+  PEND.length=0;
+  $app.innerHTML = header() + body();
+  PEND.forEach(k=>SEEN.add(k)); countUps();
+  if(fid){ const n=document.getElementById(fid); if(n){ try{ n.focus({preventScroll:true}); if(ss!=null && n.setSelectionRange) n.setSelectionRange(ss,se); }catch(e){} } }
+  const g2=document.querySelector(".avgrid"); if(g2) g2.scrollTop=sc;
+  tick();
+}
+function header(){
+  const toggle = owner ? `<div class="seg" role="group" aria-label="Экран"><button data-view="host" aria-pressed="${view==='host'}">Ведущий</button><button data-view="player" aria-pressed="${view==='player'}">Я как игрок</button></div>` : "";
+  const reset = (owner && view==="host" && G && G.phase!=="lobby") ? `<button class="btn sm ghost" data-act="askNew" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">↺ Новая игра</button>` : "";
+  const snd = `<button class="btn sm ghost" data-act="sound" aria-pressed="${soundOn}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">${soundOn?"🔊 Звук":"🔇 Без звука"}</button>`;
+  return `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div><div class="row">${reset}${snd}${toggle}</div></header>`;
+}
+function onfelt(icon, title, text){ return `<div class="onfelt"><div class="bigcat">${icon}</div><b style="font-size:18px">${title}</b><div class="muted small" style="max-width:420px">${text||""}</div></div>`; }
+function body(){
+  if(fatal==="nodb") return onfelt("🙀","Игра не может подключиться","Открой эту страницу в claude.ai и войди в свой аккаунт. Без входа сохранять идеи и ставки негде.");
+  if(fatal==="load") return onfelt("🙀","Не удалось загрузить игру","Обнови страницу. Если не поможет, проверь, что тебе открыт доступ к этой странице.");
+  if(!gameLoaded) return onfelt("🐱", slow?"Связь с игрой медленная…":"Котофонд загружается…", slow?"Данные пока не пришли. Проверь интернет: игра подхватится сама, как только связь появится.":"");
+  const err = errMsg ? `<div class="err" role="alert">${esc(errMsg)}</div>` : "";
+  if(view==="host"){
+    const conf = confirmNew ? `<div class="err" style="background:var(--gold-soft);color:var(--ink);border-color:var(--gold)" role="alert"><div class="row between"><span><b>Начать новую игру?</b> Текущая игра пропадёт с экрана, все вернутся в лобби с новым кодом.</span><span class="row"><button class="btn danger sm" data-act="newGame">Да, новая игра</button><button class="btn ghost sm" data-act="cancelNew">Отмена</button></span></div></div>` : "";
+    return `<section class="panel">${conf}${err}${host()}</section>`;
+  }
+  return `<section class="pcard">${err}${player()}</section>`;
+}
+
+/* ---------- ведущий ---------- */
+function host(){
+  if(!G) return `<div class="eyebrow">Новая игра</div><div class="h">Игры ещё нет</div><p class="muted" style="margin:0">Создай игру: появится код, который ты скажешь команде.</p><button class="btn gold" data-act="create" ${busy?"disabled":""}>Создать игру</button>`;
+  const p = G.phase;
+  if(p==="lobby") return hostLobby();
+  if(p==="ideas") return hostIdeas();
+  if(p==="backlog") return hostBacklog();
+  if(p==="auction") return hostAuction();
+  return hostResults();
+}
+function stepper(key, val, label, idx){
+  const k = idx==null ? key : key+":"+idx;
+  return `<div class="set"><span>${label}</span><div class="step"><button data-set="${k}" data-d="-1" aria-label="Меньше">−</button><b>${val}</b><button data-set="${k}" data-d="1" aria-label="Больше">+</button></div></div>`;
+}
+function hostLobby(){
+  const s=sets();
+  return `
+  <div class="row between"><div><div class="eyebrow">Шаг 1 из 5 · Лобби</div><div class="h">Выбери проект и позови команду</div></div></div>
+  <div class="proj" role="radiogroup" aria-label="Проект">
+    ${Object.entries(PROJECTS).map(([k,v])=>`<label><input type="radio" name="proj" id="proj-${k}" value="${k}" ${G.project===k?"checked":""}><b>${v.name}</b><span>${v.sub}</span></label>`).join("")}
+  </div>
+  <div class="grid2">
+    <div class="box"><div class="eyebrow">Код игры · скажи команде</div><div class="code">${esc(G.code)}</div>
+      <div class="small muted">${SITE?"Команда открывает ссылку ниже, вводит код, ник и выбирает аватарку.":"Команда открывает эту же страницу по ссылке, вводит код, ник и выбирает аватарку."}</div>
+      ${SITE?`<div class="small" style="margin-top:8px;overflow-wrap:anywhere"><b>${esc(location.origin+location.pathname)}</b></div>`:`<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="newcode">Другой код</button></div>`}</div>
+    <div class="box"><div class="row between"><div class="eyebrow">В лобби · ${players.length}</div><span class="small muted">ники видишь только ты</span></div>
+      <div class="nicks" style="margin-top:8px">${players.length? players.map(p=>`<span class="nick${once("nick:"+G.gid+":"+p.id,"popin")}"><span class="av">${esc(ALL_AV.has(p.avatar)?p.avatar:"🐱")}</span>${esc(p.nick)}</span>`).join("") : `<span class="small muted">Пока никого. Как только кто-то войдёт, он появится здесь.</span>`}</div></div>
+  </div>
+  <div class="settings">
+    ${stepper("min", s.min+" мин", "Время на одну карту")}
+    ${stepper("cards", s.cards, "Карт на игрока")}
+    ${stepper("swaps", s.swaps, "Смен карты")}
+    ${stepper("coins", s.coins, "Монет на аукцион")}
+    ${stepper("cats", s.cats[0], `Котов ${catE(0)} «Есть мысль»`, 0)}
+    ${stepper("cats", s.cats[1], `Котов ${catE(1)} «Верю»`, 1)}
+    ${stepper("cats", s.cats[2], `Котов ${catE(2)} «Ставлю всё»`, 2)}
+  </div>
+  ${SITE ? `<div class="hint2"><b>Как провести игру.</b> Отправь команде ссылку из блока с кодом и скажи код. Аккаунты и регистрация не нужны.
+    <ol><li>Не закрывай эту вкладку до конца игры: вся игра живёт в ней. Переключаться на другие вкладки можно.</li>
+    <li>Держи ноутбук на зарядке и не закрывай крышку.</li>
+    <li>Внизу справа видно, сколько игроков на связи.</li></ol></div>` : `<div class="hint2"><b>Как позвать команду.</b> Нажми Share вверху этой страницы и дай доступ:
+    <ol><li>коллегам из твоей организации в claude.ai — уровень «Участник» (Contributor);</li>
+    <li>людям не из твоей организации — пригласи по почте как «Редактор» (Editor), иначе они смогут только смотреть.</li></ol>
+    У каждого игрока должен быть аккаунт claude.ai.</div>`}
+  <button class="btn gold block" data-act="startIdeas" ${busy?"disabled":""}>Старт раунда идей →</button>`;
+}
+function coverage(){
+  const c={}; ideas.forEach(i=>{c[i.type]=(c[i.type]||0)+1;});
+  return `<div class="cover">${TYPE_KEYS.map(k=>`<div class="cv ${c[k]?"":"empty"}" style="background:${TYPES[k].c}"><b>${TYPES[k].name}</b><span>${c[k]||"—"}</span></div>`).join("")}</div>`;
+}
+function hostIdeas(){
+  const s=sets(), total=Math.max(1, players.length*s.cards), pct=Math.min(100, Math.round(ideas.length/total*100));
+  return `
+  <div class="row between"><div><div class="eyebrow">Шаг 2 из 5 · Раунд идей · ${esc(proj().name)}</div><div class="h">Команда пишет идеи</div></div>
+    <div style="text-align:right"><div class="small muted">идёт</div><div class="timer" style="font-size:34px" data-up="${G.startedAt||Date.now()}">0:00</div></div></div>
+  <div><div class="row between small"><b>Сдано идей: ${ideas.length} из ${players.length*s.cards}</b><span class="muted">${plural(players.length,"игрок","игрока","игроков")} × ${plural(s.cards,"карта","карты","карт")} · ${s.min} мин на карту</span></div><div class="pbar" style="margin-top:6px"><span style="width:${pct}%"></span></div></div>
+  <div><div class="eyebrow" style="margin-bottom:8px">Карта проекта · какие типы уже закрыты</div>${coverage()}</div>
+  <div class="small muted">Тексты идей скрыты до конца раунда, видно только количество по типам.</div>
+  <div class="row"><button class="btn dark" data-act="endIdeas" ${busy?"disabled":""}>Завершить раунд идей</button><button class="btn ghost" data-act="backLobby" ${busy?"disabled":""}>← Вернуться в лобби</button></div>`;
+}
+function auctionOrder(){
+  const by=[[],[],[]]; ideas.forEach(i=>{ by[Math.max(0,Math.min(2,i.cat||0))].push(i.id); });
+  return by.flatMap(shuffle);
+}
+function hostBacklog(){
+  const list = ideas.slice().sort((a,b)=>(a.cat||0)-(b.cat||0));
+  const n=[0,0,0]; ideas.forEach(i=>n[i.cat||0]++);
+  return `
+  <div class="row between"><div><div class="eyebrow">Шаг 3 из 5 · Раунд идей завершён</div><div class="h">Бэклог идей · ${ideas.length}</div></div></div>
+  <div class="queue"><b>Очередь аукциона:</b><span>${catE(0)} сначала · ${n[0]}</span>→<span>${catE(1)} · ${n[1]}</span>→<span>${catE(2)} в конце · ${n[2]}</span><span class="small muted" style="border:0;background:none">внутри одного кота порядок случайный</span></div>
+  ${ideas.length ? `<div class="ilist">${list.map(i=>`<div class="ili"><span class="ct" title="${CATS[i.cat||0].name}">${catE(i.cat)}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p></div></div>`).join("")}</div>` : `<div class="hint2">Идей нет. Можно вернуться в раунд идей.</div>`}
+  <div class="row"><button class="btn gold" data-act="startAuction" ${busy||!ideas.length?"disabled":""}>Старт аукциона →</button><button class="btn ghost" data-act="backIdeas" ${busy?"disabled":""}>← Вернуться в раунд идей</button></div>`;
+}
+function hostAuction(){
+  const order=G.order||[], idx=G.idx||0, lot=ideaById(lotId());
+  const lotBets=bets.filter(b=>b.idea===lotId());
+  const cnt=[0,0,0]; let pos=[0,0,0]; order.forEach((id,k)=>{ const c=(ideaById(id)||{}).cat||0; cnt[c]++; if(k<=idx) pos[c]++; });
+  const cur=lot?(lot.cat||0):0;
+  const expect=Math.max(0, players.length-1);
+  const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
+  const last = idx>=order.length-1;
+  return `
+  <div class="row between"><div class="eyebrow">Шаг 4 из 5 · Аукцион · идея ${idx+1} из ${order.length}</div><span class="small muted">зачитай идею команде</span></div>
+  <div class="queue">${[0,1,2].map(c=>`<span class="${c===cur?"now":""}">${catE(c)} ${c===cur?`${pos[c]} из ${cnt[c]}`:cnt[c]}</span>`).join("")}</div>
+  ${lot ? `<div class="lot${once("lot:"+G.gid+":"+idx,"slidein")}"><div class="row">${tag(lot.type)}<span style="font-size:22px" title="кот автора">${catE(lot.cat)}</span>${x2(lot)}</div><p>${esc(lot.text)}</p></div>` : `<div class="hint2">Идея не найдена. Переходи к следующей.</div>`}
+  <div><div class="row between"><div class="eyebrow">${G.revealed?"Ставки вскрыты":`Ставок: ${lotBets.length}${expect?` · ждём около ${expect}`:""}`}</div>${G.revealed?revSum(sum,vals.length,"h"):""}</div>
+    <div class="votes" style="margin-top:8px">${G.revealed ? (vals.length? revCards(vals,"h") : `<span class="small muted">Никто не поставил</span>`) : lotBets.map(()=>`<div class="vc back" aria-label="Ставка сделана"></div>`).join("")}</div>
+    <div class="small muted" style="margin-top:6px">Автор идеи не ставит на свою, поэтому ставок обычно на одну меньше, чем игроков.</div></div>
+  <div class="row">${G.revealed
+    ? `<button class="btn gold" data-act="${last?"toResults":"nextLot"}" ${busy?"disabled":""}>${last?"Показать итоги →":"Следующая идея →"}</button>`
+    : `<button class="btn gold" data-act="reveal" ${busy?"disabled":""}>Вскрыть ставки</button>`}</div>`;
+}
+const REVF={};
+function revFresh(who){ const k=who+":"+G.gid+":"+(G.idx||0); if(REVF[k]===undefined) REVF[k]=(once("rev:"+k,"x")!==""); return REVF[k]; }
+function revCards(vals, who){ const fresh=revFresh(who);
+  return vals.map((v,i)=>`<div class="vc face${fresh?" flipin":""}" style="${fresh?`animation-delay:${(.75+i*.18).toFixed(2)}s`:""}">${v}</div>`).join(""); }
+function revSum(sum, n, who){ const fresh=revFresh(who), key="sum:"+who+":"+G.gid+":"+(G.idx||0);
+  if(fresh && !SEEN.has(key)){ PEND.push(key); return `<div class="sum" data-count="${sum}" data-delay="${750+n*180}">0 🪙</div>`; } return `<div class="sum">${sum} 🪙</div>`; }
+function podium(list, small){
+  const top=list.slice(0,3); if(!top.length) return "";
+  const cols = top.length===3 ? [[top[1],2],[top[0],1],[top[2],3]] : top.map((t,i)=>[t,i+1]);
+  return `<div class="podwrap${small?" sm":""}" style="${top.length<3?`grid-template-columns:repeat(${top.length},minmax(0,1fr))`:""}">${cols.map(([i,p])=>`<div class="podcol p${p}${once("pod:"+(small?"s":"h")+":"+G.gid+":"+p,"rise")}" style="animation-delay:${[0,1.9,1.1,.4][p]}s"><div class="champ">${buffCat(4-p)}<div class="title">${CHAMP[4-p]}</div></div><div class="pd p${p}"><div class="place">${p} место</div><div class="row"><span class="coins">${i.coins} 🪙</span>${x2(i)}<span class="small muted">кот автора ${catE(i.cat)}</span></div><p>${esc(i.text)}</p>${small?"":tag(i.type)}</div></div>`).join("")}</div>`;
+}
+function hostResults(){
+  const list=ranked(), total=list.reduce((a,b)=>a+b.base,0);
+  return `
+  <div><div class="eyebrow">Шаг 5 из 5 · Итоги · ${esc(proj().name)}</div><div class="h">Котофонд вложил ${plural(total,"монету","монеты","монет")} в ${plural(list.length,"идею","идеи","идей")}</div></div>
+  ${podium(list)}
+  ${awards(list)}
+  ${list.length? `<div class="tablewrap"><table><thead><tr><th>#</th><th>Идея</th><th>Тип</th><th>Кот</th><th>Монеты</th></tr></thead><tbody>
+    ${list.map((i,n)=>`<tr><td class="n">${n+1}</td><td>${esc(i.text)}</td><td>${TYPES[i.type]?TYPES[i.type].name:""}</td><td style="font-size:20px">${catE(i.cat)}</td><td><span class="coins">${i.coins}</span> ${x2(i)}</td></tr>`).join("")}
+  </tbody></table></div>` : `<div class="hint2">В этой игре не было идей.</div>`}
+  <div class="row">
+    ${downloads && list.length ? `<button class="btn gold" data-act="csv">Скачать идеи (Excel, CSV)</button>` : ""}
+    <button class="btn ghost" data-act="askNew">Новая игра</button>
+  </div>`;
+}
+
+/* ---------- игрок ---------- */
+function player(){
+  if(!uid) return `<div class="wait"><div class="bigcat">🙀</div><b>Нужно войти в claude.ai</b><div class="small muted">Игра хранит идеи и ставки в твоём аккаунте. Войди и открой страницу снова.</div></div>`;
+  if(!G) return `<div class="wait" data-sleep="1"><button class="bigcat" data-act="snore" aria-label="Послушать, как кот спит" style="border:0;background:none;padding:0;cursor:pointer">😴</button><b>Игра ещё не началась</b><div class="small muted">Ведущий пока не создал игру. Страница обновится сама.</div><div class="small muted">${AC&&AC.state==="running"&&soundOn?"Тсс… кот спит и похрапывает 💤":"Нажми на кота, чтобы услышать, как он спит"}</div></div>`;
+  if(!meLoaded || !profLoaded) return `<div class="wait"><div class="bigcat">🐱</div><b>Загружаем…</b></div>`;
+  if(!joined()){
+    if(G.phase==="results") return `<div class="wait"><div class="bigcat">🏁</div><b>Эта игра уже закончилась</b><div class="small muted">Дождись, когда ведущий начнёт новую.</div></div>`;
+    return playerJoin();
+  }
+  const p=G.phase;
+  if(p==="lobby") return `<div class="eyebrow">Котофонд · ${esc(G.code)}</div><div class="h">${esc(proj().name)}</div>
+    <div class="wait"><div class="bigcat">${esc(prof.avatar)}</div><b>Ты в игре, ${esc(prof.nick)}</b><div class="small muted">Ждём, когда ведущий нажмёт «Старт».</div></div>
+    <div class="box small muted">Твой ник видит только ведущий. Идеи, котов и ставки не видит никто.</div>`;
+  if(p==="ideas") return playerIdeas();
+  if(p==="backlog") return `<div class="eyebrow">Раунд идей завершён</div><div class="h">Ты сдал идей: ${(me.mine||[]).length}</div>${myIdeasBox(false)}
+    <div class="wait"><div class="bigcat">🪙</div><b>Скоро аукцион</b><div class="small muted">У тебя будет ${sets().coins} монет. Вкладывать в свои идеи нельзя.</div></div>`;
+  if(p==="auction") return playerAuction();
+  return playerResults();
+}
+function playerJoin(){
+  if(!join.code && window.KF_CODE) join.code = window.KF_CODE;
+  const list = join.tab==="meme" ? MEMES.map(m=>m[0]) : AVATARS;
+  return `<div class="eyebrow">Котофонд · ${esc(proj().name)}</div><div class="h">Вход в игру</div>
+  <div class="field"><label for="jcode">Код игры <span class="muted" style="font-weight:500">· скажет ведущий</span></label><input id="jcode" autocomplete="off" placeholder="KOT-…" value="${esc(join.code)}"></div>
+  <div class="me"><div class="bigav">${esc(join.avatar)}</div><div class="field" style="flex:1"><label for="jnick">Ник</label><input id="jnick" maxlength="24" autocomplete="off" value="${esc(join.nick)}"><span class="avcap">${esc(avCaption(join.avatar))}</span></div></div>
+  <div><div class="avtabs" style="margin-bottom:6px"><button data-avtab="meme" aria-pressed="${join.tab==="meme"}">Мемы · ${MEMES.length}</button><button data-avtab="zoo" aria-pressed="${join.tab==="zoo"}">Звери · ${AVATARS.length}</button></div>
+    <div class="avgrid">${list.map(a=>`<button class="avb" data-av="${a}" aria-pressed="${join.avatar===a}" aria-label="Аватар ${a} ${esc(avCaption(a))}" title="${esc(avCaption(a))}">${a}</button>`).join("")}</div></div>
+  <div class="small muted">Ник и аватарку видит только ведущий. Идеи останутся анонимными.</div>
+  <button class="btn gold block" data-act="join" ${busy?"disabled":""}>Войти</button>`;
+}
+function myIdeasBox(withRank){
+  const mine=(me.mine||[]).map(ideaById).filter(Boolean); if(!mine.length) return "";
+  const r = withRank ? ranked() : [];
+  return `<div class="box small"><b>Твои идеи</b> <span class="muted">видишь только ты</span><div class="mine" style="margin-top:8px">${mine.map(i=>{
+    const place = withRank ? r.findIndex(x=>x.id===i.id)+1 : 0;
+    return `<div><span>${catE(i.cat)} ${esc(i.text)}</span>${withRank?`<span class="coins">${place} место · ${(r[place-1]||{}).coins||0}</span>`:""}</div>`;}).join("")}</div></div>`;
+}
+function catLeft(i){ const s=sets(); return (s.cats[i]||0) - ((me.catsUsed||[0,0,0])[i]||0); }
+function curCat(){ if(draft.cat!=null && catLeft(draft.cat)>0) return draft.cat; for(let i=0;i<3;i++) if(catLeft(i)>0) return i; return 0; }
+function playerIdeas(){
+  const s=sets(), done=me.done||0;
+  if(done>=s.cards) return `<div class="eyebrow">Раунд идей</div><div class="h">Все карты сданы</div>${myIdeasBox(false)}<div class="wait"><div class="bigcat">😸</div><b>Ждём остальных</b><div class="small muted">Когда все допишут, ведущий закроет раунд.</div></div>`;
+  const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[0], T=TYPES[type];
+  const swapsLeft=s.swaps-(me.swapsUsed||0);
+  const head=`<div class="row between"><div class="eyebrow">Карта ${done+1} из ${s.cards}</div>${me.cardAt?`<div class="timer" style="font-size:22px" data-down="${me.cardAt+s.min*60000}">${mmss(me.cardAt+s.min*60000-Date.now())}</div>`:""}</div>`;
+  if(!me.cardAt) return head+`<button class="facedown" data-act="draw" ${busy?"disabled":""} style="cursor:pointer;font:inherit"><span style="font-size:44px">🃏</span><b>Тяни карту</b><span class="small">Выпадет тип идеи и подсказка. На ответ ${s.min} мин.</span><span class="small" style="color:var(--gold-2)">Иногда выпадает ⭐ золотая карта: монеты за идею ×2</span></button>`;
+  const cat=curCat();
+  return head+`
+  <div class="icard${me.gold?" goldcard":""}${once("card:"+G.gid+":"+(me.pos||0)+":"+me.cardAt,"cardflip")}">
+    <div class="band" style="background:${T.c}"><b>${me.gold?"⭐ ":""}${T.name}</b><span>${me.gold?"Золотая карта · монеты ×2":esc(proj().name)}</span></div>
+    <div class="hint">${T.q}<small>${T.ex}</small></div>
+    <div class="field"><label for="idea" class="small muted">Твоя идея</label><textarea id="idea" maxlength="400" placeholder="Опиши идею в 1–2 предложениях">${esc(draft.text)}</textarea></div>
+  </div>
+  <div><div class="eyebrow" style="margin-bottom:6px">Насколько веришь в идею</div>
+    <div class="cats">${CATS.map((c,i)=>{const left=catLeft(i);return `<button class="cat" data-cat="${i}" aria-pressed="${cat===i}" ${left<=0?"disabled":""}><span class="e">${catE(i)}</span><b>${c.name}</b><i class="mm">${c.meme}</i><small>осталось ${Math.max(0,left)}</small></button>`}).join("")}</div></div>
+  <button class="btn gold block" data-act="submit" ${busy?"disabled":""}>Сдать карту</button>
+  <button class="btn ghost block sm" data-act="swap" ${busy||swapsLeft<=0?"disabled":""}>${swapsLeft>0?`Сменить карту · осталось ${swapsLeft}`:"Смены закончились"}</button>
+  <div class="small muted">Когда время выйдет, написанное сдастся само. Пустая карта сгорит.</div>`;
+}
+function playerAuction(){
+  const s=sets(), id=lotId(), lot=ideaById(id), order=G.order||[], idx=G.idx||0;
+  const wallet=s.coins-(me.spent||0), myBet=(me.bets||{})[id], isMine=(me.mine||[]).includes(id);
+  const top=`<div class="wallet"><span class="small">Твой кошелёк</span><b>${wallet} 🪙</b></div>
+    <div class="eyebrow">Аукцион · идея ${idx+1} из ${order.length}</div>
+    ${lot?`<div class="icard"><div class="band" style="background:${TYPES[lot.type]?TYPES[lot.type].c:"var(--ink)"}"><b>${TYPES[lot.type]?TYPES[lot.type].name:""}</b><span style="font-size:20px">${x2(lot)} ${catE(lot.cat)}</span></div><div class="txt">${esc(lot.text)}</div></div>`:`<div class="hint2">Загружаем идею…</div>`}`;
+  const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
+  const revealed = G.revealed ? `<div class="box" style="text-align:center"><div class="eyebrow">Ставки вскрыты</div><div class="votes" style="justify-content:center;margin:8px 0;min-height:0">${revCards(vals,"p")}</div>${revSum(sum,vals.length,"p")}${isGold(lot)?`<div class="small muted">Золотая карта: в итогах будет ${sum*2} 🪙</div>`:""}</div>` : "";
+  if(isMine) return top+`<div class="betok"><b>Это твоя идея ${catE(1)}</b><div class="small" style="margin-top:4px">На свою идею ставить нельзя. Никто не знает, что она твоя.</div></div>`+revealed;
+  if(myBet!=null){ const n=meowCount(myBet); return top+`<div class="betok"><div class="meowtxt">${n?Array(n).fill("Мяу!").join(" "):"Пас принят"}</div><div class="small" style="margin-top:4px">Ставка <b>${myBet} 🪙</b> принята.${G.revealed?"":" Ждём, когда ведущий вскроет карты."}</div></div>`+revealed; }
+  if(G.revealed) return top+`<div class="hint2">Ставки по этой идее уже вскрыты, ты не успел поставить.</div>`+revealed;
+  const max=Math.min(21, wallet); if(fib!=null && fib>max) fib=null;
+  const n=fib==null?0:meowCount(fib);
+  return top+`
+  <div><div class="eyebrow" style="margin-bottom:6px">Сколько вложишь</div>
+    <div class="fib">${FIB.map(v=>`<button class="fc" data-fib="${v}" aria-pressed="${fib===v}" ${v>max?"disabled":""}>${v}<small>${v===0?"пас":"монет"}</small></button>`).join("")}</div></div>
+  <div class="small muted">${fib==null?"Выбери карту. Чем больше ставка, тем больше котов мяукнет.":(n?`На ${fib} 🪙 мяукнут ${n} ${n===1?"кот":"кота"}.`:"На пас коты молчат.")}</div>
+  <div class="final">Ставка окончательная, изменить её нельзя</div>
+  <button class="btn gold block" data-act="bet" ${busy||fib==null||!lot?"disabled":""}>${fib==null?"Выбери ставку":`Поставить ${fib} 🪙`}</button>`;
+}
+function playerResults(){
+  const list=ranked(), win=list[0];
+  return `<div class="eyebrow">Итоги · ${esc(proj().name)}</div>
+  <div class="h">${win?"Победила идея: "+plural(win.coins,"монета","монеты","монет"):"Идей не было"}</div>
+  ${podium(list, true)}
+  ${myBadges(list)}
+  ${myIdeasBox(true)}
+  ${awards(list)}
+  <div class="small muted" style="text-align:center">Места своих идей видишь только ты. Спасибо за игру!</div>`;
+}
+
+/* ================= награды ================= */
+function awards(list){
+  if(list.length<2) return "";
+  const out=[], vb=(G&&G.valsBy)||{};
+  let sp=null; list.forEach(i=>{ const v=vb[i.id]||[]; if(v.length>=2){ const d=Math.max(...v)-Math.min(...v); if(d>0 && (!sp||d>sp.d)) sp={i,d}; } });
+  if(sp) out.push(["⚡","Самая спорная идея",sp.i,`Ставки разошлись на ${sp.d} монет`]);
+  const dh=list.slice(0,3).find(i=>(i.cat||0)===0 && i.coins>0); if(dh) out.push(["🐴","Тёмная лошадка",dh,"Автор поставил кота-скептика, а команда поверила"]);
+  const ov=list.filter(i=>(i.cat||0)===2).slice(-1)[0]; if(ov && list.indexOf(ov)>=3) out.push(["🫠","Переоценили",ov,"Кот ва-банк, а монет немного"]);
+  const g=list.find(i=>isGold(i) && i.coins>0); if(g) out.push(["⭐","Золотая карта сыграла",g,`${g.base} монет удвоились до ${g.coins}`]);
+  if(!out.length) return "";
+  const fresh=once("awards:"+G.gid+":"+view,"x")!=="";
+  return `<div><div class="eyebrow" style="margin-bottom:8px">Награды команды</div><div class="awards">${out.map(([ic,t,i,n],k)=>`<div class="award${fresh?" popin":""}" style="${fresh?`animation-delay:${(2.4+k*.25).toFixed(2)}s`:""}"><span class="ai">${ic}</span><b>${t}</b><p>${esc(i.text)}</p><small>${n}</small></div>`).join("")}</div></div>`;
+}
+function myBadges(list){
+  const s=sets(), mine=me.mine||[], mb=me.bets||{}, top3=list.slice(0,3), win=list[0], spent=me.spent||0, out=[];
+  if(win && mine.includes(win.id)) out.push(["👑","Король котофонда","Твоя идея на первом месте"]);
+  if(top3.some(i=>mine.includes(i.id) && (i.cat||0)===2)) out.push(["🤑","Ва-банк окупился","Твой кот ва-банк в тройке"]);
+  if(top3.some(i=>mine.includes(i.id) && (i.cat||0)===0)) out.push(["🐴","Скромняга","Кот-скептик сомневался зря"]);
+  if(win && (mb[win.id]||0)>=8) out.push(["🎯","Снайпер",`Вложил ${mb[win.id]} в победителя`]);
+  if(list.some(i=>mine.includes(i.id) && isGold(i))) out.push(["⭐","Золотые лапки","Тебе выпала золотая карта"]);
+  if(mine.length>=s.cards) out.push(["💡","Генератор идей","Сдал все карты"]);
+  if(spent>=s.coins*.9) out.push(["💸","Щедрый инвестор",`Вложил ${spent} из ${s.coins}`]);
+  else if(Object.keys(mb).length && spent<=s.coins*.3) out.push(["🐷","Кот-копилка","Сберёг монеты, но они сгорели 😿"]);
+  if(!out.length) out.push(["🐱","Участник котофонда","Спасибо, что играл"]);
+  const fresh=once("badges:"+G.gid,"x")!=="";
+  return `<div><div class="eyebrow" style="margin-bottom:8px">Твои ачивки · видишь только ты</div><div class="badges">${out.map(([ic,t,n],k)=>`<div class="badge${fresh?" popin":""}" style="${fresh?`animation-delay:${(2.2+k*.2).toFixed(2)}s`:""}"><span class="bi">${ic}</span><div><b>${t}</b><span>${n}</span></div></div>`).join("")}</div></div>`;
+}
+
+/* ================= таймеры ================= */
+function tick(){
+  const now=Date.now();
+  if(document.querySelector("[data-sleep]") && now-lastSnore>4200) snore();
+  document.querySelectorAll("[data-up]").forEach(el=>{ el.textContent=mmss(now-(+el.dataset.up)+999); });
+  document.querySelectorAll("[data-down]").forEach(el=>{ const left=(+el.dataset.down)-now; el.textContent=mmss(left); el.classList.toggle("low", left<30000); el.classList.toggle("pulse", left>0 && left<=10000);
+    const sec=Math.ceil(left/1000); if(sec>0 && sec<=10 && sec!==lastTickSec){ lastTickSec=sec; tickSnd(sec<=3); } });
+  if(view==="player" && G && G.phase==="ideas" && joined() && me.cardAt){
+    const s=sets(); const key=G.gid+":"+(me.pos||0)+":"+me.cardAt;
+    if((me.done||0)<s.cards && now >= me.cardAt + s.min*60000 && autoFired!==key && !busy){ autoFired=key; buzzer(); submitIdea(true); }
+  }
+}
+setInterval(tick, 1000);
+
+/* ================= действия ================= */
+async function hostUpdate(patch){ await gs().update(patch); }
+function submitIdea(auto){
+  return run(async ()=>{
+    const s=sets(), text=draft.text.trim().slice(0,400), type=(me.deck||[])[me.pos||0]||TYPE_KEYS[0];
+    if(!text && !auto){ errMsg="Напиши идею: хотя бы одно предложение."; return; }
+    if(text){
+      const cat=curCat(); const ref=db.collection("ideas").doc();
+      await ref.set({gid:G.gid, type, text, cat, gold:!!me.gold, at:Date.now()});
+      const cu=(me.catsUsed||[0,0,0]).slice(); cu[cat]=(cu[cat]||0)+1;
+      await kf().update({done:(me.done||0)+1, pos:(me.pos||0)+1, cardAt:null, gold:false, catsUsed:cu, mine:[...(me.mine||[]), ref.id]});
+    } else {
+      await kf().update({done:(me.done||0)+1, pos:(me.pos||0)+1, cardAt:null, gold:false});
+    }
+    draft={text:"", cat:null};
+  }, "Не получилось сдать карту. Попробуй ещё раз.");
+}
+function goldFx(){ setTimeout(()=>{ banner("⭐","Золотая карта!","Монеты за эту идею удвоятся"); if(soundOn){ const ac=audio(); if(ac){ chime(ac,ac.currentTime+.02); chime(ac,ac.currentTime+.25); meowOnce(ac,ac.currentTime+.3,1.35,1); } } rain(12,["⭐","✨","🪙"]); }, 250); }
+const ACT = {
+  sound(){ soundOn=!soundOn; if(soundOn) audio(); render(); },
+  snore(){ audio(); setTimeout(()=>{ snore(); render(); }, 60); },
+  create(){ run(()=>gs().set({gid:rid(), code:newCode(), project:"up", phase:"lobby", settings:DEF, order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
+  newcode(){ run(()=>hostUpdate({code:newCode()})); },
+  startIdeas(){ run(()=>hostUpdate({phase:"ideas", startedAt:Date.now()})); },
+  endIdeas(){ run(()=>hostUpdate({phase:"backlog"})); },
+  backLobby(){ run(()=>hostUpdate({phase:"lobby"})); },
+  backIdeas(){ run(()=>hostUpdate({phase:"ideas"})); },
+  startAuction(){ run(()=>hostUpdate({phase:"auction", order:auctionOrder(), idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}})); },
+  reveal(){ run(()=>{ const id=lotId(); const vals=shuffle(bets.filter(b=>b.idea===id).map(b=>+b.v||0)); const sum=vals.reduce((a,b)=>a+b,0);
+    return hostUpdate({revealed:true, revealVals:vals, results:Object.assign({}, G.results||{}, {[id]:sum}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:vals})}); }); },
+  nextLot(){ run(()=>hostUpdate({idx:(G.idx||0)+1, revealed:false, revealVals:[]})); },
+  toResults(){ run(()=>hostUpdate({phase:"results"})); },
+  askNew(){ confirmNew=true; render(); window.scrollTo({top:0,behavior:"smooth"}); },
+  cancelNew(){ confirmNew=false; render(); },
+  newGame(){ confirmNew=false; run(()=>gs().set({gid:rid(), code:newCode(), project:G.project||"up", phase:"lobby", settings:sets(), order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
+  async csv(){
+    const list=ranked(); const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+    const rows=[["Место","Идея","Тип","Кот автора","Золотая карта","Монеты"].map(q).join(";")].concat(list.map((i,n)=>[n+1, i.text, TYPES[i.type]?TYPES[i.type].name:"", CATS[i.cat||0].name, isGold(i)?"да, ×2":"", i.coins].map(q).join(";")));
+    try{ await downloads.save({filename:"kotofond-"+(G.project||"game")+".csv", data:"﻿"+rows.join("\r\n")}); }
+    catch(e){ if(e && e.code!=="declined"){ errMsg="Не получилось скачать файл здесь. Открой страницу в браузере на компьютере."; render(); } }
+  },
+  join(){
+    const code=(document.getElementById("jcode")||{}).value||join.code, nick=((document.getElementById("jnick")||{}).value||join.nick).trim().slice(0,24);
+    join.code=code; join.nick=nick;
+    if(normCode(code)!==normCode(G.code)){ errMsg="Код не подходит. Проверь, что ввёл код, который назвал ведущий."; render(); return; }
+    if(!nick){ errMsg="Придумай ник: его увидит только ведущий."; render(); return; }
+    const s=sets();
+    run(async ()=>{
+      await db.doc("players/"+uid).set({gid:G.gid, nick, avatar:join.avatar, at:Date.now()});
+      if(!(me && me.gid===G.gid)) await kf().set({gid:G.gid, deck:deal(s.cards+s.swaps+2), pos:0, swapsUsed:0, done:0, cardAt:null, catsUsed:[0,0,0], mine:[], bets:{}, spent:0});
+    }, "Не получилось войти. Попробуй ещё раз.");
+  },
+  draw(){ const gold=Math.random()<.2; swoosh(false); if(gold) goldFx(); run(()=>kf().update({cardAt:Date.now(), gold})); },
+  submit(){ if(draft.text.trim()) swoosh(true); submitIdea(false); },
+
+  swap(){ const s=sets(); if((me.swapsUsed||0)>=s.swaps) return; draft.cat=null; swoosh(false);
+    const gold=Math.random()<.2; if(gold) goldFx();
+    run(async ()=>{ let deck=me.deck||[]; const pos=(me.pos||0)+1; const upd={pos, swapsUsed:(me.swapsUsed||0)+1, cardAt:Date.now(), gold};
+      if(pos>=deck.length) upd.deck=deck.concat(deal(4)); await kf().update(upd); }); },
+  bet(btn){
+    const id=lotId(); if(fib==null || !id) return; const v=fib; const n=meowCount(v);
+    meow(n, true); confetti(btn, Math.max(2,n*3));
+    run(async ()=>{ await db.collection("bets").doc().set({gid:G.gid, idea:id, v, at:Date.now()});
+      await kf().update({bets:Object.assign({}, me.bets||{}, {[id]:v}), spent:(me.spent||0)+v}); fib=null; }, "Ставка не прошла. Попробуй ещё раз.");
+  }
+};
+
+document.addEventListener("click", e=>{
+  audio(); /* первый клик открывает звук в браузере */
+  const v=e.target.closest("[data-view]"); if(v){ view=v.dataset.view; errMsg=""; render(); return; }
+  const at=e.target.closest("[data-avtab]"); if(at){ join.tab=at.dataset.avtab; render(); return; }
+  const av=e.target.closest("[data-av]"); if(av){ join.avatar=av.dataset.av; render(); return; }
+  const c=e.target.closest("[data-cat]"); if(c && !c.disabled){ draft.cat=+c.dataset.cat; catSound(draft.cat); render(); return; }
+  const f=e.target.closest("[data-fib]"); if(f && !f.disabled){ fib=+f.dataset.fib; render(); return; }
+  const st=e.target.closest("[data-set]"); if(st && G && !busy){
+    const [k,i]=st.dataset.set.split(":"), d=+st.dataset.d, s=sets();
+    const lim={min:[1,10,1], cards:[1,8,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,10,1]}[k];
+    if(k==="cats"){ const cats=s.cats.slice(); cats[+i]=Math.max(lim[0],Math.min(lim[1],cats[+i]+d)); s.cats=cats; }
+    else s[k]=Math.max(lim[0],Math.min(lim[1],s[k]+d*lim[2]));
+    run(()=>hostUpdate({settings:s})); return; }
+  const a=e.target.closest("[data-act]"); if(a && ACT[a.dataset.act] && !a.disabled){ ACT[a.dataset.act](a); }
+});
+document.addEventListener("input", e=>{
+  if(e.target.id==="idea") draft.text=e.target.value;
+  if(e.target.id==="jcode") join.code=e.target.value;
+  if(e.target.id==="jnick") join.nick=e.target.value;
+});
+document.addEventListener("change", e=>{ if(e.target.name==="proj" && G) run(()=>hostUpdate({project:e.target.value})); });
+document.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.target.id==="jcode"||e.target.id==="jnick")){ e.preventDefault(); ACT.join(); } });
+
+render();
+boot();
+</script>
+</body></html>
