@@ -14,7 +14,7 @@
   --paper:#ffffff; --paper-2:#f2f6f3; --line:#dbe5df; --ink:#16211d; --mute:#5b6b65;
   --gold:#f3b734; --gold-2:#ffd46b; --gold-ink:#5a3d00; --gold-soft:#fff3cf;
   --coral:#ff6f4f; --coral-soft:#fff1ec; --ok:#1f9d63; --ok-soft:#e9f8f0; --bad:#c0392b;
-  --t1:#2f6fe4; --t2:#7a4cd9; --t3:#d4841a; --t4:#0f8f86; --t5:#d23f7a; --t6:#5f7a1f; --t7:#2a8fc9; --t8:#b4372f;
+  --t1:#2f6fe4; --t2:#7a4cd9; --t3:#d4841a; --t4:#0f8f86; --t5:#d23f7a; --t6:#5f7a1f; --t7:#2a8fc9; --t8:#b4372f; --t9:#e0603a;
   --f-display:"Unbounded", "Manrope", system-ui, sans-serif;
   --f-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
@@ -117,7 +117,7 @@ button{font:inherit;cursor:pointer}
 .cat[disabled]{opacity:.4;cursor:not-allowed}
 .pbar{height:10px;background:var(--paper-2);border-radius:9px;overflow:hidden}
 .pbar span{display:block;height:100%;background:var(--ok);border-radius:9px;transition:width .4s}
-.cover{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cover{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 @media (max-width:700px){.cover{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .cv{border-radius:12px;padding:10px;color:#fff;display:flex;flex-direction:column;gap:2px;min-height:74px}
 .cv b{font-size:12px;line-height:1.25}
@@ -522,9 +522,10 @@ const TYPES = {
   data: {name:"Данные и ИИ", c:"var(--t5)", q:"Что мы знаем о клиенте и пока не используем?", ex:"Например: история операций, сезонность, подсказки и прогнозы"},
   proc: {name:"Процессная", c:"var(--t6)", q:"Что тормозит саму команду: релизы, согласования, ручная работа?", ex:"Например: автотесты, шаблоны, меньше ручных шагов"},
   intg: {name:"Интеграции", c:"var(--t7)", q:"С кем соединиться, чтобы дать клиенту больше?", ex:"Например: 1С, маркетплейсы, госсервисы, партнёры банка"},
-  sec:  {name:"Безопасность и регуляторика", c:"var(--t8)", q:"Какой риск или требование можно превратить в удобство?", ex:"Например: биометрия вместо SMS, понятные лимиты"}
+  sec:  {name:"Безопасность и регуляторика", c:"var(--t8)", q:"Какой риск или требование можно превратить в удобство?", ex:"Например: биометрия вместо SMS, понятные лимиты"},
+  proj: {name:"Проект", c:"var(--t9)", q:"Что бы ты улучшил в этом проекте?", ex:"Любая идея по проекту: функция, улучшение, техника, процесс"}
 };
-const TYPE_KEYS = Object.keys(TYPES);
+const TYPE_KEYS = Object.keys(TYPES); /* 8 разделов + «Проект» = 9 карт */
 /* банк вопросов: на карте выпадает один из шести вопросов типа + вопрос про выбранный проект */
 const QS = {
   ux:   ["Где клиенту сейчас неудобно, долго или непонятно?","Какой экран ты бы переделал первым, если бы сам был пользователем?","Где пользователь чаще всего ошибается или бросает сценарий на полпути?","Какую ошибку система показывает непонятным текстом?","Что можно убрать с экрана, и никто этого не заметит?","Что пользователю приходится вводить руками, хотя мы это уже знаем?"],
@@ -543,9 +544,10 @@ const PQ = {
   kpk: ["Что должно происходить, чтобы клиент чувствовал себя членом клуба, а не просто клиентом?","Какими привилегиями клиент не пользуется, потому что не знает о них?","Как менеджеру узнать о важном событии у клиента раньше, чем клиент позвонит?","Что предложить клиенту в момент, когда он собирается уйти к конкуренту?"]
 };
 let qPick={key:null, qi:0, pi:0};
+const qList = type => type==="proj" ? (PQ[(G&&G.project)||"up"]||[]) : (QS[type]||[]);
 function pickQ(key, type, force){
   if(qPick.key===key && !force) return qPick;
-  const n=(QS[type]||[]).length||1, m=(PQ[(G&&G.project)||"up"]||[]).length||1;
+  const n=qList(type).length||1, m=(PQ[(G&&G.project)||"up"]||[]).length||1;
   let qi=Math.floor(Math.random()*n); if(force && n>1 && qi===qPick.qi) qi=(qi+1)%n;
   let pi=Math.floor(Math.random()*m); if(force && m>1 && pi===qPick.pi) pi=(pi+1)%m;
   qPick={key, qi, pi}; return qPick; }
@@ -571,7 +573,7 @@ const PROJECTS = {
   kpk: {name:"Клуб премиальных клиентов", sub:"КПК"}
 };
 const FIB = [0,1,2,3,5,8,13,21];
-const DEF = {min:3, cards:4, swaps:2, cats:[4,2,1], coins:100};
+const DEF = {v:2, min:2, cards:9, swaps:0, cats:[6,2,1], coins:100};
 const AVATARS = ["🦊","🐼","🐨","🐯","🦁","🐸","🐵","🐧","🦉","🦄","🐙","🦖","🐢","🐳","🦈","🦩","🦥","🦦","🦔","🐝","🦋","🐞","🐲","🦕","🐊","🦓","🦒","🐘","🦛","🦘","🦫","🐺","🐮","🐷","🐰","🐹","🐱","🐶","🐻","🐔","🦜","🦚","🐡","🦀","👽","🤖","👾","👻","🥷","🧙"];
 const MEMES = [["🗿","Каменное лицо на дейли"],["🤡","Клоун на проде"],["💀","Умер от дедлайна"],["🫠","Таю на созвоне"],["🦆","Резиновая уточка-отладчик"],["🥔","Просто картошка"],["🍞","Батон"],["🫡","Будет сделано"],["🤓","Ну, технически…"],["🐐","GOAT"],["🌚","Ночной деплой"],["🥸","Под прикрытием"],["🧌","Тролль из код-ревью"],["🙈","Не вижу багов"],["🔥","Всё горит"],["☕","Третий кофе"],["🐛","Это не баг, это фича"],["🧠","Галактический мозг"],["🤌","Мамма миа, какой код"],["🏚","Легаси"],["🍌","Банан для масштаба"],["😎","Деплой в пятницу"],["🫥","На мьюте"],["📠","Интеграция через факс"]];
 const ALL_AV = new Set([...AVATARS, ...MEMES.map(m=>m[0])]);
@@ -589,8 +591,10 @@ const mmss = ms => { ms=Math.max(0,ms); const s=Math.ceil(ms/1000); return Math.
 const tag = t => TYPES[t] ? `<span class="tag" style="background:${TYPES[t].c}">${TYPES[t].name}</span>` : "";
 const catE = i => kitty(i);
 const proj = () => PROJECTS[(G&&G.project)||"up"] || PROJECTS.up;
-const sets = () => Object.assign({}, DEF, (G&&G.settings)||{});
+/* настройки v2: 9 карт по 2 мин; старые сохранённые настройки (4 карты, 3 мин) сбрасываются на новые */
+const sets = () => { const st=(G&&G.settings)||{}; return st.v===2 ? Object.assign({}, DEF, st) : Object.assign({}, DEF); };
 function deal(n){ let out=[]; while(out.length<n) out=out.concat(shuffle(TYPE_KEYS)); return out.slice(0,n); }
+const BASE_TYPES = () => TYPE_KEYS.filter(k=>k!=="proj");
 
 /* ================= звук ================= */
 let AC=null, MASTER=null, soundOn=true;
@@ -840,7 +844,6 @@ function hostLobby(){
   <div class="settings">
     ${stepper("min", s.min+" мин", "Время на одну карту")}
     ${stepper("cards", s.cards, "Карт на игрока")}
-    ${stepper("swaps", s.swaps, "Смен карты")}
     ${stepper("coins", s.coins, "Монет на аукцион")}
     ${stepper("cats", s.cats[0], `Котов ${catE(0)} «Есть мысль»`, 0)}
     ${stepper("cats", s.cats[1], `Котов ${catE(1)} «Верю»`, 1)}
@@ -864,7 +867,7 @@ function hostIdeas(){
   return `
   <div class="row between"><div><div class="eyebrow">Шаг 2 из 5 · Раунд идей · ${esc(proj().name)}</div><div class="h">Команда пишет идеи</div></div>
     <div style="text-align:right"><div class="small muted">идёт</div><div class="timer" style="font-size:34px" data-up="${G.startedAt||Date.now()}">0:00</div></div></div>
-  <div><div class="row between small"><b>Сдано идей: ${ideas.length} из ${players.length*s.cards}</b><span class="muted">${plural(players.length,"игрок","игрока","игроков")} × ${plural(s.cards,"карта","карты","карт")} · ${s.min} мин на карту</span></div><div class="pbar" style="margin-top:6px"><span style="width:${pct}%"></span></div></div>
+  <div><div class="row between small"><b>Сдано идей: ${ideas.length}</b> <span class="muted">· максимум ${players.length*s.cards}, карты можно пропускать</span><span class="muted">${plural(players.length,"игрок","игрока","игроков")} × ${plural(s.cards,"карта","карты","карт")} · ${s.min} мин на карту</span></div><div class="pbar" style="margin-top:6px"><span style="width:${pct}%"></span></div></div>
   <div><div class="eyebrow" style="margin-bottom:8px">Карта проекта · какие типы уже закрыты</div>${coverage()}</div>
   <div class="small muted">Тексты идей скрыты до конца раунда, видно только количество по типам.</div>
   <div class="row"><button class="btn dark" data-act="endIdeas" ${busy?"disabled":""}>Завершить раунд идей</button><button class="btn ghost" data-act="backLobby" ${busy?"disabled":""}>← Вернуться в лобби</button></div>`;
@@ -970,23 +973,22 @@ function playerIdeas(){
   const s=sets(), done=me.done||0;
   if(done>=s.cards) return `<div class="eyebrow">Раунд идей</div><div class="h">Все карты сданы</div>${myIdeasBox(false)}<div class="wait"><div class="bigcat">😸</div><b>Ждём остальных</b><div class="small muted">Когда все допишут, ведущий закроет раунд.</div></div>`;
   const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[0], T=TYPES[type];
-  const swapsLeft=s.swaps-(me.swapsUsed||0);
   const head=`<div class="row between"><div class="eyebrow">Карта ${done+1} из ${s.cards}</div>${me.cardAt?`<div class="timer" style="font-size:22px" data-down="${me.cardAt+s.min*60000}">${mmss(me.cardAt+s.min*60000-Date.now())}</div>`:""}</div>`;
   if(!me.cardAt) return head+`<button class="facedown" data-act="draw" ${busy?"disabled":""} style="cursor:pointer;font:inherit"><span style="font-size:44px">🃏</span><b>Тяни карту</b><span class="small">Выпадет тип идеи и подсказка. На ответ ${s.min} мин.</span><span class="small" style="color:var(--gold-2)">Иногда выпадает ⭐ золотая карта: монеты за идею ×2</span></button>`;
   const cat=curCat(); const qp=pickQ(G.gid+":"+(me.pos||0)+":"+me.cardAt, type, false);
   return head+`
   <div class="icard${me.gold?" goldcard":""}${once("card:"+G.gid+":"+(me.pos||0)+":"+me.cardAt,"cardflip")}">
     <div class="band" style="background:${T.c}"><b>${me.gold?"⭐ ":""}${T.name}</b><span>${me.gold?"Золотая карта · монеты ×2":esc(proj().name)}</span></div>
-    <div class="hint${qPick.flash?" qflash":""}">${(QS[type]||[T.q])[qp.qi]||T.q}<small>${T.ex}</small></div>
-    <div class="projq${qPick.flash?" qflash":""}"><b>Про проект:</b> ${(PQ[G.project||"up"]||[])[qp.pi]||""}</div>
+    <div class="hint${qPick.flash?" qflash":""}">${qList(type)[qp.qi]||T.q}<small>${T.ex}</small></div>
+    ${type==="proj"?"":`<div class="projq${qPick.flash?" qflash":""}"><b>Про проект:</b> ${(PQ[G.project||"up"]||[])[qp.pi]||""}</div>`}
     <div style="padding:0 14px"><button class="btn ghost sm" data-act="reroll" type="button">🎲 Другой вопрос</button> <span class="small muted">бесплатно, сколько угодно</span></div>
     <div class="field"><label for="idea" class="small muted">Твоя идея · что болит → что сделать → что получим</label><textarea id="idea" maxlength="400" placeholder="Проблема: … Идея: … Эффект: …">${esc(draft.text)}</textarea></div>
   </div>
   <div><div class="eyebrow" style="margin-bottom:6px">Насколько веришь в идею</div>
     <div class="cats">${CATS.map((c,i)=>{const left=catLeft(i);return `<button class="cat" data-cat="${i}" aria-pressed="${cat===i}" ${left<=0?"disabled":""}><span class="e">${catE(i)}</span><b>${c.name}</b><i class="mm">${c.meme}</i><small>осталось ${Math.max(0,left)}</small></button>`}).join("")}</div></div>
   <button class="btn gold block" data-act="submit" ${busy?"disabled":""}>Сдать карту</button>
-  <button class="btn ghost block sm" data-act="swap" ${busy||swapsLeft<=0?"disabled":""}>${swapsLeft>0?`Сменить карту · осталось ${swapsLeft}`:"Смены закончились"}</button>
-  <div class="small muted">Когда время выйдет, написанное сдастся само. Пустая карта сгорит.</div>`;
+  <button class="btn ghost block sm" data-act="skip" ${busy?"disabled":""}>Пропустить карту →</button>
+  <div class="small muted">Не идёт вопрос — пропускай, это нормально. Когда время выйдет, написанное сдастся само, пустая карта пропустится.</div>`;
 }
 function playerAuction(){
   const s=sets(), id=lotId(), lot=ideaById(id), order=G.order||[], idx=G.idx||0;
@@ -1069,7 +1071,7 @@ function submitIdea(auto){
     if(!text && !auto){ errMsg="Напиши идею: хотя бы одно предложение."; return; }
     if(text){
       const cat=curCat(); const ref=db.collection("ideas").doc();
-      const qtext=(QS[type]||[])[qPick.qi]||""; await ref.set({gid:G.gid, type, text, cat, gold:!!me.gold, q:qtext, at:Date.now()});
+      const qtext=qList(type)[qPick.qi]||""; await ref.set({gid:G.gid, type, text, cat, gold:!!me.gold, q:qtext, at:Date.now()});
       const cu=(me.catsUsed||[0,0,0]).slice(); cu[cat]=(cu[cat]||0)+1;
       await kf().update({done:(me.done||0)+1, pos:(me.pos||0)+1, cardAt:null, gold:false, catsUsed:cu, mine:[...(me.mine||[]), ref.id]});
     } else {
@@ -1111,16 +1113,15 @@ const ACT = {
     const s=sets();
     run(async ()=>{
       await db.doc("players/"+uid).set({gid:G.gid, nick, avatar:join.avatar, at:Date.now()});
-      if(!(me && me.gid===G.gid)) await kf().set({gid:G.gid, deck:deal(s.cards+s.swaps+2), pos:0, swapsUsed:0, done:0, cardAt:null, catsUsed:[0,0,0], mine:[], bets:{}, spent:0});
+      if(!(me && me.gid===G.gid)) await kf().set({gid:G.gid, deck:(s.cards===9 ? shuffle(TYPE_KEYS) : deal(s.cards)), pos:0, swapsUsed:0, done:0, cardAt:null, catsUsed:[0,0,0], mine:[], bets:{}, spent:0});
     }, "Не получилось войти. Попробуй ещё раз.");
   },
   draw(){ const gold=Math.random()<.2; swoosh(false); if(gold) goldFx(); run(()=>kf().update({cardAt:Date.now(), gold})); },
   submit(){ if(draft.text.trim()) swoosh(true); submitIdea(false); },
 
-  swap(){ const s=sets(); if((me.swapsUsed||0)>=s.swaps) return; draft.cat=null; swoosh(false);
-    const gold=Math.random()<.2; if(gold) goldFx();
-    run(async ()=>{ let deck=me.deck||[]; const pos=(me.pos||0)+1; const upd={pos, swapsUsed:(me.swapsUsed||0)+1, cardAt:Date.now(), gold};
-      if(pos>=deck.length) upd.deck=deck.concat(deal(4)); await kf().update(upd); }); },
+  skip(){ draft={text:"", cat:null}; swoosh(false);
+    run(async ()=>{ const upd={done:(me.done||0)+1, pos:(me.pos||0)+1, cardAt:null, gold:false, skipped:(me.skipped||0)+1};
+      if((me.pos||0)+1>=(me.deck||[]).length) upd.deck=(me.deck||[]).concat(deal(9)); await kf().update(upd); }); },
   bet(btn){
     const id=lotId(); if(fib==null || !id) return; const v=fib; const n=meowCount(v);
     meow(n, true); confetti(btn, Math.max(2,n*3));
