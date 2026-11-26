@@ -235,12 +235,12 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 <div class="wrap" id="app">
   <div class="onfelt"><div class="bigcat">🐱</div><b>Котофонд загружается…</b></div>
 </div>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-/* Котофонд на сайте RIO: игра живёт во вкладке ведущего, игроки подключаются к ней напрямую (PeerJS / WebRTC).
+/* Котофонд на сайте RIO: игра живёт во вкладке ведущего, игроки подключаются к ней через передатчик на app.duck.design
+   (обычный HTTPS: поток SSE + POST — проходит и через сеть банка, где закрыты PeerJS и прямые соединения).
    Этот слой подставляет window.claude.use("db" | "user" | "downloads") — остальной код игры тот же, что в claude.ai. */
 (function(){
-  const PREFIX = "kotofond-rio-v1-";
+  const RELAY = (()=>{ try{ const r=new URLSearchParams(location.search).get("relay"); if(r && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return r.replace(/\/+$/,""); }catch(e){} return "https://app.duck.design"; })() + "/api/kotofond/";
   const HOST_HASH = "c4bb2eb9f5d42cc34d3f4f01e2ba1d16429bbc6dcd0e4e56f7a056824204fe64";
   const ls = { get:k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, set:(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} } };
   const rnd = n => { const a="abcdefghijkmnpqrstuvwxyz23456789"; let s=""; const b=crypto.getRandomValues(new Uint8Array(n)); for(const x of b) s+=a[x%a.length]; return s; };
@@ -277,7 +277,7 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
   const snapQuery = list => { const docs=list.map(([p,v])=>snapDoc(p,v)); return { docs, size:docs.length, empty:!docs.length, docChanges:()=>[], metadata:{fromCache:false, hasPendingWrites:false} }; };
 
   function localDb(store){
-    function watch(compute, deliver){ let last=" init"; const f=()=>{ const v=compute(); const s=JSON.stringify(v===undefined?null:v); if(s===last) return; last=s; deliver(clone(v)); }; store.listeners.add(f); setTimeout(f); return ()=>store.listeners.delete(f); }
+    function watch(compute, deliver){ let last="\u0000init"; const f=()=>{ const v=compute(); const s=JSON.stringify(v===undefined?null:v); if(s===last) return; last=s; deliver(clone(v)); }; store.listeners.add(f); setTimeout(f); return ()=>store.listeners.delete(f); }
     function docRef(p){ return { id:p.split("/").pop(), path:p,
       get: async()=>snapDoc(p, clone(store.data[p])),
       set: async d=>store.set(p,d), update: async d=>store.update(p,d), delete: async()=>store.del(p),
@@ -315,57 +315,67 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
       clearTimeout(saveT); saveT=setTimeout(()=>ls.set("kf-host-store", JSON.stringify(store.data)), 300);
     });
     let code = ls.get("kf-host-code") || newHostCode(); ls.set("kf-host-code", code);
+    let key = ls.get("kf-host-key"); if(!key || !/^[a-z0-9]{16,64}$/i.test(key)){ key=rnd(24); ls.set("kf-host-key", key); }
     NET.role="host"; NET.code=code; NET.status="connecting"; pill();
-    const conns=new Set(); let peer=null, busyTries=0;
-    function open(){
-      peer = new Peer(PREFIX+digits(code), {debug:0});
-      peer.on("open", ()=>{ NET.status="online"; busyTries=0; pill(); });
-      peer.on("connection", c=>attach(c));
-      peer.on("disconnected", ()=>{ NET.status="reconnecting"; pill(); setTimeout(()=>{ try{ if(peer && !peer.destroyed && peer.disconnected) peer.reconnect(); }catch(e){} }, 2500); });
-      peer.on("error", e=>{
-        if(e && e.type==="unavailable-id"){
-          /* после перезагрузки сервер ещё помнит старое подключение — ждём; если код занят надолго, берём новый (только пока игра не начата) */
-          busyTries++;
-          const g=store.data["game/state"];
-          if(busyTries>8 && (!g || g.phase==="lobby")){ code=newHostCode(); ls.set("kf-host-code",code); NET.code=code; busyTries=0; if(g) store.update("game/state",{code}); }
-          try{ peer.destroy(); }catch(x){} setTimeout(open, 3000);
-        } else if(e && (e.type==="network" || e.type==="server-error" || e.type==="socket-error" || e.type==="socket-closed")){
-          NET.status="reconnecting"; pill();
-          setTimeout(()=>{ try{ if(peer.destroyed){ open(); } else if(peer.disconnected){ peer.reconnect(); } }catch(x){} }, 4000);
-        }
-      });
+    const peers=new Map(); let es=null, busyTries=0, retryT=null;
+    const hostUrl = () => RELAY+digits(code)+"/host?key="+key;
+
+    /* ответы игрокам копятся и уходят пачкой: одна правка в игре рассылает снимки всем сразу */
+    let out=[], flushT=null, flushing=false;
+    function sendTo(pid,m){ out.push({to:pid, m}); if(!flushT) flushT=setTimeout(flush,0); return true; }
+    async function flush(){
+      flushT=null; if(flushing || !out.length) return;
+      let size=0, n=0; while(n<out.length){ size+=JSON.stringify(out[n]).length; if(n && size>300000) break; n++; }
+      const batch=out.splice(0,n); flushing=true;
+      try{ await fetch(hostUrl(), {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({out:batch})}); }catch(e){}
+      flushing=false; if(out.length) flush();
     }
-    function safeSend(c,m){ try{ if(c.open){ c.send(m); return true; } }catch(e){} return false; }
-    function attach(c){
-      const subs=new Map(); let U=null;
-      c.on("open", ()=>{ conns.add(c); NET.peers=conns.size; pill(); });
-      c.on("data", m=>{
-        if(!m || typeof m!=="object") return;
-        if(m.t==="hello"){ U=String(m.uid||"").replace(/[^a-z0-9_]/gi,"").slice(0,40) || null; return; }
-        if(!U) return;
-        if(m.t==="sub" && typeof m.path==="string"){
-          const filters = Array.isArray(m.filters) ? m.filters.slice(0,5).filter(f=>Array.isArray(f) && typeof f[0]==="string") : [];
-          let last; const send=()=>{
-            let payload;
-            if(m.kind==="doc") payload={ v: canRead(m.path,U) ? store.data[m.path] : null };
-            else payload={ list: m.path==="ideas" ? store.query("ideas",filters).map(k=>[k, store.data[k]]) : [] };
-            const s=JSON.stringify(payload); if(s===last) return; last=s; safeSend(c,{t:"snap", id:m.id, payload});
-          };
-          if(subs.has(m.id)) subs.get(m.id)();
-          store.listeners.add(send); subs.set(m.id, ()=>store.listeners.delete(send)); send(); return;
-        }
-        if(m.t==="unsub"){ const u=subs.get(m.id); if(u){ u(); subs.delete(m.id); } return; }
-        if(m.t==="write" && typeof m.path==="string"){
-          try{
-            const d=m.data||{};
-            if(JSON.stringify(d).length>20000 || !canWrite(m.path, m.op, U, store)) throw {code:"invalid_argument"};
-            if(m.op==="set") store.set(m.path,d); else if(m.op==="update") store.update(m.path,d); else throw {code:"invalid_argument"};
-            safeSend(c,{t:"ack", id:m.id, ok:true});
-          }catch(e){ safeSend(c,{t:"ack", id:m.id, ok:false, code:(e && e.code) || "invalid_argument"}); }
-        }
-      });
-      const drop=()=>{ subs.forEach(u=>u()); subs.clear(); conns.delete(c); NET.peers=conns.size; pill(); };
-      c.on("close", drop); c.on("error", drop);
+
+    function drop(pid){ const p=peers.get(pid); if(!p) return; p.subs.forEach(u=>u()); peers.delete(pid); NET.peers=peers.size; pill(); }
+    function onData(pid, m){
+      if(!m || typeof m!=="object") return;
+      if(m.t==="hello"){ drop(pid); peers.set(pid, {U:String(pid).replace(/[^a-z0-9_]/gi,"").slice(0,40), subs:new Map()}); NET.peers=peers.size; pill(); return; }
+      const P=peers.get(pid); if(!P) return; const U=P.U, subs=P.subs;
+      if(m.t==="sub" && typeof m.path==="string"){
+        const filters = Array.isArray(m.filters) ? m.filters.slice(0,5).filter(f=>Array.isArray(f) && typeof f[0]==="string") : [];
+        let last; const send=()=>{
+          let payload;
+          if(m.kind==="doc") payload={ v: canRead(m.path,U) ? store.data[m.path] : null };
+          else payload={ list: m.path==="ideas" ? store.query("ideas",filters).map(k=>[k, store.data[k]]) : [] };
+          const s=JSON.stringify(payload); if(s===last) return; last=s; sendTo(pid,{t:"snap", id:m.id, payload});
+        };
+        if(subs.has(m.id)) subs.get(m.id)();
+        store.listeners.add(send); subs.set(m.id, ()=>store.listeners.delete(send)); send(); return;
+      }
+      if(m.t==="unsub"){ const u=subs.get(m.id); if(u){ u(); subs.delete(m.id); } return; }
+      if(m.t==="write" && typeof m.path==="string"){
+        try{
+          const d=m.data||{};
+          if(JSON.stringify(d).length>20000 || !canWrite(m.path, m.op, U, store)) throw {code:"invalid_argument"};
+          if(m.op==="set") store.set(m.path,d); else if(m.op==="update") store.update(m.path,d); else throw {code:"invalid_argument"};
+          sendTo(pid,{t:"ack", id:m.id, ok:true});
+        }catch(e){ sendTo(pid,{t:"ack", id:m.id, ok:false, code:(e && e.code) || "invalid_argument"}); }
+      }
+    }
+
+    function open(){
+      clearTimeout(retryT); try{ if(es) es.close(); }catch(e){}
+      es = new EventSource(hostUrl());
+      es.onmessage = ev=>{
+        let d; try{ d=JSON.parse(ev.data); }catch(e){ return; }
+        if(d.t==="_ready"){ NET.status="online"; busyTries=0; pill(); return; }
+        if(d.t==="_bye"){ drop(d.from); return; }
+        if(d.from) onData(d.from, d.m);
+      };
+      es.onerror = ()=>{
+        NET.status="reconnecting"; pill();
+        if(es.readyState!==2) return; /* поток оборвался — браузер переподключится сам */
+        /* сервер отказал: код занят чужой игрой или передатчик недоступен */
+        fetch(RELAY+digits(code)).then(r=>r.json()).then(info=>{
+          const g=store.data["game/state"];
+          if(info && info.exists && (!g || g.phase==="lobby") && ++busyTries>1){ code=newHostCode(); ls.set("kf-host-code",code); NET.code=code; busyTries=0; if(g) store.update("game/state",{code}); }
+        }).catch(()=>{}).finally(()=>{ retryT=setTimeout(open, 3000); });
+      };
     }
     open();
     /* не дать экрану погаснуть, пока вкладка на виду, и предупредить перед закрытием */
@@ -403,50 +413,54 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
     NET.role="player";
     const app=document.getElementById("app");
     return new Promise(resolve=>{
-      let peer=null, conn=null, code="", resolved=false, retryT=null, handlers=[], reconnectHandlers=[];
+      let es=null, code="", resolved=false, retryT=null, handlers=[], reconnectHandlers=[], q=Promise.resolve();
+      const pUrl = () => RELAY+digits(code)+"/p/"+uid;
+      /* по одному и по порядку: подписка не должна обогнать «привет» */
+      const post = m => fetch(pUrl(), {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({m})}).catch(()=>{});
       const link = {
-        send(m){ try{ if(conn && conn.open){ conn.send(m); return true; } }catch(e){} return false; },
+        send(m){ if(!es) return false; q=q.then(()=>post(m)); return true; },
         onMsg(f){ handlers.push(f); }, onReconnect(f){ reconnectHandlers.push(f); }
       };
-      function screen(err, busy){
+      function screen(err, busy, busyText){
         if(resolved) return;
         app.innerHTML = `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div></header>
           <section class="pcard"><div class="eyebrow">Вход в игру</div><div class="h">Введи код от ведущего</div>
           ${err?`<div class="err" role="alert">${err}</div>`:""}
           <div class="field"><label for="netcode">Код игры</label><input id="netcode" autocomplete="off" inputmode="numeric" placeholder="KOT-…" value="${(code||"").replace(/[^A-Za-z0-9-]/g,"")}"></div>
-          <button class="btn gold block" id="netgo" ${busy?"disabled":""}>${busy?"Подключаемся…":"Подключиться"}</button>
+          <button class="btn gold block" id="netgo" ${busy?"disabled":""}>${busy?(busyText||"Подключаемся…"):"Подключиться"}</button>
           <div class="small muted">Код покажет ведущий на своём экране. Регистрация не нужна.</div></section>`;
-        const go=()=>{ const v=document.getElementById("netcode").value; if(!digits(v)){ screen("Введи код, который назвал ведущий."); return; } code=v.trim().toUpperCase(); connect(true); };
+        const go=()=>{ const v=document.getElementById("netcode").value; if(!digits(v)){ screen("Введи код, который назвал ведущий."); return; } code=v.trim().toUpperCase(); connect(); };
         document.getElementById("netgo").onclick=go;
         document.getElementById("netcode").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); go(); } };
       }
-      function openConn(firstTime){
+      function later(){ NET.status="reconnecting"; pill(); clearTimeout(retryT); retryT=setTimeout(connect, 3000); }
+      function up(){
+        link.send({t:"hello", uid});
+        NET.status="online"; pill(); ls.set("kf-last-code", code);
+        if(!resolved){ resolved=true; window.KF_CODE=code; resolve({ db:remoteDb(link), uid, owner:false }); }
+        else reconnectHandlers.forEach(f=>f());
+      }
+      function openStream(){
+        try{ if(es) es.close(); }catch(e){}
+        const mine = es = new EventSource(pUrl());
+        es.onmessage = ev=>{
+          let d; try{ d=JSON.parse(ev.data); }catch(e){ return; }
+          if(d.t==="_ready"){ if(d.host) up(); else if(resolved){ NET.status="reconnecting"; pill(); } else screen("", true, "Ждём, пока ведущий откроет игру…"); return; }
+          if(d.t==="_host"){ up(); return; }
+          handlers.forEach(f=>f(d));
+        };
+        es.onerror = ()=>{ if(es!==mine) return; if(resolved){ NET.status="reconnecting"; pill(); } if(mine.readyState===2) later(); };
+      }
+      async function connect(){
         clearTimeout(retryT);
-        conn = peer.connect(PREFIX+digits(code), {reliable:true, serialization:"json"});
-        const failT = setTimeout(()=>{ if(!conn.open){ try{ conn.close(); }catch(e){} fail(); } }, 9000);
-        conn.on("open", ()=>{
-          clearTimeout(failT); conn.send({t:"hello", uid}); NET.status="online"; pill(); ls.set("kf-last-code", code);
-          if(!resolved){ resolved=true; window.KF_CODE=code; resolve({ db:remoteDb(link), uid, owner:false }); }
-          else reconnectHandlers.forEach(f=>f());
-        });
-        conn.on("data", m=>{ if(m && typeof m==="object") handlers.forEach(f=>f(m)); });
-        const lost=()=>{ if(!resolved) return; NET.status="reconnecting"; pill(); clearTimeout(retryT); retryT=setTimeout(()=>reopen(), 3000); };
-        conn.on("close", lost); conn.on("error", lost);
+        if(!resolved) screen("", true);
+        let info=null;
+        try{ const r=await fetch(RELAY+digits(code)); info=await r.json(); }
+        catch(e){ if(resolved) return later(); screen("Нет связи с сервером игры (app.duck.design). Проверь интернет и попробуй ещё раз."); return; }
+        if(!info || !info.exists){ if(resolved) return later(); screen("Игры с кодом "+code.replace(/[^A-Za-z0-9-]/g,"")+" нет. Проверь код и что у ведущего открыта вкладка с игрой."); return; }
+        openStream();
       }
-      function reopen(){ if(!peer || peer.destroyed){ makePeer(false); return; } if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} } openConn(false); }
-      function fail(){
-        if(resolved){ NET.status="reconnecting"; pill(); clearTimeout(retryT); retryT=setTimeout(()=>reopen(), 3000); return; }
-        screen("Не получилось подключиться к игре с кодом "+code.replace(/[^A-Za-z0-9-]/g,"")+". Проверь код и что у ведущего открыта вкладка с игрой.");
-      }
-      function makePeer(firstTime){
-        try{ if(peer) peer.destroy(); }catch(e){}
-        peer = new Peer(undefined, {debug:0});
-        peer.on("open", ()=>openConn(firstTime));
-        peer.on("error", e=>{ if(e && e.type==="peer-unavailable") fail(); else if(!resolved) screen("Нет связи с сервером подключения. Проверь интернет и попробуй ещё раз."); else fail(); });
-        peer.on("disconnected", ()=>{ if(resolved) setTimeout(()=>{ try{ if(!peer.destroyed && peer.disconnected) peer.reconnect(); }catch(e){} }, 2500); });
-      }
-      function connect(firstTime){ screen("", true); makePeer(firstTime); }
-      const begin=()=>{ const last = ls.get("kf-last-code"); if(last){ code=last; connect(false); } else screen(""); };
+      const begin=()=>{ const last = ls.get("kf-last-code"); if(last){ code=last; connect(); } else screen(""); };
       /* ждём, пока основной код игры нарисует свою заставку, и только потом показываем ввод кода */
       if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", ()=>setTimeout(begin,0)); else setTimeout(begin,0);
     });
