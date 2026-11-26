@@ -388,6 +388,14 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
       };
     }
     open();
+    NET.renew = async ()=>{
+      const oldUrl=hostUrl(), ids=[...peers.keys()];
+      if(ids.length){ try{ await fetch(oldUrl, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({out:ids.map(to=>({to, m:{t:"_moved"}}))})}); }catch(e){} }
+      peers.forEach((p,id)=>drop(id)); out=[];
+      let c=newHostCode(); while(c===code) c=newHostCode();
+      code=c; ls.set("kf-host-code",code); NET.code=code; busyTries=0; NET.status="connecting"; pill(); open();
+      return code;
+    };
     /* не дать экрану погаснуть, пока вкладка на виду, и предупредить перед закрытием */
     let lock=null; const wake=async()=>{ try{ if(document.visibilityState==="visible" && navigator.wakeLock && !lock){ lock=await navigator.wakeLock.request("screen"); lock.addEventListener("release",()=>{ lock=null; }); } }catch(e){} };
     document.addEventListener("visibilitychange", wake); wake();
@@ -455,8 +463,9 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
         const mine = es = new EventSource(pUrl());
         es.onmessage = ev=>{
           let d; try{ d=JSON.parse(ev.data); }catch(e){ return; }
-          if(d.t==="_ready"){ if(d.host) up(); else if(resolved){ NET.status="reconnecting"; pill(); } else screen("", true, "Ждём, пока ведущий откроет игру…"); return; }
+          if(d.t==="_ready"){ if(d.host) up(); else if(resolved){ NET.status="reconnecting"; pill(); } else { try{ es.close(); }catch(e){} es=null; screen("Ведущий сейчас не в сети. Если он назвал новый код, введи его."); } return; }
           if(d.t==="_host"){ up(); return; }
+          if(d.t==="_moved"){ ls.set("kf-last-code",""); try{ es.close(); }catch(e){} location.reload(); return; }
           handlers.forEach(f=>f(d));
         };
         es.onerror = ()=>{ if(es!==mine) return; if(resolved){ NET.status="reconnecting"; pill(); } if(mine.readyState===2) later(); };
@@ -875,7 +884,8 @@ function hostLobby(){
   <div class="grid2">
     <div class="box"><div class="eyebrow">Код игры · скажи команде</div><div class="code">${esc(G.code)}</div>
       <div class="small muted">${SITE?"Команда открывает ссылку ниже, вводит код, ник и выбирает аватарку.":"Команда открывает эту же страницу по ссылке, вводит код, ник и выбирает аватарку."}</div>
-      ${SITE?`<div class="small" style="margin-top:8px;overflow-wrap:anywhere"><b>${esc(location.origin+location.pathname)}</b></div>`:`<div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="newcode">Другой код</button></div>`}</div>
+      ${SITE?`<div class="small" style="margin-top:8px;overflow-wrap:anywhere"><b>${esc(location.origin+location.pathname)}</b></div>`:""}
+      <div class="row" style="margin-top:8px"><button class="btn sm ghost" data-act="newcode" ${busy?"disabled":""}>↻ Новый код</button>${players.length?`<span class="small muted">кто уже вошёл, войдёт заново по новому коду</span>`:""}</div></div>
     <div class="box"><div class="row between"><div class="eyebrow">В лобби · ${players.length}</div><span class="small muted">ники видишь только ты</span></div>
       <div class="nicks" style="margin-top:8px">${players.length? players.map(p=>`<span class="nick${once("nick:"+G.gid+":"+p.id,"popin")}"><span class="av">${esc(ALL_AV.has(p.avatar)?p.avatar:"🐱")}</span>${esc(p.nick)}</span>`).join("") : `<span class="small muted">Пока никого. Как только кто-то войдёт, он появится здесь.</span>`}</div></div>
   </div>
@@ -1131,7 +1141,7 @@ const ACT = {
   sound(){ soundOn=!soundOn; if(soundOn) audio(); render(); },
   snore(){ audio(); setTimeout(()=>{ snore(); render(); }, 60); },
   create(){ run(()=>gs().set({gid:rid(), code:newCode(), project:"up", phase:"lobby", settings:DEF, order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
-  newcode(){ run(()=>hostUpdate({code:newCode()})); },
+  newcode(){ run(async ()=>{ const code = (SITE && window.KF_NET && window.KF_NET.renew) ? await window.KF_NET.renew() : "KOT-" + String(Math.floor(100+Math.random()*900)); await hostUpdate({code}); }); },
   startIdeas(){ run(()=>hostUpdate({phase:"ideas", startedAt:Date.now()})); },
   endIdeas(){ run(()=>hostUpdate({phase:"backlog"})); },
   backLobby(){ run(()=>hostUpdate({phase:"lobby"})); },
