@@ -239,6 +239,14 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .lotlist .n{font-weight:700;color:var(--ink-mute, inherit)}
 .lotlist .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lotlist .s{font-size:12px;white-space:nowrap}
+.lotboard{display:flex;flex-direction:column;gap:10px}
+.lstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lstat{border:1px solid var(--line);border-radius:12px;background:var(--paper-2);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.lstat b{font-family:var(--f-display);font-size:20px;line-height:1.1}
+.lstat span{font-size:12px;color:var(--ink-mute, inherit);opacity:.8}
+@media (max-width:640px){.lstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lotlist .s{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right}
+.lotlist .s small{font-size:11px;opacity:.75}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -761,7 +769,7 @@ let subGid=null, unsubs=[];
 const gs = () => db.doc("game/state");
 const kf = () => db.doc("data/users/"+uid+"/kf");
 const joined = () => !!(G && prof && prof.gid===G.gid && me && me.gid===G.gid);
-let lotsOpen=false;
+let lotsOpen=true;
 document.addEventListener("toggle", e=>{ if(e.target && e.target.classList && e.target.classList.contains("lotlist")) lotsOpen=e.target.open; }, true);
 const lotId = () => (G && G.phase==="auction" && G.order) ? G.order[G.idx||0] : null;
 /* ведущий может ходить по идеям в любом порядке: «следующая» — первая ещё не решённая после текущей, иначе любая не решённая */
@@ -942,8 +950,20 @@ function hostAuction(){
   const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
   const last = nextIdx(lotId())<0;
   const res=G.results||{}, skipped=G.skippedLots||[];
-  const list = `<details class="lotlist" ${lotsOpen?"open":""}><summary>Все идеи аукциона · решено ${order.filter(id=>id in res).length} из ${order.length}</summary><ol>${order.map((id,k)=>{ const i=ideaById(id)||{}; const st = k===idx ? `<b>сейчас</b>` : skipped.includes(id) ? "пропущена" : (id in res) ? `${res[id]} 🪙` : "ждёт";
-    return `<li><button class="${k===idx?"cur":""}${(id in res)&&k!==idx?" done":""}" data-act="jumpLot" data-k="${k}" ${k===idx||busy?"disabled":""}><span class="n">${k+1}</span><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,90))}${String(i.text||"").length>90?"…":""}</span><span class="s">${st}</span></button></li>`; }).join("")}</ol></details>`;
+  /* табло ведущего: что уже решено, сколько собрали, что ещё ждёт и сколько монет осталось у команды */
+  const sv=sets(), doneIds=order.filter(id=>id in res), wait=order.length-doneIds.length;
+  const raised=doneIds.reduce((a,id)=>a+(+res[id]||0),0);
+  /* только вскрытые ставки: по невскрытым ведущий угадал бы ставку раньше времени */
+  const bank=players.length*sv.coins, left=Math.max(0,bank-raised);
+  const stat=(v,l)=>`<div class="lstat"><b>${v}</b><span>${l}</span></div>`;
+  const list = `<div class="lotboard"><div class="lstats">${stat(`${doneIds.length} из ${order.length}`,"идей решено")}${stat(wait,"идей осталось")}${stat(`${raised} 🪙`,"собрано на идеи")}${stat(`${left} 🪙`,`осталось у команды из ${bank}`)}</div>
+  <details class="lotlist" ${lotsOpen?"open":""}><summary>Все идеи · нажми на идею, чтобы перейти к ней</summary><ol>${order.map((id,k)=>{ const i=ideaById(id)||{}, vb=(G.valsBy||{})[id]||[], gold=isGold(i);
+    const nb=bets.filter(b=>b.idea===id).length;
+    const st = k===idx ? `<b>сейчас</b><small>${G.revealed?`${res[id]||0} 🪙`:`ставок: ${nb}`}</small>`
+      : skipped.includes(id) ? `пропущена<small>0 🪙</small>`
+      : (id in res) ? `<b>${res[id]} 🪙${gold?` ⭐×2 = ${res[id]*2}`:""}</b><small>${vb.length?vb.join(" · "):"никто не поставил"}</small>`
+      : `ждёт<small>${nb?`ставок: ${nb}`:"—"}</small>`;
+    return `<li><button class="${k===idx?"cur":""}${(id in res)&&k!==idx?" done":""}" data-act="jumpLot" data-k="${k}" ${k===idx||busy?"disabled":""}><span class="n">${k+1}</span><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,90))}${String(i.text||"").length>90?"…":""}</span><span class="s">${st}</span></button></li>`; }).join("")}</ol></details></div>`;
   /* пропустить можно, пока никто не вложил монет: иначе игроки потеряли бы их впустую */
   const paid = lotBets.some(b=>(+b.v||0)>0);
   return `
