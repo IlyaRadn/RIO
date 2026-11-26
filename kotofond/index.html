@@ -229,6 +229,16 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .qflash{animation:qflash .35s ease}
 @keyframes qflash{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .lotq{font-size:13px;color:var(--felt-mute)}
+.lotlist{border:1px solid var(--line);border-radius:14px;background:var(--paper-2)}
+.lotlist summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:14px}
+.lotlist ol{list-style:none;margin:0;padding:0 8px 8px;display:flex;flex-direction:column;gap:4px;max-height:320px;overflow:auto}
+.lotlist li button{width:100%;display:grid;grid-template-columns:28px 24px 1fr auto;gap:8px;align-items:center;text-align:left;padding:8px 10px;border-radius:10px;border:1px solid transparent;background:var(--paper);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.lotlist li button:hover:not(:disabled){border-color:var(--gold)}
+.lotlist li button.cur{border-color:var(--gold);background:var(--gold-soft);cursor:default}
+.lotlist li button.done{opacity:.65}
+.lotlist .n{font-weight:700;color:var(--ink-mute, inherit)}
+.lotlist .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lotlist .s{font-size:12px;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -599,7 +609,8 @@ const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.f
 const rid = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 const SITE = !!window.KF_SITE;
 const newCode = () => (SITE && window.KF_NET && window.KF_NET.code) ? window.KF_NET.code : "KOT-" + String(Math.floor(100+Math.random()*900));
-const normCode = s => String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+/* сравниваем только цифры: «КОТ» в русской раскладке и «KOT» в английской выглядят одинаково, а буквы разные */
+const normCode = s => String(s||"").replace(/\D/g,"");
 const plural = (n,a,b,c) => { const m10=n%10, m100=n%100; return n+" "+(m10===1&&m100!==11?a:(m10>=2&&m10<=4&&(m100<12||m100>14)?b:c)); };
 const mmss = ms => { ms=Math.max(0,ms); const s=Math.ceil(ms/1000); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); };
 const tag = t => TYPES[t] ? `<span class="tag" style="background:${TYPES[t].c}">${TYPES[t].name}</span>` : "";
@@ -741,7 +752,20 @@ let subGid=null, unsubs=[];
 const gs = () => db.doc("game/state");
 const kf = () => db.doc("data/users/"+uid+"/kf");
 const joined = () => !!(G && prof && prof.gid===G.gid && me && me.gid===G.gid);
+let lotsOpen=false;
+document.addEventListener("toggle", e=>{ if(e.target && e.target.classList && e.target.classList.contains("lotlist")) lotsOpen=e.target.open; }, true);
 const lotId = () => (G && G.phase==="auction" && G.order) ? G.order[G.idx||0] : null;
+/* ведущий может ходить по идеям в любом порядке: «следующая» — первая ещё не решённая после текущей, иначе любая не решённая */
+function nextIdx(doneNow){
+  const order=(G&&G.order)||[], idx=(G&&G.idx)||0, res=Object.assign({}, (G&&G.results)||{}); if(doneNow) res[doneNow]=0;
+  for(let k=idx+1;k<order.length;k++) if(!(order[k] in res)) return k;
+  for(let k=0;k<idx;k++) if(!(order[k] in res)) return k;
+  return -1; }
+function goLot(k){ const id=(G.order||[])[k]; const r=G.results||{};
+  /* к пропущенной идее возвращаются, чтобы всё-таки собрать ставки: она снова открыта */
+  if((G.skippedLots||[]).includes(id)){ const res=Object.assign({}, r), vb=Object.assign({}, G.valsBy||{}); delete res[id]; delete vb[id];
+    return {idx:k, revealed:false, revealVals:[], results:res, valsBy:vb, skippedLots:(G.skippedLots||[]).filter(x=>x!==id)}; }
+  return (id in r) ? {idx:k, revealed:true, revealVals:(G.valsBy||{})[id]||[]} : {idx:k, revealed:false, revealVals:[]}; }
 const ideaById = id => ideas.find(i=>i.id===id);
 const ranked = () => ideas.map(i=>{ const base=((G&&G.results)||{})[i.id]||0; return {...i, base, coins:base*(isGold(i)?2:1)}; }).sort((a,b)=>b.coins-a.coins || (b.cat||0)-(a.cat||0) || (a.at||0)-(b.at||0));
 
@@ -906,7 +930,12 @@ function hostAuction(){
   const cur=lot?(lot.cat||0):0;
   const expect=Math.max(0, players.length-1);
   const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
-  const last = idx>=order.length-1;
+  const last = nextIdx(lotId())<0;
+  const res=G.results||{}, skipped=G.skippedLots||[];
+  const list = `<details class="lotlist" ${lotsOpen?"open":""}><summary>Все идеи аукциона · решено ${order.filter(id=>id in res).length} из ${order.length}</summary><ol>${order.map((id,k)=>{ const i=ideaById(id)||{}; const st = k===idx ? `<b>сейчас</b>` : skipped.includes(id) ? "пропущена" : (id in res) ? `${res[id]} 🪙` : "ждёт";
+    return `<li><button class="${k===idx?"cur":""}${(id in res)&&k!==idx?" done":""}" data-act="jumpLot" data-k="${k}" ${k===idx||busy?"disabled":""}><span class="n">${k+1}</span><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,90))}${String(i.text||"").length>90?"…":""}</span><span class="s">${st}</span></button></li>`; }).join("")}</ol></details>`;
+  /* пропустить можно, пока никто не вложил монет: иначе игроки потеряли бы их впустую */
+  const paid = lotBets.some(b=>(+b.v||0)>0);
   return `
   <div class="row between"><div class="eyebrow">Шаг 4 из 5 · Аукцион · идея ${idx+1} из ${order.length}</div><span class="small muted">зачитай идею команде</span></div>
   <div class="queue">${[0,1,2].map(c=>`<span class="${c===cur?"now":""}">${catE(c)} ${c===cur?`${pos[c]} из ${cnt[c]}`:cnt[c]}</span>`).join("")}</div>
@@ -916,7 +945,9 @@ function hostAuction(){
     <div class="small muted" style="margin-top:6px">Автор идеи не ставит на свою, поэтому ставок обычно на одну меньше, чем игроков.</div></div>
   <div class="row">${G.revealed
     ? `<button class="btn gold" data-act="${last?"toResults":"nextLot"}" ${busy?"disabled":""}>${last?"Показать итоги →":"Следующая идея →"}</button>`
-    : `<button class="btn gold" data-act="reveal" ${busy?"disabled":""}>Вскрыть ставки</button>`}</div>`;
+    : `<button class="btn gold" data-act="reveal" ${busy?"disabled":""}>Вскрыть ставки</button><button class="btn ghost" data-act="skipLot" ${busy||paid?"disabled":""}>${last?"Пропустить и к итогам →":"Пропустить идею →"}</button>`}</div>
+  ${!G.revealed && paid ? `<div class="small muted">На эту идею уже поставили монеты, пропустить нельзя. Вскрой ставки.</div>` : ""}
+  ${list}`;
 }
 const REVF={};
 function revFresh(who){ const k=who+":"+G.gid+":"+(G.idx||0); if(REVF[k]===undefined) REVF[k]=(once("rev:"+k,"x")!==""); return REVF[k]; }
@@ -1107,8 +1138,14 @@ const ACT = {
   backIdeas(){ run(()=>hostUpdate({phase:"ideas"})); },
   startAuction(){ run(()=>hostUpdate({phase:"auction", order:auctionOrder(), idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}})); },
   reveal(){ run(()=>{ const id=lotId(); const vals=shuffle(bets.filter(b=>b.idea===id).map(b=>+b.v||0)); const sum=vals.reduce((a,b)=>a+b,0);
-    return hostUpdate({revealed:true, revealVals:vals, results:Object.assign({}, G.results||{}, {[id]:sum}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:vals})}); }); },
-  nextLot(){ run(()=>hostUpdate({idx:(G.idx||0)+1, revealed:false, revealVals:[]})); },
+    return hostUpdate({revealed:true, revealVals:vals, results:Object.assign({}, G.results||{}, {[id]:sum}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:vals}), skippedLots:(G.skippedLots||[]).filter(x=>x!==id)}); }); },
+  nextLot(){ const k=nextIdx(); run(()=>hostUpdate(k<0 ? {phase:"results"} : goLot(k))); },
+  jumpLot(el){ const k=+el.dataset.k; if(!G || !(k>=0) || k>=(G.order||[]).length || k===(G.idx||0)) return; lotsOpen=true; run(()=>hostUpdate(goLot(k))); },
+  skipLot(){ const id=lotId(); if(!id || G.revealed || bets.some(b=>b.idea===id && (+b.v||0)>0)) return; swoosh(false);
+    const k=nextIdx(id);
+    const upd={results:Object.assign({}, G.results||{}, {[id]:0}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:[]}), skippedLots:(G.skippedLots||[]).filter(x=>x!==id).concat([id])};
+    if(k<0) upd.phase="results"; else Object.assign(upd, goLot(k));
+    run(()=>hostUpdate(upd)); },
   toResults(){ run(()=>hostUpdate({phase:"results"})); },
   askNew(){ confirmNew=true; render(); window.scrollTo({top:0,behavior:"smooth"}); },
   cancelNew(){ confirmNew=false; render(); },
