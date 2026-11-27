@@ -268,6 +268,25 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .qline.sm{margin-top:4px;padding-top:0;border-top:0;font-size:11px}
 .qt{display:block;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .myideas .qt{white-space:normal}
+.wallet .wsub{font-size:11px;opacity:.7;margin-top:2px}
+.whint{font-size:13px;padding:8px 12px;border-radius:12px;background:var(--gold-soft);color:var(--ink);border:1px solid var(--gold)}
+.optrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--paper-2)}
+.seg2{display:flex;flex-wrap:wrap;gap:4px}
+.seg2 button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.seg2 button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.ili.intop{outline:2px solid var(--gold);background:var(--gold-soft)}
+.ili .ct{font-family:var(--f-mono);font-weight:700}
+.picklist{display:flex;flex-direction:column;gap:6px}
+.pick{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;align-items:start;text-align:left;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.pick[aria-pressed="true"]{border-color:var(--coral);background:#fff3ef}
+.pick:disabled{opacity:.5;cursor:default}
+.pick .pk{font-size:22px;line-height:1;color:var(--coral)}
+.pick .pt{display:block;margin-top:4px;font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.teamb{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.tb{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.tbh{display:flex;align-items:center;gap:8px}.tbh .av{font-size:22px}
+.tbl{display:flex;flex-wrap:wrap;gap:4px}
+.tbl span{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--gold-soft);border:1px solid var(--gold)}
 /* ---------- телефон: меньше полей, всё важное ближе, ничего не перекрыто ---------- */
 @media (max-width:560px){
   body{padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-block:10px 24px}
@@ -681,9 +700,19 @@ const PROJECTS = {
   kpk: {name:"Клуб премиальных клиентов", sub:"КПК"}
 };
 const FIB = [0,1,2,3,5,8,13,21];
-const DEF = {v:2, min:2, cards:9, swaps:0, cats:[6,2,1], coins:100, bet:60};
+const DEF = {v:2, min:2, cards:9, swaps:0, cats:[6,2,1], coins:100, bet:60, parts:4, order:"hot", short:false, picks:5, top:15};
 /* дедлайн ставок на текущую идею; null — таймера нет (идея вскрыта или игра начата до таймеров) */
 const betDeadline = () => (G && G.phase==="auction" && !G.revealed && G.lotAt) ? G.lotAt + (sets().bet||60)*1000 : null;
+/* кошелёк частями: из coins открыто parts-долей; новая доля — после каждой 1/parts решённых идей */
+function econ(){
+  const s=sets(), P=Math.max(1,s.parts||1), order=(G&&G.order)||[], n=order.length||1, r=(G&&G.results)||{};
+  const resolved=order.filter(id=>id in r).length;
+  const part=Math.min(P, 1+Math.floor(resolved*P/n));
+  const open=Math.round(s.coins*part/P), spent=(me&&me.spent)||0;
+  const nextAt = part<P ? Math.ceil(part*n/P) : null;          /* после скольких решённых идей откроется следующая доля */
+  const leftIdeas = order.filter(id=>!(id in r)).length;
+  return { P, part, open, spent, avail:Math.max(0, open-spent), total:s.coins, nextIn: nextAt==null?null:Math.max(1,nextAt-resolved), nextAdd: part<P ? Math.round(s.coins*(part+1)/P)-open : 0, leftIdeas, leftCoins:Math.max(0,s.coins-spent) };
+}
 const secLabel = n => Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
 const AVATARS = ["🦊","🐼","🐨","🐯","🦁","🐸","🐵","🐧","🦉","🦄","🐙","🦖","🐢","🐳","🦈","🦩","🦥","🦦","🦔","🐝","🦋","🐞","🐲","🦕","🐊","🦓","🦒","🐘","🦛","🦘","🦫","🐺","🐮","🐷","🐰","🐹","🐱","🐶","🐻","🐔","🦜","🦚","🐡","🦀","👽","🤖","👾","👻","🥷","🧙"];
 const MEMES = [["🗿","Каменное лицо на дейли"],["🤡","Клоун на проде"],["💀","Умер от дедлайна"],["🫠","Таю на созвоне"],["🦆","Резиновая уточка-отладчик"],["🥔","Просто картошка"],["🍞","Батон"],["🫡","Будет сделано"],["🤓","Ну, технически…"],["🐐","GOAT"],["🌚","Ночной деплой"],["🥸","Под прикрытием"],["🧌","Тролль из код-ревью"],["🙈","Не вижу багов"],["🔥","Всё горит"],["☕","Третий кофе"],["🐛","Это не баг, это фича"],["🧠","Галактический мозг"],["🤌","Мамма миа, какой код"],["🏚","Легаси"],["🍌","Банан для масштаба"],["😎","Деплой в пятницу"],["🫥","На мьюте"],["📠","Интеграция через факс"]];
@@ -858,7 +887,8 @@ function onGameChange(){
     if(p==="lobby"){ banner("🐱","Новая игра!","Код "+esc(G.code)); pop(); }
     else if(p==="ideas"){ banner("🃏","Раунд идей!","Тяни карты и пиши идеи"); fanfare(false); rain(14,["🃏","💡","😺","✨"]); }
     else if(p==="backlog"){ banner("⏰","Раунд идей закрыт","Все идеи собраны в бэклог"); buzzer(); }
-    else if(p==="auction"){ banner("🔨","Аукцион открыт!","У каждого "+sets().coins+" монет"); fanfare(false); rain(18,["🪙","💰","😼"]); }
+    else if(p==="short"){ banner("♥","Отбор идей!","Выбери лучшие — на аукцион выйдут самые популярные"); fanfare(false); rain(14,["♥","💡","😺"]); }
+    else if(p==="auction"){ banner("🔨","Аукцион открыт!",(sets().parts||1)>1?"Монеты открываются частями — не трать всё сразу":"У каждого "+sets().coins+" монет"); fanfare(false); rain(18,["🪙","💰","😼"]); }
     else if(p==="results"){ drumroll(1.6); setTimeout(()=>{ banner("🏆","Итоги!","Встречайте котов-чемпионов"); fanfare(true); rain(44); },1750); }
   }
   phaseKey=ph;
@@ -996,6 +1026,7 @@ function host(){
   if(p==="lobby") return hostLobby();
   if(p==="ideas") return hostIdeas();
   if(p==="backlog") return hostBacklog();
+  if(p==="short") return hostShort();
   if(p==="auction") return hostAuction();
   return hostResults();
 }
@@ -1023,6 +1054,7 @@ function hostLobby(){
     ${stepper("cards", s.cards, "Карт на игрока")}
     ${stepper("coins", s.coins, "Монет на аукцион")}
     ${stepper("bet", secLabel(s.bet||60), "Время на ставку")}
+    ${stepper("parts", (s.parts||1)===1?"сразу":s.parts+" части", "Кошелёк открывается")}
     ${stepper("cats", s.cats[0], `Котов ${catE(0)} «Есть мысль»`, 0)}
     ${stepper("cats", s.cats[1], `Котов ${catE(1)} «Верю»`, 1)}
     ${stepper("cats", s.cats[2], `Котов ${catE(2)} «Ставлю всё»`, 2)}
@@ -1066,18 +1098,43 @@ function hostIdeas(){
   ${playersProgress()}
   <div class="row"><button class="btn dark" data-act="endIdeas" ${busy?"disabled":""}>Завершить раунд идей</button><button class="btn ghost" data-act="backLobby" ${busy?"disabled":""}>← Вернуться в лобби</button></div>`;
 }
-function auctionOrder(){
-  const by=[[],[],[]]; ideas.forEach(i=>{ by[Math.max(0,Math.min(2,i.cat||0))].push(i.id); });
-  return by.flatMap(shuffle);
+const ORDERS = { hot:"Сначала 😻 «Ставлю всё»", cold:"Сначала 😺 «Есть мысль»", random:"Случайно", votes:"По голосам отбора" };
+function voteCounts(){ const c={}; players.forEach(p=>{ if(p.picksGid===G.gid) (p.picks||[]).forEach(id=>{ c[id]=(c[id]||0)+1; }); }); return c; }
+function voters(){ return players.filter(p=>p.picksGid===G.gid && (p.picks||[]).length).length; }
+function shortList(){ const c=voteCounts(), s=sets();
+  return shuffle(ideas.map(i=>i.id)).sort((a,b)=>(c[b]||0)-(c[a]||0)).slice(0, Math.max(1, s.top||15)); }
+function auctionOrder(ids){
+  const s=sets(), mode=s.order||"hot", pool=(ids||ideas.map(i=>i.id)).map(ideaById).filter(Boolean);
+  if(mode==="random") return shuffle(pool.map(i=>i.id));
+  if(mode==="votes"){ const c=voteCounts(); return shuffle(pool.map(i=>i.id)).sort((a,b)=>(c[b]||0)-(c[a]||0)); }
+  const by=[[],[],[]]; pool.forEach(i=>{ by[Math.max(0,Math.min(2,i.cat||0))].push(i.id); });
+  return (mode==="cold" ? by : by.slice().reverse()).flatMap(shuffle);
 }
+function orderPicker(withVotes){ const s=sets(), cur=s.order||"hot";
+  return `<div class="optrow"><span class="small"><b>Порядок аукциона</b></span><div class="seg2">${Object.keys(ORDERS).filter(k=>k!=="votes"||withVotes).map(k=>`<button data-act="setOrder" data-m="${k}" aria-pressed="${cur===k}">${ORDERS[k]}</button>`).join("")}</div></div>`; }
 function hostBacklog(){
   const list = ideas.slice().sort((a,b)=>(a.cat||0)-(b.cat||0));
   const n=[0,0,0]; ideas.forEach(i=>n[i.cat||0]++);
   return `
   <div class="row between"><div><div class="eyebrow">Шаг 3 из 5 · Раунд идей завершён</div><div class="h">Бэклог идей · ${ideas.length}</div></div></div>
-  <div class="queue"><b>Очередь аукциона:</b><span>${catE(0)} сначала · ${n[0]}</span>→<span>${catE(1)} · ${n[1]}</span>→<span>${catE(2)} в конце · ${n[2]}</span><span class="small muted" style="border:0;background:none">внутри одного кота порядок случайный</span></div>
-  ${ideas.length ? `<div class="ilist">${list.map(i=>`<div class="ili"><span class="ct" title="${CATS[i.cat||0].name}">${catE(i.cat)}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p>${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}${i.q?`<div class="meta">на вопрос: ${esc(i.q)}</div>`:""}</div></div>`).join("")}</div>` : `<div class="hint2">Идей нет. Можно вернуться в раунд идей.</div>`}
-  <div class="row"><button class="btn gold" data-act="startAuction" ${busy||!ideas.length?"disabled":""}>Старт аукциона →</button><button class="btn ghost" data-act="backIdeas" ${busy?"disabled":""}>← Вернуться в раунд идей</button></div>`;
+  ${orderPicker(false)}
+  <div class="optrow"><span class="small"><b>Отбор перед аукционом</b> <span class="muted">· каждый голосует за лучшие идеи, на аукцион выходят только самые популярные</span></span>
+    <div class="seg2"><button data-act="setShort" data-m="0" aria-pressed="${!sets().short}">Выкл</button><button data-act="setShort" data-m="1" aria-pressed="${!!sets().short}">Вкл${ideas.length>20&&!sets().short?" · идей много":""}</button></div></div>
+  ${sets().short?`<div class="settings">${stepper("picks", sets().picks, "Голосов у игрока")}${stepper("top", sets().top, "На аукцион выходят, топ")}</div>`:""}
+  ${ideas.length ? `<div class="ilist">${list.map(i=>`<div class="ili"><span class="ct" title="${CATS[i.cat||0].name}">${catE(i.cat)}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p>${i.q?`<div class="meta">на вопрос: ${esc(i.q)}</div>`:""}</div></div>`).join("")}</div>` : `<div class="hint2">Идей нет. Можно вернуться в раунд идей.</div>`}
+  <div class="row"><button class="btn gold" data-act="${sets().short?"startShort":"startAuction"}" ${busy||!ideas.length?"disabled":""}>${sets().short?"Старт отбора →":"Старт аукциона →"}</button><button class="btn ghost" data-act="backIdeas" ${busy?"disabled":""}>← Вернуться в раунд идей</button></div>`;
+}
+/* ---------- отбор: ведущий ---------- */
+function hostShort(){
+  const s=sets(), c=voteCounts(), list=ideas.slice().sort((a,b)=>(c[b.id]||0)-(c[a.id]||0)), top=Math.min(s.top||15, ideas.length);
+  return `
+  <div class="row between"><div><div class="eyebrow">Шаг 3½ · Отбор идей</div><div class="h">Команда выбирает лучшие</div></div>
+    <div style="text-align:right"><div class="small muted">проголосовали</div><div class="timer" style="font-size:30px">${voters()} из ${players.length}</div></div></div>
+  <div class="small muted">У каждого ${plural(s.picks,"голос","голоса","голосов")}, за свои идеи голосовать нельзя. На аукцион выйдут ${top} идей с наибольшим числом голосов, при равенстве — случайно.</div>
+  <div class="settings">${stepper("top", s.top, "На аукцион выходят, топ")}</div>
+  ${orderPicker(true)}
+  <div class="ilist">${list.map((i,k)=>`<div class="ili${k<top?" intop":""}"><span class="ct">${c[i.id]||0}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p>${i.q?`<div class="meta">на вопрос: ${esc(i.q)}</div>`:""}</div></div>`).join("")}</div>
+  <div class="row"><button class="btn gold" data-act="startAuction" ${busy?"disabled":""}>Старт аукциона · топ ${top} →</button><button class="btn ghost" data-act="backBacklog" ${busy?"disabled":""}>← Назад к бэклогу</button></div>`;
 }
 function hostAuction(){
   const order=G.order||[], idx=G.idx||0, lot=ideaById(lotId());
@@ -1126,7 +1183,7 @@ function revSum(sum, n, who){ const fresh=revFresh(who), key="sum:"+who+":"+G.gi
 function podium(list, small){
   const top=list.slice(0,3); if(!top.length) return "";
   const cols = top.length===3 ? [[top[1],2],[top[0],1],[top[2],3]] : top.map((t,i)=>[t,i+1]);
-  return `<div class="podwrap${small?" sm":""}" style="${top.length<3?`grid-template-columns:repeat(${top.length},minmax(0,1fr))`:""}">${cols.map(([i,p])=>`<div class="podcol p${p}${once("pod:"+(small?"s":"h")+":"+G.gid+":"+p,"rise")}" style="animation-delay:${[0,1.9,1.1,.4][p]}s"><div class="champ">${buffCat(4-p)}<div class="title">${CHAMP[4-p]}</div></div><div class="pd p${p}"><div class="place">${p} место</div><div class="row"><span class="coins">${i.coins} 🪙</span>${x2(i)}<span class="small muted">кот автора ${catE(i.cat)}</span></div><p>${esc(i.text)}</p>${small?"":tag(i.type)}</div></div>`).join("")}</div>`;
+  return `<div class="podwrap${small?" sm":""}" style="${top.length<3?`grid-template-columns:repeat(${top.length},minmax(0,1fr))`:""}">${cols.map(([i,p])=>`<div class="podcol p${p}${once("pod:"+(small?"s":"h")+":"+G.gid+":"+p,"rise")}" style="animation-delay:${[0,1.9,1.1,.4][p]}s"><div class="champ">${buffCat(4-p)}<div class="title">${CHAMP[4-p]}</div></div><div class="pd p${p}"><div class="place">${p} место</div><div class="row"><span class="coins">${i.coins} 🪙</span>${x2(i)}<span class="small muted">кот автора ${catE(i.cat)}</span></div><p>${esc(i.text)}</p>${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}${small?"":tag(i.type)}</div></div>`).join("")}</div>`;
 }
 function hostResults(){
   const list=ranked(), total=list.reduce((a,b)=>a+b.base,0);
@@ -1134,6 +1191,7 @@ function hostResults(){
   <div><div class="eyebrow">Шаг 5 из 5 · Итоги · ${esc(proj().name)}</div><div class="h">Котофонд вложил ${plural(total,"монету","монеты","монет")} в ${plural(list.length,"идею","идеи","идей")}</div></div>
   ${podium(list)}
   ${awards(list)}
+  ${teamBadges()}
   ${list.length? `<div class="tablewrap"><table><thead><tr><th>#</th><th>Идея</th><th>Тип</th><th>Кот</th><th>Монеты</th></tr></thead><tbody>
     ${list.map((i,n)=>`<tr><td class="n">${n+1}</td><td>${esc(i.text)}${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}</td><td>${TYPES[i.type]?TYPES[i.type].name:""}</td><td style="font-size:20px">${catE(i.cat)}</td><td><span class="coins">${i.coins}</span> ${x2(i)}</td></tr>`).join("")}
   </tbody></table></div>` : `<div class="hint2">В этой игре не было идей.</div>`}
@@ -1158,9 +1216,19 @@ function player(){
     <div class="box small muted">Твой ник видит только ведущий. Идеи, котов и ставки не видит никто.</div>`;
   if(p==="ideas") return playerIdeas();
   if(p==="backlog") return `<div class="eyebrow">Раунд идей завершён</div><div class="h">Ты сдал идей: ${(me.mine||[]).length}</div>${myIdeasBox(false)}
-    <div class="wait"><div class="bigcat">🪙</div><b>Скоро аукцион</b><div class="small muted">У тебя будет ${sets().coins} монет. Вкладывать в свои идеи нельзя.</div></div>`;
+    <div class="wait"><div class="bigcat">🪙</div><b>Скоро аукцион</b><div class="small muted">У тебя будет ${sets().coins} монет${(sets().parts||1)>1?`, они открываются ${sets().parts} частями по ходу аукциона`:""}. Вкладывать в свои идеи нельзя.</div></div>`;
+  if(p==="short") return playerShort();
   if(p==="auction") return playerAuction();
   return playerResults();
+}
+function myPicks(){ return (prof && prof.picksGid===G.gid) ? (prof.picks||[]) : (pickDraft||[]); }
+let pickDraft=null;
+function playerShort(){
+  const s=sets(), mine=me.mine||[], picks=myPicks(), list=ideas.filter(i=>!mine.includes(i.id)), left=s.picks-picks.length;
+  return `<div class="eyebrow">Отбор идей</div><div class="h">Выбери ${plural(s.picks,"лучшую идею","лучшие идеи","лучших идей")}</div>
+  <div class="whint">Выбрано ${picks.length} из ${s.picks}. На аукцион выйдут самые популярные. Свои идеи здесь не показаны.</div>
+  <div class="picklist">${list.map(i=>{ const on=picks.includes(i.id); return `<button class="pick" data-act="pick" data-id="${i.id}" aria-pressed="${on}" ${!on&&left<=0||busy?"disabled":""}><span class="pk">${on?"♥":"♡"}</span><span class="t">${tag(i.type)}<span class="pt">${esc(i.text)}</span>${i.q?`<small class="qt">на вопрос: ${esc(i.q)}</small>`:""}</span></button>`; }).join("")}</div>
+  <div class="small muted">Голоса анонимные. Выбор можно менять, пока ведущий не начал аукцион.</div>`;
 }
 function playerJoin(){
   if(!join.code && window.KF_CODE) join.code = window.KF_CODE;
@@ -1221,8 +1289,10 @@ function myIdeasBox(){
 function playerAuction(){ return playerAuctionCore()+myIdeasBox(); }
 function playerAuctionCore(){
   const s=sets(), id=lotId(), lot=ideaById(id), order=G.order||[], idx=G.idx||0;
-  const wallet=s.coins-(me.spent||0), myBet=(me.bets||{})[id], isMine=(me.mine||[]).includes(id);
-  const top=`<div class="wallet"><span class="small">Твой кошелёк</span><b>${wallet} 🪙</b></div>
+  const E=econ(), wallet=E.avail, myBet=(me.bets||{})[id], isMine=(me.mine||[]).includes(id);
+  const per = E.leftIdeas ? E.leftCoins/E.leftIdeas : 0;
+  const top=`<div class="wallet"><div><span class="small">Можно потратить сейчас</span>${E.P>1?`<div class="wsub">открыто ${E.open} из ${E.total}${E.nextIn?` · +${E.nextAdd} через ${plural(E.nextIn,"идею","идеи","идей")}`:" · всё открыто"}</div>`:""}</div><b>${wallet} 🪙</b></div>
+    ${E.leftIdeas?`<div class="whint">Осталось ${plural(E.leftIdeas,"идея","идеи","идей")}, у тебя ${E.leftCoins} 🪙 — это ≈${per<1?per.toFixed(1).replace(".",","):Math.round(per)} на идею</div>`:""}
     <div class="row between"><div class="eyebrow">Аукцион · идея ${idx+1} из ${order.length}</div>${betDeadline()?`<div class="timer" style="font-size:22px" data-down="${betDeadline()}">${mmss(betDeadline()-Date.now())}</div>`:""}</div>
     ${lot?`<div class="icard"><div class="band" style="background:${TYPES[lot.type]?TYPES[lot.type].c:"var(--ink)"}"><b>${TYPES[lot.type]?TYPES[lot.type].name:""}</b><span style="font-size:20px">${x2(lot)} ${catE(lot.cat)}</span></div><div class="txt">${esc(lot.text)}${lot.q?`<div class="qline">Вопрос: ${esc(lot.q)}</div>`:""}</div></div>`:`<div class="hint2">Загружаем идею…</div>`}`;
   const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
@@ -1264,19 +1334,45 @@ function awards(list){
   const fresh=once("awards:"+G.gid+":"+view,"x")!=="";
   return `<div><div class="eyebrow" style="margin-bottom:8px">Награды команды</div><div class="awards">${out.map(([ic,t,i,n],k)=>`<div class="award${fresh?" popin":""}" style="${fresh?`animation-delay:${(2.4+k*.25).toFixed(2)}s`:""}"><span class="ai">${ic}</span><b>${t}</b><p>${esc(i.text)}</p><small>${n}</small></div>`).join("")}</div></div>`;
 }
-function myBadges(list){
-  const s=sets(), mine=me.mine||[], mb=me.bets||{}, top3=list.slice(0,3), win=list[0], spent=me.spent||0, out=[];
+function myBadgeList(list){
+  const s=sets(), mine=me.mine||[], mb=me.bets||{}, win=list[0], spent=me.spent||0, out=[];
+  const place=id=>list.findIndex(x=>x.id===id)+1, vb=(G&&G.valsBy)||{}, order=(G&&G.order)||[];
+  const mineIn=list.filter(i=>mine.includes(i.id)), total=list.reduce((a,b)=>a+b.coins,0), myCoins=mineIn.reduce((a,b)=>a+b.coins,0);
+  const backers=id=>(vb[id]||[]).filter(v=>v>0).length;
   if(win && mine.includes(win.id)) out.push(["👑","Король котофонда","Твоя идея на первом месте"]);
-  if(top3.some(i=>mine.includes(i.id) && (i.cat||0)===2)) out.push(["🤑","Ва-банк окупился","Твой кот ва-банк в тройке"]);
-  if(top3.some(i=>mine.includes(i.id) && (i.cat||0)===0)) out.push(["🐴","Скромняга","Кот-скептик сомневался зря"]);
+  mineIn.forEach(i=>{ const p=place(i.id); if(p===2) out.push(["🥈","Серебро",`Твоя идея на 2-м месте`]); if(p===3) out.push(["🥉","Бронза",`Твоя идея на 3-м месте`]); });
+  if(total>0 && myCoins>=total*.2 && mineIn.length) out.push(["💰","Золотая жила",`Твои идеи собрали ${myCoins} из ${total} монет`]);
+  const maxB=Math.max(0,...list.map(i=>backers(i.id))); const hit=mineIn.find(i=>backers(i.id)>=3 && backers(i.id)===maxB);
+  if(hit) out.push(["🔥","Хит",`За твою идею поставили ${backers(hit.id)} человек — больше всех`]);
+  const inAuction=mineIn.filter(i=>order.includes(i.id)); if(inAuction.length>=2 && inAuction.every(i=>i.base>0)) out.push(["🎯","Ни одной пустой","Каждая твоя идея на аукционе получила монеты"]);
+  const types=new Set(mineIn.map(i=>i.type)); if(types.size>=5) out.push(["🧠","Мастер на все руки",`Идеи в ${types.size} разных разделах`]);
+  if(mineIn.some(i=>i.type==="proj" && place(i.id)<=5 && i.coins>0)) out.push(["📌","В точку по проекту","Твоя идея с карты «Проект» в топ-5"]);
+  if(list.slice(0,3).some(i=>mine.includes(i.id) && (i.cat||0)===2)) out.push(["🤑","Ва-банк окупился","Твой кот ва-банк в тройке"]);
+  if(list.slice(0,3).some(i=>mine.includes(i.id) && (i.cat||0)===0)) out.push(["🐴","Скромняга","Кот-скептик сомневался зря"]);
+  if(mineIn.some(i=>isGold(i) && i.coins>0)) out.push(["⭐","Золотые лапки","Твоя золотая карта принесла монеты"]);
+  const nose=list.slice(0,3).filter(i=>(mb[i.id]||0)>0).length; if(nose>=2) out.push(["🕵️","Нюх инвестора",`Вложился в ${nose} идеи из топ-3`]);
   if(win && (mb[win.id]||0)>=8) out.push(["🎯","Снайпер",`Вложил ${mb[win.id]} в победителя`]);
-  if(list.some(i=>mine.includes(i.id) && isGold(i))) out.push(["⭐","Золотые лапки","Тебе выпала золотая карта"]);
+  const lastQ=order.slice(Math.floor(order.length*.75)), lateSpent=lastQ.reduce((a,id)=>a+(mb[id]||0),0);
+  if(spent>0 && lateSpent>=spent*.3 && lastQ.some(id=>(mb[id]||0)>0 && place(id)<=10)) out.push(["🐢","Стратег",`Сберёг ${lateSpent} монет на конец аукциона и попал в топ-10`]);
   if(mine.length>=s.cards) out.push(["💡","Генератор идей","Сдал все карты"]);
   if(spent>=s.coins*.9) out.push(["💸","Щедрый инвестор",`Вложил ${spent} из ${s.coins}`]);
   else if(Object.keys(mb).length && spent<=s.coins*.3) out.push(["🐷","Кот-копилка","Сберёг монеты, но они сгорели 😿"]);
   if(!out.length) out.push(["🐱","Участник котофонда","Спасибо, что играл"]);
+  return out;
+}
+function myBadges(list){
+  const out=myBadgeList(list);
+  /* отдаём ведущему названия своих ачивок — он зачитает их команде */
+  const key=out.map(b=>b[0]+b[1]).join("|");
+  if(prof && prof.gid===G.gid && (prof.badgesGid!==G.gid || (prof.badges||[]).map(b=>b[0]+b[1]).join("|")!==key) && !badgeBusy){
+    badgeBusy=true; db.doc("players/"+uid).set(Object.assign({}, prof, {badges:out.map(b=>[b[0],b[1]]), badgesGid:G.gid})).catch(()=>{}).finally(()=>{ badgeBusy=false; }); }
   const fresh=once("badges:"+G.gid,"x")!=="";
-  return `<div><div class="eyebrow" style="margin-bottom:8px">Твои ачивки · видишь только ты</div><div class="badges">${out.map(([ic,t,n],k)=>`<div class="badge${fresh?" popin":""}" style="${fresh?`animation-delay:${(2.2+k*.2).toFixed(2)}s`:""}"><span class="bi">${ic}</span><div><b>${t}</b><span>${n}</span></div></div>`).join("")}</div></div>`;
+  return `<div><div class="eyebrow" style="margin-bottom:8px">Твои ачивки · видишь только ты и ведущий</div><div class="badges">${out.map(([ic,t,n],k)=>`<div class="badge${fresh?" popin":""}" style="${fresh?`animation-delay:${.9+k*.12}s`:""}"><span class="bi">${ic}</span><div><b>${t}</b><span>${n}</span></div></div>`).join("")}</div></div>`;
+}
+let badgeBusy=false;
+function teamBadges(){
+  const list=players.filter(p=>p.badgesGid===G.gid && (p.badges||[]).length); if(!list.length) return `<div class="box small muted">Ачивки игроков появятся, когда они откроют итоги у себя.</div>`;
+  return `<div><div class="eyebrow" style="margin-bottom:8px">Ачивки команды · видишь только ты</div><div class="teamb">${list.map(p=>`<div class="tb"><div class="tbh"><span class="av">${esc(ALL_AV.has(p.avatar)?p.avatar:"🐱")}</span><b>${esc(p.nick||"Игрок")}</b></div><div class="tbl">${p.badges.map(b=>`<span title="${esc(b[1])}">${esc(b[0])} ${esc(b[1])}</span>`).join("")}</div></div>`).join("")}</div></div>`;
 }
 
 /* ================= таймеры ================= */
@@ -1328,7 +1424,16 @@ const ACT = {
   endIdeas(){ run(()=>hostUpdate({phase:"backlog"})); },
   backLobby(){ run(()=>hostUpdate({phase:"lobby"})); },
   backIdeas(){ run(()=>hostUpdate({phase:"ideas"})); },
-  startAuction(){ run(()=>hostUpdate({phase:"auction", order:auctionOrder(), idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}, lotAt:Date.now()})); },
+  startAuction(){ const short=G.phase==="short", ids=short?shortList():null;
+    run(()=>hostUpdate({phase:"auction", order:auctionOrder(ids), shortlisted:short?ids:null, idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}, skippedLots:[], lotAt:Date.now()})); },
+  startShort(){ run(()=>hostUpdate({phase:"short"})); },
+  backBacklog(){ run(()=>hostUpdate({phase:"backlog"})); },
+  setOrder(el){ const s=sets(); s.order=el.dataset.m; run(()=>hostUpdate({settings:s})); },
+  setShort(el){ const s=sets(); s.short=el.dataset.m==="1"; run(()=>hostUpdate({settings:s})); },
+  pick(el){ const id=el.dataset.id, s=sets(), cur=myPicks().slice(); const k=cur.indexOf(id);
+    if(k>=0) cur.splice(k,1); else { if(cur.length>=s.picks) return; cur.push(id); pop(); }
+    pickDraft=cur; render();
+    run(()=>db.doc("players/"+uid).set(Object.assign({}, prof, {picks:cur, picksGid:G.gid}))); },
   reveal(){ run(()=>{ const id=lotId(); const vals=shuffle(bets.filter(b=>b.idea===id).map(b=>+b.v||0)); const sum=vals.reduce((a,b)=>a+b,0);
     return hostUpdate({revealed:true, revealVals:vals, results:Object.assign({}, G.results||{}, {[id]:sum}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:vals}), skippedLots:(G.skippedLots||[]).filter(x=>x!==id)}); }); },
   nextLot(){ const k=nextIdx(); run(()=>hostUpdate(k<0 ? {phase:"results"} : goLot(k))); },
@@ -1381,7 +1486,7 @@ document.addEventListener("click", e=>{
   const f=e.target.closest("[data-fib]"); if(f && !f.disabled){ fib=+f.dataset.fib; render(); return; }
   const st=e.target.closest("[data-set]"); if(st && G && !busy){
     const [k,i]=st.dataset.set.split(":"), d=+st.dataset.d, s=sets();
-    const lim={min:[1,10,1], cards:[1,18,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,18,1], bet:[30,300,30]}[k];
+    const lim={min:[1,10,1], cards:[1,18,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,18,1], bet:[30,300,30], parts:[1,6,1], picks:[1,15,1], top:[3,60,1]}[k];
     if(k==="cats"){ const cats=s.cats.slice(); cats[+i]=Math.max(lim[0],Math.min(lim[1],cats[+i]+d)); s.cats=cats; }
     else s[k]=Math.max(lim[0],Math.min(lim[1],s[k]+d*lim[2]));
     run(()=>hostUpdate({settings:s})); return; }
