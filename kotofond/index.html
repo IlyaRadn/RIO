@@ -247,6 +247,13 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 @media (max-width:640px){.lstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .lotlist .s{display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right}
 .lotlist .s small{font-size:11px;opacity:.75}
+.myideas{border:1px solid var(--line);border-radius:14px;background:var(--paper-2);padding:12px;display:flex;flex-direction:column;gap:8px}
+.myideas ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.myideas li{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:var(--paper);font-size:13px}
+.myideas li.cur{outline:2px solid var(--gold);background:var(--gold-soft)}
+.myideas .t{overflow-wrap:anywhere}
+.myideas .s{display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:nowrap;font-size:12px}
+.myideas .s small{font-size:11px;opacity:.75}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -1065,7 +1072,23 @@ function playerIdeas(){
   <button class="btn ghost block sm" data-act="skip" ${busy?"disabled":""}>Пропустить карту →</button>
   <div class="small muted">Не идёт вопрос — пропускай, это нормально. Когда время выйдет, написанное сдастся само, пустая карта пропустится.</div>`;
 }
-function playerAuction(){
+/* автор видит свои идеи на аукционе: какая уже прошла, сколько собрала и какие были ставки. Чужие не видит, как и раньше */
+function myIdeasBox(){
+  const mine=(me.mine||[]).filter(id=>(G.order||[]).includes(id)); if(!mine.length) return "";
+  const order=G.order||[], idx=G.idx||0, res=G.results||{}, vb=G.valsBy||{}, skipped=G.skippedLots||[];
+  const sorted=mine.slice().sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  const total=sorted.reduce((a,id)=>a+((id in res && !skipped.includes(id)) ? (+res[id]||0)*(isGold(ideaById(id))?2:1) : 0),0);
+  const done=sorted.filter(id=>id in res).length;
+  const rows=sorted.map(id=>{ const i=ideaById(id)||{}, k=order.indexOf(id), gold=isGold(i), vals=vb[id]||[];
+    const st = (k===idx && !G.revealed) ? `<b>сейчас на аукционе</b><small>ставки ещё закрыты</small>`
+      : skipped.includes(id) ? `пропущена<small>0 🪙</small>`
+      : (id in res) ? `<b>${res[id]} 🪙${gold?` ⭐×2 = ${res[id]*2}`:""}</b><small>${vals.length?"ставки: "+vals.join(" · "):"никто не поставил"}</small>`
+      : `ждёт очереди<small>идея ${k+1} из ${order.length}</small>`;
+    return `<li class="${k===idx?"cur":""}"><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,120))}${String(i.text||"").length>120?"…":""}</span><span class="s">${st}</span></li>`; }).join("");
+  return `<div class="myideas"><div class="row between"><div class="eyebrow">Твои идеи · ${done} из ${sorted.length} прошли</div><b class="small">собрали ${total} 🪙</b></div><ol>${rows}</ol><div class="small muted">Это видишь только ты. Остальные не знают, что идеи твои.</div></div>`;
+}
+function playerAuction(){ return playerAuctionCore()+myIdeasBox(); }
+function playerAuctionCore(){
   const s=sets(), id=lotId(), lot=ideaById(id), order=G.order||[], idx=G.idx||0;
   const wallet=s.coins-(me.spent||0), myBet=(me.bets||{})[id], isMine=(me.mine||[]).includes(id);
   const top=`<div class="wallet"><span class="small">Твой кошелёк</span><b>${wallet} 🪙</b></div>
