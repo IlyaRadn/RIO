@@ -287,6 +287,13 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .tbh{display:flex;align-items:center;gap:8px}.tbh .av{font-size:22px}
 .tbl{display:flex;flex-wrap:wrap;gap:4px}
 .tbl span{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--gold-soft);border:1px solid var(--gold)}
+.libl{display:flex;flex-direction:column;gap:6px}
+.libi{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;cursor:pointer}
+.libi:hover{border-color:var(--gold)}
+.libi .ld{font-size:12px;color:var(--mute)}
+.libi b{font-size:15px}
+.libi .ls{font-size:13px;color:var(--mute)}
+tr.muted td{opacity:.6}
 /* ---------- телефон: меньше полей, всё важное ближе, ничего не перекрыто ---------- */
 @media (max-width:560px){
   body{padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-block:10px 24px}
@@ -994,7 +1001,7 @@ function render(){
   const g=document.querySelector(".avgrid"), sc=g?g.scrollTop:0;
   PEND.length=0;
   $app.innerHTML = header() + body();
-  PEND.forEach(k=>SEEN.add(k)); countUps(); setTimeout(syncMusic, 0); setTimeout(syncProgress, 0);
+  PEND.forEach(k=>SEEN.add(k)); countUps(); setTimeout(syncMusic, 0); setTimeout(syncProgress, 0); setTimeout(archiveGame, 0);
   if(fid){ const n=document.getElementById(fid); if(n){ try{ n.focus({preventScroll:true}); if(ss!=null && n.setSelectionRange) n.setSelectionRange(ss,se); }catch(e){} } }
   const g2=document.querySelector(".avgrid"); if(g2) g2.scrollTop=sc;
   tick();
@@ -1004,7 +1011,8 @@ function header(){
   const reset = (owner && view==="host" && G && G.phase!=="lobby") ? `<button class="btn sm ghost" data-act="askNew" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">↺ Новая игра</button>` : "";
   const snd = `<button class="btn sm ghost" data-act="sound" aria-pressed="${soundOn}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">${soundOn?"🔊 Звук":"🔇 Без звука"}</button>`;
   const mus = (view==="player" && soundOn) ? `<button class="btn sm ghost" data-act="music" aria-pressed="${musicOn}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">${musicOn?"🎵 Музыка":"🎵 Без музыки"}</button>` : "";
-  return `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div><div class="row">${reset}${snd}${mus}${toggle}</div></header>`;
+  const libb = (view==="host" ? owner : true) ? `<button class="btn sm ghost" data-act="${libOpen?"libClose":"libOpen"}" aria-pressed="${libOpen}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">📚 ${view==="host"?"Библиотека":"Мои игры"}</button>` : "";
+  return `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div><div class="row">${reset}${libb}${snd}${mus}${toggle}</div></header>`;
 }
 function onfelt(icon, title, text){ return `<div class="onfelt"><div class="bigcat">${icon}</div><b style="font-size:18px">${title}</b><div class="muted small" style="max-width:420px">${text||""}</div></div>`; }
 function body(){
@@ -1012,6 +1020,7 @@ function body(){
   if(fatal==="load") return onfelt("🙀","Не удалось загрузить игру","Обнови страницу. Если не поможет, проверь, что тебе открыт доступ к этой странице.");
   if(!gameLoaded) return onfelt("🐱", slow?"Связь с игрой медленная…":"Котофонд загружается…", slow?"Данные пока не пришли. Проверь интернет: игра подхватится сама, как только связь появится.":"");
   const err = errMsg ? `<div class="err" role="alert">${esc(errMsg)}</div>` : "";
+  if(libOpen) return view==="host" ? `<section class="panel">${err}${library()}</section>` : `<section class="pcard">${err}${library()}</section>`;
   if(view==="host"){
     const conf = confirmNew ? `<div class="err" style="background:var(--gold-soft);color:var(--ink);border-color:var(--gold)" role="alert"><div class="row between"><span><b>Начать новую игру?</b> Текущая игра пропадёт с экрана, все вернутся в лобби с новым кодом.</span><span class="row"><button class="btn danger sm" data-act="newGame">Да, новая игра</button><button class="btn ghost sm" data-act="cancelNew">Отмена</button></span></div></div>` : "";
     return `<section class="panel">${conf}${err}${host()}</section>`;
@@ -1321,6 +1330,61 @@ function playerResults(){
   <div class="small muted" style="text-align:center">Места своих идей видишь только ты. Спасибо за игру!</div>`;
 }
 
+
+/* ================= библиотека прошлых игр =================
+   Хранится в браузере: у ведущего — все игры целиком, у игрока — его идеи, места и ачивки.
+   Запись обновляется, пока на экране итоги, поэтому поздние ачивки игроков тоже попадают. */
+const LIB_MAX = 60;
+let libOpen=false, libSel=null;
+const libKey = () => view==="host" ? "kf-lib-host" : "kf-lib-player";
+function libLoad(key){ try{ const a=JSON.parse(localStorage.getItem(key||libKey())||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function libSave(key, rec){ try{ const a=libLoad(key).filter(x=>x.gid!==rec.gid); a.unshift(rec); localStorage.setItem(key, JSON.stringify(a.slice(0,LIB_MAX))); }catch(e){} }
+let libLast="";
+function archiveGame(){
+  if(!G || G.phase!=="results" || !ideas.length) return;
+  const list=ranked(), c=voteCounts(), vb=G.valsBy||{};
+  const base={ gid:G.gid, at:G.startedAt||G.at||Date.now(), endedAt:Date.now(), project:proj().name, code:G.code||"" };
+  let key, rec;
+  if(view==="host" && owner){
+    key="kf-lib-host";
+    rec=Object.assign(base, { players:players.map(p=>({nick:p.nick, avatar:p.avatar, badges:p.badgesGid===G.gid?(p.badges||[]):[]})),
+      ideas:list.map(i=>({text:i.text, q:i.q||"", type:i.type, cat:i.cat||0, gold:isGold(i), coins:i.coins, base:i.base, votes:c[i.id]||0, bets:vb[i.id]||[], inAuction:(G.order||[]).includes(i.id)})) });
+  } else if(view==="player" && joined()){
+    key="kf-lib-player";
+    const mine=me.mine||[];
+    rec=Object.assign(base, { total:list.length, winner:list[0]?{text:list[0].text, coins:list[0].coins}:null, spent:me.spent||0, coinsAll:sets().coins,
+      badges:myBadgeList(list).map(b=>[b[0],b[1],b[2]]),
+      mine:list.map((i,n)=>({i,n})).filter(x=>mine.includes(x.i.id)).map(({i,n})=>({place:n+1, text:i.text, q:i.q||"", type:i.type, cat:i.cat||0, coins:i.coins, bets:vb[i.id]||[]})) });
+  } else return;
+  const sig=key+JSON.stringify(rec).length+JSON.stringify(rec.players||rec.badges||[]);
+  if(sig===libLast) return; libLast=sig; libSave(key, rec);
+}
+const fmtDate = t => { try{ return new Date(t).toLocaleString("ru-RU",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}); }catch(e){ return ""; } };
+function libCsv(rec){ const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  return "\ufeff"+[["Место","Идея","Тип","Вопрос на карте","Кот автора","Золотая карта","Голоса отбора","Ставки","Монеты"].map(q).join(";")].concat(rec.ideas.map((i,n)=>[n+1,i.text,TYPES[i.type]?TYPES[i.type].name:"",i.q,CATS[i.cat||0].name,i.gold?"да, ×2":"",i.votes||"",(i.bets||[]).join(" "),i.coins].map(q).join(";"))).join("\r\n"); }
+function library(){
+  const host=view==="host", list=libLoad();
+  const back=`<button class="btn ghost sm" data-act="libClose">← К игре</button>`;
+  if(libSel){ const r=list.find(x=>x.gid===libSel); if(!r){ libSel=null; return library(); }
+    const head=`<div class="row between"><div><div class="eyebrow">Библиотека · ${esc(fmtDate(r.at))}</div><div class="h">${esc(r.project)}</div></div><div class="row"><button class="btn ghost sm" data-act="libBack">← Все игры</button>${back}</div></div>`;
+    if(host){
+      return head+`<div class="small muted">Код ${esc(r.code)} · ${plural(r.players.length,"игрок","игрока","игроков")} · ${plural(r.ideas.length,"идея","идеи","идей")} · собрано ${r.ideas.reduce((a,b)=>a+b.base,0)} 🪙</div>
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>Идея</th><th>Тип</th><th>Кот</th><th>Монеты</th></tr></thead><tbody>${r.ideas.map((i,n)=>`<tr${i.inAuction===false?' class="muted"':""}><td class="n">${n+1}</td><td>${esc(i.text)}${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}${(i.bets||[]).length?`<div class="qline sm">Ставки: ${i.bets.join(" · ")}${i.votes?` · голосов в отборе: ${i.votes}`:""}</div>`:(i.votes?`<div class="qline sm">Голосов в отборе: ${i.votes}</div>`:"")}</td><td>${TYPES[i.type]?TYPES[i.type].name:""}</td><td style="font-size:20px">${catE(i.cat)}</td><td><span class="coins">${i.coins}</span>${i.gold?" ⭐":""}</td></tr>`).join("")}</tbody></table></div>
+      ${r.players.some(p=>(p.badges||[]).length)?`<div><div class="eyebrow" style="margin-bottom:8px">Ачивки команды</div><div class="teamb">${r.players.filter(p=>(p.badges||[]).length).map(p=>`<div class="tb"><div class="tbh"><span class="av">${esc(p.avatar||"🐱")}</span><b>${esc(p.nick||"Игрок")}</b></div><div class="tbl">${p.badges.map(b=>`<span>${esc(b[0])} ${esc(b[1])}</span>`).join("")}</div></div>`).join("")}</div></div>`:""}
+      <div class="row">${downloads?`<button class="btn gold" data-act="libCsv" data-gid="${esc(r.gid)}">Скачать идеи (Excel, CSV)</button>`:""}<button class="btn ghost" data-act="libDel" data-gid="${esc(r.gid)}">${libConfirm===r.gid?"Точно удалить? Нажми ещё раз":"Удалить из библиотеки"}</button></div>`;
+    }
+    return head+`<div class="small muted">Всего идей в игре: ${r.total}${r.winner?` · победила идея на ${plural(r.winner.coins,"монету","монеты","монет")}`:""} · ты вложил ${r.spent} из ${r.coinsAll} 🪙</div>
+      <div class="myideas"><div class="eyebrow">Твои идеи</div><ol>${(r.mine||[]).map(i=>`<li><span>${catE(i.cat)}</span><span class="t">${esc(i.text)}${i.q?`<small class="qt">на вопрос: ${esc(i.q)}</small>`:""}</span><span class="s"><b>${i.place} место</b><small>${i.coins} 🪙${(i.bets||[]).length?" · ставки: "+i.bets.join(" · "):""}</small></span></li>`).join("")||`<li><span></span><span class="t muted">В этой игре ты не сдал идей</span><span></span></li>`}</ol></div>
+      <div><div class="eyebrow" style="margin-bottom:8px">Твои ачивки</div><div class="badges">${(r.badges||[]).map(b=>`<div class="badge"><span class="bi">${esc(b[0])}</span><div><b>${esc(b[1])}</b><span>${esc(b[2]||"")}</span></div></div>`).join("")}</div></div>`;
+  }
+  return `<div class="row between"><div><div class="eyebrow">Библиотека</div><div class="h">${host?"Прошлые игры":"Мои игры"}</div></div>${back}</div>
+    <div class="small muted">${host?"Здесь сохраняются все завершённые игры: идеи, вопросы, ставки, места и ачивки команды.":"Здесь сохраняются игры, в которых ты дошёл до итогов: твои идеи, места и ачивки."} Хранится в этом браузере на этом устройстве.</div>
+    ${list.length?`<div class="libl">${list.map(r=>{ const sub = host ? `${plural(r.players.length,"игрок","игрока","игроков")} · ${plural(r.ideas.length,"идея","идеи","идей")}${r.ideas[0]?` · победитель ${r.ideas[0].coins} 🪙`:""}` : `${plural((r.mine||[]).length,"твоя идея","твои идеи","твоих идей")}${(r.mine||[]).length?` · лучшее место ${Math.min(...r.mine.map(i=>i.place))}`:""} · ${plural((r.badges||[]).length,"ачивка","ачивки","ачивок")}`;
+      return `<button class="libi" data-act="libOpenGame" data-gid="${esc(r.gid)}"><span class="ld">${esc(fmtDate(r.at))}</span><b>${esc(r.project)}</b><span class="ls">${sub}</span></button>`; }).join("")}</div>`
+      :`<div class="hint2">${host?"Пока пусто. Игра попадёт сюда, когда дойдёт до итогов.":"Пока пусто. Игра попадёт сюда, когда ты дойдёшь до итогов."}</div>`}`;
+}
+let libConfirm=null;
+
 /* ================= награды ================= */
 function awards(list){
   if(list.length<2) return "";
@@ -1447,6 +1511,15 @@ const ACT = {
   askNew(){ confirmNew=true; render(); window.scrollTo({top:0,behavior:"smooth"}); },
   cancelNew(){ confirmNew=false; render(); },
   newGame(){ confirmNew=false; run(()=>gs().set({gid:rid(), code:newCode(), project:G.project||"up", phase:"lobby", settings:sets(), order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
+  libOpen(){ libOpen=true; libSel=null; libConfirm=null; render(); window.scrollTo({top:0}); },
+  libClose(){ libOpen=false; libSel=null; libConfirm=null; render(); },
+  libBack(){ libSel=null; libConfirm=null; render(); },
+  libOpenGame(el){ libSel=el.dataset.gid; libConfirm=null; render(); window.scrollTo({top:0}); },
+  libDel(el){ const g=el.dataset.gid; if(libConfirm!==g){ libConfirm=g; render(); return; }
+    try{ localStorage.setItem(libKey(), JSON.stringify(libLoad().filter(x=>x.gid!==g))); }catch(e){} libSel=null; libConfirm=null; render(); },
+  async libCsv(el){ const r=libLoad().find(x=>x.gid===el.dataset.gid); if(!r) return;
+    try{ await downloads.save({filename:"kotofond-"+new Date(r.at).toISOString().slice(0,10)+".csv", data:libCsv(r)}); }
+    catch(e){ if(e && e.code!=="declined"){ errMsg="Не получилось скачать файл здесь. Открой страницу в браузере на компьютере."; render(); } } },
   async csv(){
     const list=ranked(); const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
     const rows=[["Место","Идея","Тип","Вопрос на карте","Кот автора","Золотая карта","Монеты"].map(q).join(";")].concat(list.map((i,n)=>[n+1, i.text, TYPES[i.type]?TYPES[i.type].name:"", i.q||"", CATS[i.cat||0].name, isGold(i)?"да, ×2":"", i.coins].map(q).join(";")));
@@ -1479,7 +1552,7 @@ const ACT = {
 
 document.addEventListener("click", e=>{
   audio(); /* первый клик открывает звук в браузере */
-  const v=e.target.closest("[data-view]"); if(v){ view=v.dataset.view; errMsg=""; render(); return; }
+  const v=e.target.closest("[data-view]"); if(v){ view=v.dataset.view; errMsg=""; libSel=null; libConfirm=null; render(); return; }
   const at=e.target.closest("[data-avtab]"); if(at){ join.tab=at.dataset.avtab; render(); return; }
   const av=e.target.closest("[data-av]"); if(av){ join.avatar=av.dataset.av; render(); return; }
   const c=e.target.closest("[data-cat]"); if(c && !c.disabled){ draft.cat=+c.dataset.cat; catSound(draft.cat); render(); return; }
