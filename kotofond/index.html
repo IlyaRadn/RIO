@@ -696,6 +696,54 @@ let AC=null, MASTER=null, soundOn=true;
 function audio(){ try{ if(!AC){const C=window.AudioContext||window.webkitAudioContext; if(!C) return null; AC=new C();
   const comp=AC.createDynamicsCompressor(); MASTER=AC.createGain(); MASTER.gain.value=.9; MASTER.connect(comp); comp.connect(AC.destination);}
   if(AC.state==="suspended") AC.resume(); return AC; }catch(e){ return null; } }
+
+/* ---------- фоновая музыка у игроков: своя тихая петля на раунд идей и бодрая на аукцион ---------- */
+let musicOn = (()=>{ try{ return localStorage.getItem("kf-music")!=="off"; }catch(e){ return true; } })();
+const MUS = { track:null, gain:null, timer:null, step:0, next:0 };
+const hz = m => 440*Math.pow(2,(m-69)/12);
+/* аккорды как MIDI-ноты; мелодия — номер ступени в аккорде или null (пауза) на каждую восьмую */
+const TRACKS = {
+  ideas: { bpm:88, chords:[[48,55,60,64],[45,52,57,60],[41,48,53,57],[43,50,55,59]],
+    arp:[1,2,3,2,1,2,3,2], mel:[null,null,3,null,null,2,null,null, null,null,3,null,2,null,null,null], melUp:12, bassOn:[0,4], lead:"sine", vol:.05 },
+  auction: { bpm:116, chords:[[45,52,57,60],[41,48,53,57],[48,55,60,64],[43,50,55,59]],
+    arp:[1,3,2,3,1,3,2,3], mel:[3,null,2,3,null,2,1,null, 3,null,3,2,null,1,null,null], melUp:12, bassOn:[0,2,4,6], lead:"square", vol:.045 }
+};
+function musWanted(){
+  if(!soundOn || !musicOn || view!=="player" || !G || !me) return null;
+  if(G.phase==="ideas" && (me.done||0) < sets().cards) return "ideas";
+  if(G.phase==="auction") return "auction";
+  return null;
+}
+function musStop(){ if(MUS.timer){ clearInterval(MUS.timer); MUS.timer=null; }
+  if(MUS.gain && AC){ const g=MUS.gain; try{ g.gain.setTargetAtTime(.0001, AC.currentTime, .25); }catch(e){} setTimeout(()=>{ try{ g.disconnect(); }catch(e){} }, 1500); }
+  MUS.gain=null; MUS.track=null; }
+function musNote(t, f, d, type, vol){ const ac=AC, o=ac.createOscillator(), g=ac.createGain(); o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.015); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g); g.connect(MUS.gain); o.start(t); o.stop(t+d+.05); }
+function musTick(){
+  const T=TRACKS[MUS.track]; if(!T || !AC || !MUS.gain) return;
+  const eighth=60/T.bpm/2;
+  while(MUS.next < AC.currentTime+.25){
+    const t=MUS.next, i=MUS.step, pos=i%8, ch=T.chords[Math.floor(i/8)%T.chords.length];
+    if(T.bassOn.includes(pos)) musNote(t, hz(ch[0]-12), eighth*(MUS.track==="ideas"?3.6:1.6), "triangle", .5);
+    musNote(t, hz(ch[T.arp[pos]]), eighth*1.4, "triangle", .16);
+    const m=T.mel[i%T.mel.length]; if(m!=null) musNote(t, hz(ch[m]+T.melUp), eighth*(MUS.track==="ideas"?3:1.5), T.lead, MUS.track==="ideas"?.22:.1);
+    if(MUS.track==="auction" && pos%2===1) musNote(t, 2600, .03, "square", .025);
+    MUS.step++; MUS.next+=eighth;
+  }
+}
+function syncMusic(){
+  const want=musWanted();
+  if(want===MUS.track) return;
+  musStop(); if(!want) return;
+  const ac=audio(); if(!ac || ac.state!=="running") return; /* без касания экрана браузер звук не пустит — запустимся на первом клике */
+  MUS.gain=ac.createGain(); MUS.gain.gain.value=.0001; MUS.gain.connect(MASTER);
+  MUS.gain.gain.setTargetAtTime(TRACKS[want].vol, ac.currentTime, .6);
+  MUS.track=want; MUS.step=0; MUS.next=ac.currentTime+.1;
+  musTick(); MUS.timer=setInterval(musTick, 60);
+}
+document.addEventListener("pointerdown", ()=>setTimeout(syncMusic, 0), true);
+document.addEventListener("visibilitychange", ()=>{ if(document.hidden) musStop(); else setTimeout(syncMusic, 0); });
 function meowOnce(ac,t,p,vol){
   const dur=.66, f0=560*p, stop=t+dur+.05;
   const o=ac.createOscillator(), o2=ac.createOscillator(); o.type="sawtooth"; o2.type="triangle";
@@ -897,7 +945,7 @@ function render(){
   const g=document.querySelector(".avgrid"), sc=g?g.scrollTop:0;
   PEND.length=0;
   $app.innerHTML = header() + body();
-  PEND.forEach(k=>SEEN.add(k)); countUps();
+  PEND.forEach(k=>SEEN.add(k)); countUps(); setTimeout(syncMusic, 0);
   if(fid){ const n=document.getElementById(fid); if(n){ try{ n.focus({preventScroll:true}); if(ss!=null && n.setSelectionRange) n.setSelectionRange(ss,se); }catch(e){} } }
   const g2=document.querySelector(".avgrid"); if(g2) g2.scrollTop=sc;
   tick();
@@ -906,7 +954,8 @@ function header(){
   const toggle = owner ? `<div class="seg" role="group" aria-label="Экран"><button data-view="host" aria-pressed="${view==='host'}">Ведущий</button><button data-view="player" aria-pressed="${view==='player'}">Я как игрок</button></div>` : "";
   const reset = (owner && view==="host" && G && G.phase!=="lobby") ? `<button class="btn sm ghost" data-act="askNew" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">↺ Новая игра</button>` : "";
   const snd = `<button class="btn sm ghost" data-act="sound" aria-pressed="${soundOn}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">${soundOn?"🔊 Звук":"🔇 Без звука"}</button>`;
-  return `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div><div class="row">${reset}${snd}${toggle}</div></header>`;
+  const mus = (view==="player" && soundOn) ? `<button class="btn sm ghost" data-act="music" aria-pressed="${musicOn}" style="background:transparent;color:var(--felt-ink);border-color:var(--felt-line)">${musicOn?"🎵 Музыка":"🎵 Без музыки"}</button>` : "";
+  return `<header class="top"><div class="brand"><div class="logo" aria-hidden="true">🐱</div><div><h1>Котофонд</h1><p>Игра идей</p></div></div><div class="row">${reset}${snd}${mus}${toggle}</div></header>`;
 }
 function onfelt(icon, title, text){ return `<div class="onfelt"><div class="bigcat">${icon}</div><b style="font-size:18px">${title}</b><div class="muted small" style="max-width:420px">${text||""}</div></div>`; }
 function body(){
@@ -1228,6 +1277,7 @@ function goldFx(){ setTimeout(()=>{ banner("⭐","Золотая карта!","�
 const ACT = {
   reroll(){ if(!me || !G) return; const type=(me.deck||[])[me.pos||0] || TYPE_KEYS[(me.pos||0)%TYPE_KEYS.length]; pickQ(G.gid+":"+(me.pos||0)+":"+me.cardAt, type, true); qPick.flash=true; dice(); render(); setTimeout(()=>{ qPick.flash=false; }, 50); },
   sound(){ soundOn=!soundOn; if(soundOn) audio(); render(); },
+  music(){ musicOn=!musicOn; try{ localStorage.setItem("kf-music", musicOn?"on":"off"); }catch(e){} audio(); render(); },
   snore(){ audio(); setTimeout(()=>{ snore(); render(); }, 60); },
   create(){ run(()=>gs().set({gid:rid(), code:newCode(), project:"up", phase:"lobby", settings:DEF, order:[], idx:0, revealed:false, revealVals:[], results:{}, at:Date.now()})); },
   newcode(){ run(async ()=>{ const code = (SITE && window.KF_NET && window.KF_NET.renew) ? await window.KF_NET.renew() : "KOT-" + String(Math.floor(100+Math.random()*900)); await hostUpdate({code}); }); },
