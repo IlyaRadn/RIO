@@ -254,6 +254,16 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .myideas .t{overflow-wrap:anywhere}
 .myideas .s{display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:nowrap;font-size:12px}
 .myideas .s small{font-size:11px;opacity:.75}
+.prog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;margin-top:8px}
+.pp{display:grid;grid-template-columns:26px minmax(0,1fr) auto;grid-template-areas:"av nick st" "av bar bar";column-gap:8px;row-gap:4px;align-items:center;padding:8px 10px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:13px}
+.pp .av{grid-area:av;font-size:20px;line-height:1}
+.pp b{grid-area:nick;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp .st{grid-area:st;font-size:12px;color:var(--mute);white-space:nowrap}
+.pp .bar{grid-area:bar;height:6px;border-radius:99px;background:var(--paper-2);overflow:hidden}
+.pp .bar i{display:block;height:100%;background:var(--gold);border-radius:99px;transition:width .4s ease}
+.pp.ok{border-color:var(--good, #1f9d55);background:#eefaf2}
+.pp.ok .bar i{background:var(--good, #1f9d55)}
+.pp.ok .st{color:var(--good, #1f9d55);font-weight:700}
 /* ---------- телефон: меньше полей, всё важное ближе, ничего не перекрыто ---------- */
 @media (max-width:560px){
   body{padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-block:10px 24px}
@@ -945,7 +955,7 @@ function render(){
   const g=document.querySelector(".avgrid"), sc=g?g.scrollTop:0;
   PEND.length=0;
   $app.innerHTML = header() + body();
-  PEND.forEach(k=>SEEN.add(k)); countUps(); setTimeout(syncMusic, 0);
+  PEND.forEach(k=>SEEN.add(k)); countUps(); setTimeout(syncMusic, 0); setTimeout(syncProgress, 0);
   if(fid){ const n=document.getElementById(fid); if(n){ try{ n.focus({preventScroll:true}); if(ss!=null && n.setSelectionRange) n.setSelectionRange(ss,se); }catch(e){} } }
   const g2=document.querySelector(".avgrid"); if(g2) g2.scrollTop=sc;
   tick();
@@ -1020,6 +1030,21 @@ function coverage(){
   const c={}; ideas.forEach(i=>{c[i.type]=(c[i.type]||0)+1;});
   return `<div class="cover">${TYPE_KEYS.map(k=>`<div class="cv ${c[k]?"":"empty"}" style="background:${TYPES[k].c}"><b>${TYPES[k].name}</b><span>${c[k]||"—"}</span></div>`).join("")}</div>`;
 }
+let progBusy=false;
+function syncProgress(){
+  if(progBusy || !db || !G || !me || !prof || me.gid!==G.gid || prof.gid!==G.gid) return;
+  const done=me.done||0; if(prof.done===done) return;
+  progBusy=true;
+  db.doc("players/"+uid).set(Object.assign({}, prof, {done, doneAt:Date.now()})).catch(()=>{}).finally(()=>{ progBusy=false; });
+}
+function playersProgress(){
+  const s=sets(), n=s.cards; if(!players.length) return "";
+  const list=players.slice().sort((a,b)=>((b.done||0)>=n)-((a.done||0)>=n) || (b.done||0)-(a.done||0));
+  const fin=list.filter(p=>(p.done||0)>=n).length;
+  return `<div class="box"><div class="row between"><div class="eyebrow">Игроки · закончили ${fin} из ${list.length}</div><span class="small muted">видишь только ты</span></div>
+    <div class="prog">${list.map(p=>{ const d=Math.min(n,p.done||0), ok=d>=n;
+      return `<div class="pp${ok?" ok":""}"><span class="av">${esc(ALL_AV.has(p.avatar)?p.avatar:"🐱")}</span><b>${esc(p.nick||"Игрок")}</b><span class="bar"><i style="width:${Math.round(d/n*100)}%"></i></span><span class="st">${ok?"✓ сдал всё":`${d} из ${n}`}</span></div>`; }).join("")}</div></div>`;
+}
 function hostIdeas(){
   const s=sets(), total=Math.max(1, players.length*s.cards), pct=Math.min(100, Math.round(ideas.length/total*100));
   return `
@@ -1028,6 +1053,7 @@ function hostIdeas(){
   <div><div class="row between small"><b>Сдано идей: ${ideas.length}</b> <span class="muted">· максимум ${players.length*s.cards}, карты можно пропускать</span><span class="muted">${plural(players.length,"игрок","игрока","игроков")} × ${plural(s.cards,"карта","карты","карт")} · ${s.min} мин на карту</span></div><div class="pbar" style="margin-top:6px"><span style="width:${pct}%"></span></div></div>
   <div><div class="eyebrow" style="margin-bottom:8px">Карта проекта · какие типы уже закрыты</div>${coverage()}</div>
   <div class="small muted">Тексты идей скрыты до конца раунда, видно только количество по типам.</div>
+  ${playersProgress()}
   <div class="row"><button class="btn dark" data-act="endIdeas" ${busy?"disabled":""}>Завершить раунд идей</button><button class="btn ghost" data-act="backLobby" ${busy?"disabled":""}>← Вернуться в лобби</button></div>`;
 }
 function auctionOrder(){
