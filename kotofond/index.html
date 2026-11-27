@@ -264,6 +264,10 @@ td.n{font-family:var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nu
 .pp.ok{border-color:var(--good, #1f9d55);background:#eefaf2}
 .pp.ok .bar i{background:var(--good, #1f9d55)}
 .pp.ok .st{color:var(--good, #1f9d55);font-weight:700}
+.qline{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:13px;font-weight:500;color:var(--mute);line-height:1.4}
+.qline.sm{margin-top:4px;padding-top:0;border-top:0;font-size:11px}
+.qt{display:block;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.myideas .qt{white-space:normal}
 /* ---------- телефон: меньше полей, всё важное ближе, ничего не перекрыто ---------- */
 @media (max-width:560px){
   body{padding-left:max(10px, env(safe-area-inset-left, 0px));padding-right:max(10px, env(safe-area-inset-right, 0px));padding-block:10px 24px}
@@ -677,7 +681,10 @@ const PROJECTS = {
   kpk: {name:"Клуб премиальных клиентов", sub:"КПК"}
 };
 const FIB = [0,1,2,3,5,8,13,21];
-const DEF = {v:2, min:2, cards:9, swaps:0, cats:[6,2,1], coins:100};
+const DEF = {v:2, min:2, cards:9, swaps:0, cats:[6,2,1], coins:100, bet:60};
+/* дедлайн ставок на текущую идею; null — таймера нет (идея вскрыта или игра начата до таймеров) */
+const betDeadline = () => (G && G.phase==="auction" && !G.revealed && G.lotAt) ? G.lotAt + (sets().bet||60)*1000 : null;
+const secLabel = n => Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
 const AVATARS = ["🦊","🐼","🐨","🐯","🦁","🐸","🐵","🐧","🦉","🦄","🐙","🦖","🐢","🐳","🦈","🦩","🦥","🦦","🦔","🐝","🦋","🐞","🐲","🦕","🐊","🦓","🦒","🐘","🦛","🦘","🦫","🐺","🐮","🐷","🐰","🐹","🐱","🐶","🐻","🐔","🦜","🦚","🐡","🦀","👽","🤖","👾","👻","🥷","🧙"];
 const MEMES = [["🗿","Каменное лицо на дейли"],["🤡","Клоун на проде"],["💀","Умер от дедлайна"],["🫠","Таю на созвоне"],["🦆","Резиновая уточка-отладчик"],["🥔","Просто картошка"],["🍞","Батон"],["🫡","Будет сделано"],["🤓","Ну, технически…"],["🐐","GOAT"],["🌚","Ночной деплой"],["🥸","Под прикрытием"],["🧌","Тролль из код-ревью"],["🙈","Не вижу багов"],["🔥","Всё горит"],["☕","Третий кофе"],["🐛","Это не баг, это фича"],["🧠","Галактический мозг"],["🤌","Мамма миа, какой код"],["🏚","Легаси"],["🍌","Банан для масштаба"],["😎","Деплой в пятницу"],["🫥","На мьюте"],["📠","Интеграция через факс"]];
 const ALL_AV = new Set([...AVATARS, ...MEMES.map(m=>m[0])]);
@@ -874,7 +881,9 @@ let me=null, prof=null, meLoaded=false, profLoaded=false;
 let view="player";
 let draft={text:"", cat:null};
 let join={code:"", nick:"", avatar:"🦆", tab:"meme"};
-let fib=null, busy=false, errMsg="", confirmNew=false, autoFired="";
+let fib=null, busy=false, errMsg="", confirmNew=false, autoFired="", autoBet="", dlShown="";
+function placeBet(id, v){ run(async ()=>{ await db.collection("bets").doc().set({gid:G.gid, idea:id, v, at:Date.now()});
+  await kf().update({bets:Object.assign({}, me.bets||{}, {[id]:v}), spent:(me.spent||0)+v}); fib=null; }, "Ставка не прошла. Попробуй ещё раз."); }
 let subGid=null, unsubs=[];
 
 const gs = () => db.doc("game/state");
@@ -892,8 +901,8 @@ function nextIdx(doneNow){
 function goLot(k){ const id=(G.order||[])[k]; const r=G.results||{};
   /* к пропущенной идее возвращаются, чтобы всё-таки собрать ставки: она снова открыта */
   if((G.skippedLots||[]).includes(id)){ const res=Object.assign({}, r), vb=Object.assign({}, G.valsBy||{}); delete res[id]; delete vb[id];
-    return {idx:k, revealed:false, revealVals:[], results:res, valsBy:vb, skippedLots:(G.skippedLots||[]).filter(x=>x!==id)}; }
-  return (id in r) ? {idx:k, revealed:true, revealVals:(G.valsBy||{})[id]||[]} : {idx:k, revealed:false, revealVals:[]}; }
+    return {idx:k, revealed:false, revealVals:[], results:res, valsBy:vb, skippedLots:(G.skippedLots||[]).filter(x=>x!==id), lotAt:Date.now()}; }
+  return (id in r) ? {idx:k, revealed:true, revealVals:(G.valsBy||{})[id]||[]} : {idx:k, revealed:false, revealVals:[], lotAt:Date.now()}; }
 const ideaById = id => ideas.find(i=>i.id===id);
 const ranked = () => ideas.map(i=>{ const base=((G&&G.results)||{})[i.id]||0; return {...i, base, coins:base*(isGold(i)?2:1)}; }).sort((a,b)=>b.coins-a.coins || (b.cat||0)-(a.cat||0) || (a.at||0)-(b.at||0));
 
@@ -1013,6 +1022,7 @@ function hostLobby(){
     ${stepper("min", s.min+" мин", "Время на одну карту")}
     ${stepper("cards", s.cards, "Карт на игрока")}
     ${stepper("coins", s.coins, "Монет на аукцион")}
+    ${stepper("bet", secLabel(s.bet||60), "Время на ставку")}
     ${stepper("cats", s.cats[0], `Котов ${catE(0)} «Есть мысль»`, 0)}
     ${stepper("cats", s.cats[1], `Котов ${catE(1)} «Верю»`, 1)}
     ${stepper("cats", s.cats[2], `Котов ${catE(2)} «Ставлю всё»`, 2)}
@@ -1066,7 +1076,7 @@ function hostBacklog(){
   return `
   <div class="row between"><div><div class="eyebrow">Шаг 3 из 5 · Раунд идей завершён</div><div class="h">Бэклог идей · ${ideas.length}</div></div></div>
   <div class="queue"><b>Очередь аукциона:</b><span>${catE(0)} сначала · ${n[0]}</span>→<span>${catE(1)} · ${n[1]}</span>→<span>${catE(2)} в конце · ${n[2]}</span><span class="small muted" style="border:0;background:none">внутри одного кота порядок случайный</span></div>
-  ${ideas.length ? `<div class="ilist">${list.map(i=>`<div class="ili"><span class="ct" title="${CATS[i.cat||0].name}">${catE(i.cat)}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p>${i.q?`<div class="meta">на вопрос: ${esc(i.q)}</div>`:""}</div></div>`).join("")}</div>` : `<div class="hint2">Идей нет. Можно вернуться в раунд идей.</div>`}
+  ${ideas.length ? `<div class="ilist">${list.map(i=>`<div class="ili"><span class="ct" title="${CATS[i.cat||0].name}">${catE(i.cat)}</span><span>${tag(i.type)}</span><div><p>${esc(i.text)}</p>${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}${i.q?`<div class="meta">на вопрос: ${esc(i.q)}</div>`:""}</div></div>`).join("")}</div>` : `<div class="hint2">Идей нет. Можно вернуться в раунд идей.</div>`}
   <div class="row"><button class="btn gold" data-act="startAuction" ${busy||!ideas.length?"disabled":""}>Старт аукциона →</button><button class="btn ghost" data-act="backIdeas" ${busy?"disabled":""}>← Вернуться в раунд идей</button></div>`;
 }
 function hostAuction(){
@@ -1091,11 +1101,11 @@ function hostAuction(){
       : skipped.includes(id) ? `пропущена<small>0 🪙</small>`
       : (id in res) ? `<b>${res[id]} 🪙${gold?` ⭐×2 = ${res[id]*2}`:""}</b><small>${vb.length?vb.join(" · "):"никто не поставил"}</small>`
       : `ждёт<small>${nb?`ставок: ${nb}`:"—"}</small>`;
-    return `<li><button class="${k===idx?"cur":""}${(id in res)&&k!==idx?" done":""}" data-act="jumpLot" data-k="${k}" ${k===idx||busy?"disabled":""}><span class="n">${k+1}</span><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,90))}${String(i.text||"").length>90?"…":""}</span><span class="s">${st}</span></button></li>`; }).join("")}</ol></details></div>`;
+    return `<li><button class="${k===idx?"cur":""}${(id in res)&&k!==idx?" done":""}" data-act="jumpLot" data-k="${k}" ${k===idx||busy?"disabled":""}><span class="n">${k+1}</span><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,90))}${String(i.text||"").length>90?"…":""}${i.q?`<small class="qt">на вопрос: ${esc(i.q)}</small>`:""}</span><span class="s">${st}</span></button></li>`; }).join("")}</ol></details></div>`;
   /* пропустить можно, пока никто не вложил монет: иначе игроки потеряли бы их впустую */
   const paid = lotBets.some(b=>(+b.v||0)>0);
   return `
-  <div class="row between"><div class="eyebrow">Шаг 4 из 5 · Аукцион · идея ${idx+1} из ${order.length}</div><span class="small muted">зачитай идею команде</span></div>
+  <div class="row between"><div class="eyebrow">Шаг 4 из 5 · Аукцион · идея ${idx+1} из ${order.length}</div>${betDeadline()?`<div style="text-align:right"><div class="small muted">${Date.now()>=betDeadline()?"время на ставки вышло":"на ставки"}</div><div class="timer" style="font-size:26px" data-down="${betDeadline()}">${mmss(betDeadline()-Date.now())}</div></div>`:`<span class="small muted">зачитай идею команде</span>`}</div>
   <div class="queue">${[0,1,2].map(c=>`<span class="${c===cur?"now":""}">${catE(c)} ${c===cur?`${pos[c]} из ${cnt[c]}`:cnt[c]}</span>`).join("")}</div>
   ${lot ? `<div class="lot${once("lot:"+G.gid+":"+idx,"slidein")}"><div class="row">${tag(lot.type)}<span style="font-size:22px" title="кот автора">${catE(lot.cat)}</span>${x2(lot)}</div><p>${esc(lot.text)}</p>${lot.q?`<div class="lotq">Вопрос на карте: ${esc(lot.q)}</div>`:""}</div>` : `<div class="hint2">Идея не найдена. Переходи к следующей.</div>`}
   <div><div class="row between"><div class="eyebrow">${G.revealed?"Ставки вскрыты":`Ставок: ${lotBets.length}${expect?` · ждём около ${expect}`:""}`}</div>${G.revealed?revSum(sum,vals.length,"h"):""}</div>
@@ -1125,7 +1135,7 @@ function hostResults(){
   ${podium(list)}
   ${awards(list)}
   ${list.length? `<div class="tablewrap"><table><thead><tr><th>#</th><th>Идея</th><th>Тип</th><th>Кот</th><th>Монеты</th></tr></thead><tbody>
-    ${list.map((i,n)=>`<tr><td class="n">${n+1}</td><td>${esc(i.text)}</td><td>${TYPES[i.type]?TYPES[i.type].name:""}</td><td style="font-size:20px">${catE(i.cat)}</td><td><span class="coins">${i.coins}</span> ${x2(i)}</td></tr>`).join("")}
+    ${list.map((i,n)=>`<tr><td class="n">${n+1}</td><td>${esc(i.text)}${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}</td><td>${TYPES[i.type]?TYPES[i.type].name:""}</td><td style="font-size:20px">${catE(i.cat)}</td><td><span class="coins">${i.coins}</span> ${x2(i)}</td></tr>`).join("")}
   </tbody></table></div>` : `<div class="hint2">В этой игре не было идей.</div>`}
   <div class="row">
     ${downloads && list.length ? `<button class="btn gold" data-act="csv">Скачать идеи (Excel, CSV)</button>` : ""}
@@ -1168,7 +1178,7 @@ function myIdeasBox(withRank){
   const r = withRank ? ranked() : [];
   return `<div class="box small"><b>Твои идеи</b> <span class="muted">видишь только ты</span><div class="mine" style="margin-top:8px">${mine.map(i=>{
     const place = withRank ? r.findIndex(x=>x.id===i.id)+1 : 0;
-    return `<div><span>${catE(i.cat)} ${esc(i.text)}</span>${withRank?`<span class="coins">${place} место · ${(r[place-1]||{}).coins||0}</span>`:""}</div>`;}).join("")}</div></div>`;
+    return `<div><span>${catE(i.cat)} ${esc(i.text)}${i.q?`<div class="qline sm">Вопрос: ${esc(i.q)}</div>`:""}</span>${withRank?`<span class="coins">${place} место · ${(r[place-1]||{}).coins||0}</span>`:""}</div>`;}).join("")}</div></div>`;
 }
 function catLeft(i){ const s=sets(); return (s.cats[i]||0) - ((me.catsUsed||[0,0,0])[i]||0); }
 function curCat(){ if(draft.cat!=null && catLeft(draft.cat)>0) return draft.cat; for(let i=0;i<3;i++) if(catLeft(i)>0) return i; return 0; }
@@ -1205,7 +1215,7 @@ function myIdeasBox(){
       : skipped.includes(id) ? `пропущена<small>0 🪙</small>`
       : (id in res) ? `<b>${res[id]} 🪙${gold?` ⭐×2 = ${res[id]*2}`:""}</b><small>${vals.length?"ставки: "+vals.join(" · "):"никто не поставил"}</small>`
       : `ждёт очереди<small>идея ${k+1} из ${order.length}</small>`;
-    return `<li class="${k===idx?"cur":""}"><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,120))}${String(i.text||"").length>120?"…":""}</span><span class="s">${st}</span></li>`; }).join("");
+    return `<li class="${k===idx?"cur":""}"><span>${catE(i.cat||0)}</span><span class="t">${esc(String(i.text||"").slice(0,120))}${String(i.text||"").length>120?"…":""}${i.q?`<small class="qt">на вопрос: ${esc(i.q)}</small>`:""}</span><span class="s">${st}</span></li>`; }).join("");
   return `<div class="myideas"><div class="row between"><div class="eyebrow">Твои идеи · ${done} из ${sorted.length} прошли</div><b class="small">собрали ${total} 🪙</b></div><ol>${rows}</ol><div class="small muted">Это видишь только ты. Остальные не знают, что идеи твои.</div></div>`;
 }
 function playerAuction(){ return playerAuctionCore()+myIdeasBox(); }
@@ -1213,13 +1223,14 @@ function playerAuctionCore(){
   const s=sets(), id=lotId(), lot=ideaById(id), order=G.order||[], idx=G.idx||0;
   const wallet=s.coins-(me.spent||0), myBet=(me.bets||{})[id], isMine=(me.mine||[]).includes(id);
   const top=`<div class="wallet"><span class="small">Твой кошелёк</span><b>${wallet} 🪙</b></div>
-    <div class="eyebrow">Аукцион · идея ${idx+1} из ${order.length}</div>
-    ${lot?`<div class="icard"><div class="band" style="background:${TYPES[lot.type]?TYPES[lot.type].c:"var(--ink)"}"><b>${TYPES[lot.type]?TYPES[lot.type].name:""}</b><span style="font-size:20px">${x2(lot)} ${catE(lot.cat)}</span></div><div class="txt">${esc(lot.text)}</div></div>`:`<div class="hint2">Загружаем идею…</div>`}`;
+    <div class="row between"><div class="eyebrow">Аукцион · идея ${idx+1} из ${order.length}</div>${betDeadline()?`<div class="timer" style="font-size:22px" data-down="${betDeadline()}">${mmss(betDeadline()-Date.now())}</div>`:""}</div>
+    ${lot?`<div class="icard"><div class="band" style="background:${TYPES[lot.type]?TYPES[lot.type].c:"var(--ink)"}"><b>${TYPES[lot.type]?TYPES[lot.type].name:""}</b><span style="font-size:20px">${x2(lot)} ${catE(lot.cat)}</span></div><div class="txt">${esc(lot.text)}${lot.q?`<div class="qline">Вопрос: ${esc(lot.q)}</div>`:""}</div></div>`:`<div class="hint2">Загружаем идею…</div>`}`;
   const vals=G.revealVals||[], sum=vals.reduce((a,b)=>a+b,0);
   const revealed = G.revealed ? `<div class="box" style="text-align:center"><div class="eyebrow">Ставки вскрыты</div><div class="votes" style="justify-content:center;margin:8px 0;min-height:0">${revCards(vals,"p")}</div>${revSum(sum,vals.length,"p")}${isGold(lot)?`<div class="small muted">Золотая карта: в итогах будет ${sum*2} 🪙</div>`:""}</div>` : "";
   if(isMine) return top+`<div class="betok"><b>Это твоя идея ${catE(1)}</b><div class="small" style="margin-top:4px">На свою идею ставить нельзя. Никто не знает, что она твоя.</div></div>`+revealed;
   if(myBet!=null){ const n=meowCount(myBet); return top+`<div class="betok"><div class="meowtxt">${n?Array(n).fill("Мяу!").join(" "):"Пас принят"}</div><div class="small" style="margin-top:4px">Ставка <b>${myBet} 🪙</b> принята.${G.revealed?"":" Ждём, когда ведущий вскроет карты."}</div></div>`+revealed; }
   if(G.revealed) return top+`<div class="hint2">Ставки по этой идее уже вскрыты, ты не успел поставить.</div>`+revealed;
+  if(betDeadline() && Date.now()>=betDeadline()) return top+`<div class="betok"><b>Время вышло</b><div class="small" style="margin-top:4px">Засчитан пас: 0 🪙.</div></div>`;
   const max=Math.min(21, wallet); if(fib!=null && fib>max) fib=null;
   const n=fib==null?0:meowCount(fib);
   return top+`
@@ -1279,6 +1290,12 @@ function tick(){
     const s=sets(); const key=G.gid+":"+(me.pos||0)+":"+me.cardAt;
     if((me.done||0)<s.cards && now >= me.cardAt + s.min*60000 && autoFired!==key && !busy){ autoFired=key; buzzer(); submitIdea(true); }
   }
+  const dl=betDeadline();
+  if(dl && now>=dl){
+    const id=lotId(), key=G.gid+":"+id+":"+G.lotAt;
+    if(view==="player" && joined() && id && autoBet!==key && !busy && (me.bets||{})[id]==null && !(me.mine||[]).includes(id)){ autoBet=key; fib=null; buzzer(); placeBet(id, 0); }
+    if(dlShown!==key){ dlShown=key; render(); }
+  }
 }
 setInterval(tick, 1000);
 
@@ -1311,7 +1328,7 @@ const ACT = {
   endIdeas(){ run(()=>hostUpdate({phase:"backlog"})); },
   backLobby(){ run(()=>hostUpdate({phase:"lobby"})); },
   backIdeas(){ run(()=>hostUpdate({phase:"ideas"})); },
-  startAuction(){ run(()=>hostUpdate({phase:"auction", order:auctionOrder(), idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}})); },
+  startAuction(){ run(()=>hostUpdate({phase:"auction", order:auctionOrder(), idx:0, revealed:false, revealVals:[], results:{}, valsBy:{}, lotAt:Date.now()})); },
   reveal(){ run(()=>{ const id=lotId(); const vals=shuffle(bets.filter(b=>b.idea===id).map(b=>+b.v||0)); const sum=vals.reduce((a,b)=>a+b,0);
     return hostUpdate({revealed:true, revealVals:vals, results:Object.assign({}, G.results||{}, {[id]:sum}), valsBy:Object.assign({}, G.valsBy||{}, {[id]:vals}), skippedLots:(G.skippedLots||[]).filter(x=>x!==id)}); }); },
   nextLot(){ const k=nextIdx(); run(()=>hostUpdate(k<0 ? {phase:"results"} : goLot(k))); },
@@ -1349,10 +1366,9 @@ const ACT = {
     run(async ()=>{ const upd={done:(me.done||0)+1, pos:(me.pos||0)+1, cardAt:null, gold:false, skipped:(me.skipped||0)+1};
       if((me.pos||0)+1>=(me.deck||[]).length) upd.deck=(me.deck||[]).concat(deal(9)); await kf().update(upd); }); },
   bet(btn){
-    const id=lotId(); if(fib==null || !id) return; const v=fib; const n=meowCount(v);
+    const id=lotId(); if(fib==null || !id) return; const dl=betDeadline(); if(dl && Date.now()>=dl) return; const v=fib; const n=meowCount(v);
     meow(n, true); confetti(btn, Math.max(2,n*3));
-    run(async ()=>{ await db.collection("bets").doc().set({gid:G.gid, idea:id, v, at:Date.now()});
-      await kf().update({bets:Object.assign({}, me.bets||{}, {[id]:v}), spent:(me.spent||0)+v}); fib=null; }, "Ставка не прошла. Попробуй ещё раз.");
+    placeBet(id, v);
   }
 };
 
@@ -1365,7 +1381,7 @@ document.addEventListener("click", e=>{
   const f=e.target.closest("[data-fib]"); if(f && !f.disabled){ fib=+f.dataset.fib; render(); return; }
   const st=e.target.closest("[data-set]"); if(st && G && !busy){
     const [k,i]=st.dataset.set.split(":"), d=+st.dataset.d, s=sets();
-    const lim={min:[1,10,1], cards:[1,18,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,18,1]}[k];
+    const lim={min:[1,10,1], cards:[1,18,1], swaps:[0,5,1], coins:[20,500,10], cats:[0,18,1], bet:[30,300,30]}[k];
     if(k==="cats"){ const cats=s.cats.slice(); cats[+i]=Math.max(lim[0],Math.min(lim[1],cats[+i]+d)); s.cats=cats; }
     else s[k]=Math.max(lim[0],Math.min(lim[1],s[k]+d*lim[2]));
     run(()=>hostUpdate({settings:s})); return; }
